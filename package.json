@@ -1,5 +1,5 @@
 {
-  "name": "rest-api",
+  "name": "hear-api",
   "version": "0.0.0",
   "main": "server/app.js",
   "dependencies": {
