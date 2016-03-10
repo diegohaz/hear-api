@@ -2,6 +2,7 @@
 
 import app from '../..';
 import User from './user.model';
+import Session from '../session/session.model';
 
 var user;
 var genUser = function() {
@@ -37,6 +38,27 @@ describe('User Model', function() {
   it('should fail when saving without an email', function() {
     user.email = '';
     return user.save().should.be.rejected;
+  });
+
+  it('should return full view', function() {
+    return user.save().then(user => {
+      var view = user.view(true);
+      view.should.have.property('email', 'test@example.com');
+      view.should.have.property('service');
+      view.should.have.property('country');
+      view.should.have.property('language');
+      view.should.have.property('createdAt');
+    });
+  });
+
+  it('should remove user sessions after removing user', function() {
+    return user.save()
+      .then(user => Session.create({user: user}))
+      .then(session => user.remove())
+      .delay(20)
+      .then(() => {
+        return Session.find({user: user}).should.eventually.have.lengthOf(0);
+      });
   });
 
   describe('#password', function() {

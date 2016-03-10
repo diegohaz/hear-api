@@ -51,14 +51,14 @@ export function show(req, res, next) {
 
 // Get my info
 export function me(req, res, next) {
-  res.json(req.user.view());
+  res.json(req.user.view(true));
 }
 
 // Creates a new User in the DB
 export function create(req, res) {
   return User
     .create(req.body)
-    .then(user => user.view())
+    .then(user => user.view(true))
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
 }
@@ -72,6 +72,7 @@ export function update(req, res) {
     .findById(req.params.id)
     .then(handleEntityNotFound(res))
     .then(user => user ? _.merge(user, req.body).save() : null)
+    .then(user => user ? user.view(true) : null)
     .then(respondWithResult(res))
     .catch(handleError(res));
 }

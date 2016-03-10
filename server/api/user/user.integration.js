@@ -6,7 +6,7 @@ import Session from '../session/session.model';
 import request from 'supertest';
 
 describe('User API:', function() {
-  var session, adminSession;
+  var userSession, adminSession;
 
   // Clear users before testing
   before(function() {
@@ -27,8 +27,8 @@ describe('User API:', function() {
         password: 'pass'
       });
     }).then(user => {
-      session = new Session({user: user});
-      return session.save();
+      userSession = new Session({user: user});
+      return userSession.save();
     });
   });
 
@@ -59,7 +59,7 @@ describe('User API:', function() {
         .end((err, res) => {
           if (err) done(err);
           res.body.should.be.instanceOf(Array).with.lengthOf(1);
-          res.body[0].should.have.property('id').eql(session.user.id);
+          res.body[0].should.have.property('id', userSession.user.id);
           done();
         });
     });
@@ -67,7 +67,7 @@ describe('User API:', function() {
     it('should fail when authenticated as user', function(done) {
       request(app)
         .get('/users')
-        .query({access_token: session.token})
+        .query({access_token: userSession.token})
         .expect(401)
         .end(done);
     });
@@ -82,11 +82,11 @@ describe('User API:', function() {
     it('should respond with a user profile when authenticated', function(done) {
       request(app)
         .get('/users/me')
-        .query({access_token: session.token})
+        .query({access_token: userSession.token})
         .expect(200)
         .end((err, res) => {
           if (err) done(err);
-          res.body.should.have.property('id').eql(session.user.id);
+          res.body.should.have.property('id', userSession.user.id);
           done();
         });
     });
@@ -103,11 +103,11 @@ describe('User API:', function() {
 
     it('should retrieve a user', function(done) {
       request(app)
-        .get('/users/' + session.user.id)
+        .get('/users/' + userSession.user.id)
         .expect(200)
         .end((err, res) => {
           if (err) done(err);
-          res.body.should.have.property('id').eql(session.user.id);
+          res.body.should.have.property('id', userSession.user.id);
           done();
         });
     });
@@ -131,7 +131,7 @@ describe('User API:', function() {
     it('should fail when authenticated as user', function(done) {
       request(app)
         .post('/users')
-        .send({access_token: session.token, email: 'b@b.com', password: 'pass'})
+        .send({access_token: userSession.token, email: 'b@b.com', password: 'pass'})
         .expect(401)
         .end(done);
     });
@@ -150,7 +150,7 @@ describe('User API:', function() {
 
     it('should respond with the updated user when authenticated as admin', function(done) {
       request(app)
-        .put('/users/' + session.user.id)
+        .put('/users/' + userSession.user.id)
         .send({
           access_token: adminSession.token,
           name: 'Fake User 2',
@@ -159,16 +159,16 @@ describe('User API:', function() {
         .expect(200)
         .end((err, res) => {
           if (err) done(err);
-          res.body.should.have.property('email').eql('test2@example.com');
+          res.body.should.have.property('name', 'Fake User 2');
           done();
         });
     });
 
     it('should fail when authenticated as user', function(done) {
       request(app)
-        .put('/users/' + session.user.id)
+        .put('/users/' + userSession.user.id)
         .send({
-          access_token: session.token,
+          access_token: userSession.token,
           name: 'Fake User 2',
           email: 'test2@example.com'
         })
@@ -178,7 +178,7 @@ describe('User API:', function() {
 
     it('should fail when not authenticated', function(done) {
       request(app)
-        .put('/users/' + session.user.id)
+        .put('/users/' + userSession.user.id)
         .send({name: 'Fake User 2', email: 'test2@example.com'})
         .expect(401)
         .end(done);
@@ -190,7 +190,7 @@ describe('User API:', function() {
 
     it('should delete when authenticated as admin', function(done) {
       request(app)
-        .delete('/users/' + session.user.id)
+        .delete('/users/' + userSession.user.id)
         .send({access_token: adminSession.token})
         .expect(204)
         .end(done);
@@ -198,7 +198,7 @@ describe('User API:', function() {
 
     it('should respond with 404 when user does not exist', function(done) {
       request(app)
-        .delete('/users/' + session.user.id)
+        .delete('/users/' + userSession.user.id)
         .send({access_token: adminSession.token})
         .expect(404)
         .end(done);
@@ -206,15 +206,15 @@ describe('User API:', function() {
 
     it('should fail when authenticated as user', function(done) {
       request(app)
-        .delete('/users/' + session.user.id)
-        .send({access_token: session.token})
+        .delete('/users/' + userSession.user.id)
+        .send({access_token: userSession.token})
         .expect(401)
         .end(done);
     });
 
     it('should fail when not authenticated', function(done) {
       request(app)
-        .delete('/users/' + session.user.id)
+        .delete('/users/' + userSession.user.id)
         .expect(401)
         .end(done);
     });

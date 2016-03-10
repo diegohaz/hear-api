@@ -31,6 +31,42 @@ var UserSchema = new Schema({
     type: String,
     enum: roles,
     default: 'user'
+  },
+  pictureUrl: {
+    type: String,
+    trim: true
+  },
+  service: {
+    type: String,
+    default: 'itunes',
+    lowercase: true
+  },
+  removedSongs: [{
+    type: Schema.ObjectId,
+    ref: 'Song'
+  }],
+  country: {
+    type: String,
+    default: 'BR',
+    uppercase: true
+  },
+  language: {
+    type: String,
+    default: 'pt',
+    lowercase: true
+  },
+  location: {
+    type: [Number],
+    index: '2d',
+    sparse: true
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
@@ -72,12 +108,17 @@ UserSchema.post('remove', function(user) {
 /**
  * View
  */
-UserSchema.methods.view = function() {
-  return {
-    id: this.id,
-    name: this.name,
-    role: this.role
-  };
+UserSchema.methods.view = function(full) {
+  var view = {};
+  var fields = ['id', 'name', 'pictureUrl', 'role'];
+
+  if (full) {
+    fields = fields.concat(['email', 'service', 'country', 'language', 'createdAt']);
+  }
+
+  fields.forEach(field => { view[field] = this[field] });
+
+  return view;
 };
 
 /**
