@@ -28,11 +28,15 @@ SessionSchema.pre('save', function(next) {
   next();
 });
 
-SessionSchema.methods.view = function() {
-  return {
+SessionSchema.methods.view = function(full) {
+  if (full) return {
     user: this.user.view(),
     access_token: this.token
-  }
+  };
+
+  else return {
+    user: this.user.view()
+  };
 };
 
 SessionSchema.methods.expired = function() {

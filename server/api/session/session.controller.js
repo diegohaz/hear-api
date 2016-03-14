@@ -1,34 +1,42 @@
 'use strict';
 
+import _ from 'lodash';
+import * as response from '../../modules/response/';
 import Session from './session.model';
 
-// Creates a new session in the DB.
+// Gets a list of Sessions
 export function index(req, res) {
-  Session
-    .find({}, null, {sort: {'user.name': 1}})
+  return Session
+    .find({}, null, req.options)
     .populate('user')
-    .then(sessions => {
-      res.status(200).json(sessions.map(s => s.view()));
-    })
-    .catch(e => {
-      res.status(500).send(e);
-    });
+    .then(sessions => sessions.map(s => s.view()))
+    .then(response.success(res))
+    .catch(response.error(res));
 }
 
-// Creates a new session in the DB.
+// Creates a new Session in the DB
 export function create(req, res) {
-  Session.create({user: req.user}).then(session => {
-    res.status(201).json(session.view());
-  }).catch(e => {
-    res.status(500).send(e);
-  });
+  return Session
+    .create({user: req.user})
+    .then(session => session.view(true))
+    .then(response.success(res, 201))
+    .catch(response.error(res));
 }
 
-// Deletes a session from the DB.
+// Deletes a Session from the DB
 export function destroy(req, res) {
-  Session.findOneAndRemove({token: req.session.token}).then(() => {
-    res.status(204).send('No Content');
-  }).catch(e => {
-    res.status(500).send(e);
-  });
+  if (req.params.token) {
+    return Session
+      .findOne({token: req.params.token})
+      .then(response.notFound(res))
+      .then(session => session? session.remove() : null)
+      .then(response.success(res, 204))
+      .catch(response.error(res))
+  } else {
+    return Session
+      .find({user: req.user})
+      .then(sessions => sessions.map(s => s.remove()))
+      .then(response.success(res, 204))
+      .catch(response.error(res));
+  }
 }

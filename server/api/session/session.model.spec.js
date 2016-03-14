@@ -2,44 +2,37 @@
 
 import moment from 'moment';
 import tk from 'timekeeper';
-
+import * as factory from '../../config/factory';
 import Session from './session.model';
-import User from '../user/user.model';
 
 describe('Session Model', function() {
-  var session;
 
   before(function() {
-    return User.remove().then(() => Session.remove());
-  });
-
-  beforeEach(function() {
-    return User.create({
-      email: 'test@example.com',
-      password: 'password'
-    }).then(user => {
-      session = new Session({user: user});
-    });
+    return factory.clean();
   });
 
   afterEach(function() {
     tk.reset();
-    return User.remove().then(() => Session.remove());
+    return factory.clean();
   });
 
-  it('should begin with no sessions', function() {
-    return Session.find({}).should.eventually.have.lengthOf(0);
+  it('should return a view', function() {
+    return factory.session().then(session => {
+      var view = session.view(true);
+      view.should.have.property('user');
+      view.should.have.property('access_token');
+    });
   });
 
   it('should set expiration date automatically', function() {
-    return session.save().then(session => {
+    return factory.session().then(session => {
       var nextYear = moment().add(1, 'years');
       nextYear.diff(moment(session.expiresAt)).should.be.within(0, 30);
     });
   });
 
   it('should update expiration time', function() {
-    return session.save().delay(50).then(session => {
+    return factory.session().delay(50).then(session => {
       return session.save();
     }).then(session => {
       var nextYear = moment().add(1, 'years');
@@ -48,7 +41,7 @@ describe('Session Model', function() {
   });
 
   it('should expire after 1 year', function() {
-    return session.save().then(session => {
+    return factory.session().then(session => {
       var nextYear = moment().add(1, 'years');
       tk.freeze(nextYear.toDate());
       session.expired().should.be.true;
@@ -56,7 +49,7 @@ describe('Session Model', function() {
   });
 
   it('should not expire until 1 year later', function() {
-    return session.save().then(session => {
+    return factory.session().then(session => {
       var almostNextYear = moment().add(1, 'years').subtract(1, 'seconds');
       tk.freeze(almostNextYear.toDate());
       session.expired().should.be.false;
@@ -64,16 +57,16 @@ describe('Session Model', function() {
   });
 
   it('should not login with invalid token', function() {
-    return session.save().then(session => {
-      return Session.login('wrong token').should.be.rejectedWith('Invalid session');
+    return factory.session().then(session => {
+      return Session.login('wrong token').should.be.rejected;
     });
   });
 
   it('should not login with expired token', function() {
-    return session.save().then(session => {
+    return factory.session().then(session => {
       var nextYear = moment().add(1, 'years');
       tk.freeze(nextYear.toDate());
-      return Session.login(session.token).should.be.rejectedWith('Session has expired');
+      return Session.login(session.token).should.be.rejected;
     });
   });
 

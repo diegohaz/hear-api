@@ -2,55 +2,59 @@
 
 import _ from 'lodash';
 import * as response from '../../modules/response/';
-import Artist from './artist.model';
+import Song from './song.model';
 
-// Gets a list of Artists
+// Gets a list of Songs
 export function index(req, res) {
-  return Artist
+  return Song
     .find(req.search, null, req.options)
-    .then(artists => artists.map(t => t.view()))
+    .populate('artist tags')
+    .then(songs => songs.map(s => s.view()))
     .then(response.success(res))
     .catch(response.error(res));
 }
 
-// Gets a single Artist from the DB
+// Gets a single Song from the DB
 export function show(req, res) {
-  return Artist
+  return Song
     .findById(req.params.id)
+    .populate('artist tags')
     .then(response.notFound(res))
-    .then(artist => artist ? artist.view() : null)
+    .then(song => song ? song.view() : null)
     .then(response.success(res))
     .catch(response.error(res));
 }
 
-// Creates a new Artist in the DB
+// Creates a new Song in the DB
 export function create(req, res) {
-  return Artist
+  return Song
     .create(req.body)
-    .then(artist => artist.view())
+    .then(song => Song.populate(song, 'artist tags'))
+    .then(song => song.view())
     .then(response.success(res, 201))
     .catch(response.error(res));
 }
 
-// Updates an existing Artist in the DB
+// Updates an existing Song in the DB
 export function update(req, res) {
   if (req.body._id) delete req.body._id;
 
-  return Artist
+  return Song
     .findById(req.params.id)
+    .populate('artist tags')
     .then(response.notFound(res))
-    .then(artist => artist ? _.merge(artist, req.body).save() : null)
-    .then(artist => artist ? artist.view() : null)
+    .then(song => song ? _.merge(song, req.body).save() : null)
+    .then(song => song ? song.view() : null)
     .then(response.success(res))
     .catch(response.error(res));
 }
 
-// Deletes a Artist from the DB
+// Deletes a Song from the DB
 export function destroy(req, res) {
-  return Artist
+  return Song
     .findById(req.params.id)
     .then(response.notFound(res))
-    .then(artist => artist ? artist.remove() : null)
+    .then(song => song ? song.remove() : null)
     .then(response.success(res, 204))
     .catch(response.error(res));
 }

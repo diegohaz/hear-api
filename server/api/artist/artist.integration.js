@@ -1,207 +1,184 @@
 'use strict';
 
-var app = require('../..');
-import request from 'supertest';
+import app from '../..';
+import request from 'supertest-as-promised';
+import * as factory from '../../config/factory';
 import Artist from './artist.model';
-import User from '../user/user.model';
-import Session from '../session/session.model';
 
-var artist;
-
-describe('Artist API:', function() {
-  var userSession, adminSession;
+describe('Artist API', function() {
+  var artist, user, admin;
 
   before(function() {
-    return User.remove().then(() => {
-      return User.create({
-        name: 'Fake Admin',
-        email: 'admin@example.com',
-        password: 'password',
-        role: 'admin'
+    return factory.clean()
+      .then(() => factory.sessions('user', 'admin'))
+      .spread((u, a) => {
+        user = u;
+        admin = a;
       });
-    }).then(admin => {
-      adminSession = new Session({user: admin});
-      return adminSession.save();
-    }).then(adminSession => {
-      return User.create({
-        name: 'Fake User',
-        email: 'user@example.com',
-        password: 'pass'
-      });
-    }).then(user => {
-      userSession = new Session({user: user});
-      return userSession.save();
-    });
-  });
-
-  after(function() {
-    return User.remove().then(() => Session.remove());
   });
 
   describe('GET /artists', function() {
 
-    it('should respond with array', function(done) {
-      request(app)
+    before(function() {
+      return factory.artists('Anitta', 'Michael Jackson', 'Shakira');
+    });
+
+    it('should respond with array', function() {
+      return request(app)
         .get('/artists')
         .expect(200)
-        .end((err, res) => {
-          if (err) return done(err);
-          res.body.should.be.instanceOf(Array);
-          done();
+        .then(res => res.body.should.be.instanceOf(Array));
+    });
+
+    it('should respond to pagination with array', function() {
+      return request(app)
+        .get('/artists')
+        .query({page: 2, per_page: 1})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).and.have.lengthOf(1);
+          res.body[0].should.have.property('name', 'Michael Jackson');
         });
     });
 
-    describe('GET /artists?options', function() {
-
-      before(function() {
-        var artists = ['Anitta', 'Michael Jackson', 'Shakira'].map(a => ({name: a}));
-        return Artist.remove().then(() => Artist.create(artists));
-      });
-
-      after(function() {
-        return Artist.remove();
-      });
-
-      it('should respond with pagination', function(done) {
-        request(app)
-          .get('/artists')
-          .query({page: 2, per_page: 1})
-          .expect(200)
-          .end((err, res) => {
-            if (err) return done(err);
-            res.body.should.be.instanceOf(Array).and.have.lengthOf(1);
-            res.body[0].should.have.property('name', 'Michael Jackson');
-            done();
+    it('should respond to query search with array', function() {
+      return request(app)
+        .get('/artists')
+        .query({q: 'shak'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).and.have.lengthOf(1);
+          res.body[0].should.have.property('name', 'Shakira');
         });
-      });
-
-      it('should respond with query search', function(done) {
-        request(app)
-          .get('/artists')
-          .query({q: 'shak'})
-          .expect(200)
-          .end((err, res) => {
-            if (err) done(err);
-            res.body.should.be.instanceOf(Array).and.have.lengthOf(1);
-            res.body[0].should.have.property('name', 'Shakira');
-            done();
-          });
-      });
     });
-
   });
 
   describe('POST /artists', function() {
 
-    it('should respond with the created artist when authenticated as admin', function(done) {
-      request(app)
+    it('should respond with the created artist when authenticated as admin', function() {
+      return request(app)
         .post('/artists')
-        .send({access_token: adminSession.token, name: 'Shakira'})
+        .query({access_token: admin.token})
+        .send({name: 'Shakira'})
         .expect(201)
-        .end((err, res) => {
-          if (err) done(err);
+        .then(res => {
           artist = res.body;
-          artist.should.have.property('id');
-          done();
+          artist.should.have.property('name', 'Shakira');
         });
     });
 
-    it('should fail when authenticated as artist', function(done) {
-      request(app)
+    it('should fail 400 when missing parameter', function() {
+      return request(app)
         .post('/artists')
-        .send({access_token: userSession.token, name: 'Shakira'})
-        .expect(401)
-        .end(done);
+        .query({access_token: admin.token})
+        .expect(400);
     });
 
-    it('should fail when not authenticated', function(done) {
-      request(app)
+    it('should fail 401 when authenticated as user', function() {
+      return request(app)
+        .post('/artists')
+        .query({access_token: user.token})
+        .send({name: 'Shakira'})
+        .expect(401);
+    });
+
+    it('should fail 401 when not authenticated', function() {
+      return request(app)
         .post('/artists')
         .send({name: 'Shakira'})
-        .expect(401)
-        .end(done);
+        .expect(401);
     });
 
   });
 
   describe('GET /artists/:id', function() {
 
-    it('should retrieve an artist', function(done) {
-      request(app)
+    it('should respond with an artist', function() {
+      return request(app)
         .get('/artists/' + artist.id)
         .expect(200)
-        .end((err, res) => {
-          if (err) done(err);
-          res.body.should.have.property('id', artist.id);
-          done();
-        });
+        .then(res => res.body.should.have.property('name', artist.name));
+    });
+
+    it('should fail 404 when artist does not exist', function() {
+      return request(app)
+        .get('/artists/123456789098765432123456')
+        .expect(404);
     });
 
   });
 
   describe('PUT /artists/:id', function() {
 
-    it('should respond with the updated artist when authenticated as admin', function(done) {
-      request(app)
+    it('should respond with the updated artist when authenticated as admin', function() {
+      return request(app)
         .put('/artists/' + artist.id)
-        .send({access_token: adminSession.token, name: 'Anitta'})
+        .query({access_token: admin.token})
+        .send({name: 'Anitta'})
         .expect(200)
-        .end((err, res) => {
-          if (err) done(err);
-          res.body.should.have.property('name', 'Anitta');
-          done();
-        });
+        .then(res => res.body.should.have.property('name', 'Anitta'));
     });
 
-    it('should fail when authenticated as artist', function(done) {
-      request(app)
+    it('should fail 400 when missing parameter', function() {
+      return request(app)
         .put('/artists/' + artist.id)
-        .send({access_token: userSession.token, name: 'Anitta'})
-        .expect(401)
-        .end(done);
+        .query({access_token: admin.token})
+        .send({name: ''})
+        .expect(400);
     });
 
-    it('should fail when not authenticated', function(done) {
-      request(app)
+    it('should fail 404 when artist does not exist', function() {
+      return request(app)
+        .put('/artists/123456789098765432123456')
+        .query({access_token: admin.token})
+        .send({name: 'Anitta'})
+        .expect(404);
+    });
+
+    it('should fail 401 when authenticated as user', function() {
+      return request(app)
+        .put('/artists/' + artist.id)
+        .query({access_token: user.token})
+        .send({name: 'Anitta'})
+        .expect(401);
+    });
+
+    it('should fail 401 when not authenticated', function() {
+      return request(app)
         .put('/artists/' + artist.id)
         .send({name: 'Anitta'})
-        .expect(401)
-        .end(done);
+        .expect(401);
     });
 
   });
 
   describe('DELETE /artists/:id', function() {
 
-    it('should delete when authenticated as admin', function(done) {
-      request(app)
+    it('should delete when authenticated as admin', function() {
+      return request(app)
         .delete('/artists/' + artist.id)
-        .send({access_token: adminSession.token})
-        .expect(204)
-        .end(done);
+        .query({access_token: admin.token})
+        .expect(204);
     });
 
-    it('should respond with 404 when user does not exist', function(done) {
-      request(app)
+    it('should fail 404 when artist does not exist', function() {
+      return request(app)
         .delete('/artists/' + artist.id)
-        .send({access_token: adminSession.token})
-        .expect(404)
-        .end(done);
+        .query({access_token: admin.token})
+        .expect(404);
     });
 
-    it('should fail when authenticated as user', function(done) {
-      request(app)
+    it('should fail when authenticated as user', function() {
+      return request(app)
         .delete('/artists/' + artist.id)
-        .send({access_token: userSession.token})
-        .expect(401)
-        .end(done);
+        .query({access_token: user.token})
+        .expect(401);
     });
 
-    it('should fail when not authenticated', function(done) {
-      request(app)
+    it('should fail when not authenticated', function() {
+      return request(app)
         .delete('/artists/' + artist.id)
-        .expect(401)
-        .end(done);
+        .expect(401);
     });
 
   });

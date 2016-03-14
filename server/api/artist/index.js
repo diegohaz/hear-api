@@ -1,9 +1,9 @@
 'use strict';
 
 import {Router} from 'express';
-import query from '../../middleware/query/';
+import query from '../../modules/query/';
 import * as controller from './artist.controller';
-import * as auth from '../../middleware/auth';
+import * as auth from '../../modules/auth';
 
 var router = new Router();
 

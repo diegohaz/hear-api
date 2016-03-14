@@ -43,10 +43,13 @@
     "jit-grunt": "^0.9.1",
     "jshint-stylish": "~2.1.0",
     "mocha": "^2.2.5",
+    "nock-vcr-recorder-mocha": "^0.3.2",
     "proxyquire": "^1.0.1",
+    "request-promise": "^2.0.1",
     "sinon": "^1.16.1",
     "sinon-chai": "^2.8.0",
     "supertest": "^1.1.0",
+    "supertest-as-promised": "^3.0.0",
     "time-grunt": "^1.2.1",
     "timekeeper": "0.0.5"
   },

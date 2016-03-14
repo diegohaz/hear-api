@@ -70,9 +70,6 @@ var UserSchema = new Schema({
   }
 });
 
-/**
- * Allow anonymous registration
- */
 UserSchema.path('email').set(function(email) {
   if (email === 'anonymous') {
     return randtoken.generate(16) + '@anonymous.com';
@@ -81,9 +78,6 @@ UserSchema.path('email').set(function(email) {
   }
 });
 
-/**
- * Pre-save hook
- */
 UserSchema.pre('save', function(next) {
   if (!this.isModified('password')) return next();
 
@@ -96,21 +90,18 @@ UserSchema.pre('save', function(next) {
   });
 });
 
-/**
- * Post-remove hook
- */
 UserSchema.post('remove', function(user) {
-  Session.find({user: user}).exec().map(session => {
-    session.remove();
-  });
+  if (process.env.NODE_ENV === 'test') return;
+  user.postRemove();
 });
 
-/**
- * View
- */
+UserSchema.methods.postRemove = function() {
+  return Session.find({user: this}).exec().map(session => session.remove());
+};
+
 UserSchema.methods.view = function(full) {
   var view = {};
-  var fields = ['id', 'name', 'pictureUrl', 'role'];
+  var fields = ['id', 'name', 'pictureUrl'];
 
   if (full) {
     fields = fields.concat(['email', 'service', 'country', 'language', 'createdAt']);
@@ -121,18 +112,17 @@ UserSchema.methods.view = function(full) {
   return view;
 };
 
-/**
- * Authenticate
- */
 UserSchema.methods.authenticate = function(password) {
   return compare(password, this.password).then(valid => {
     return valid ? this : false;
   });
 };
 
-/**
- * roles
- */
+
+UserSchema.statics.default = function(path) {
+  return this.schema.path(path).default();
+};
+
 UserSchema.statics.roles = roles;
 
 export default mongoose.model('User', UserSchema);

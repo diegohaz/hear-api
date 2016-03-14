@@ -2,55 +2,55 @@
 
 import _ from 'lodash';
 import * as response from '../../modules/response/';
-import Artist from './artist.model';
+import Tag from './tag.model';
 
-// Gets a list of Artists
+// Gets a list of Tags
 export function index(req, res) {
-  return Artist
+  return Tag
     .find(req.search, null, req.options)
-    .then(artists => artists.map(t => t.view()))
+    .then(tags => tags.map(t => t.view()))
     .then(response.success(res))
     .catch(response.error(res));
 }
 
-// Gets a single Artist from the DB
+// Gets a single Tag from the DB
 export function show(req, res) {
-  return Artist
+  return Tag
     .findById(req.params.id)
     .then(response.notFound(res))
-    .then(artist => artist ? artist.view() : null)
+    .then(tag => tag ? tag.view() : null)
     .then(response.success(res))
     .catch(response.error(res));
 }
 
-// Creates a new Artist in the DB
+// Creates a new Tag in the DB
 export function create(req, res) {
-  return Artist
+  return Tag
     .create(req.body)
-    .then(artist => artist.view())
+    .then(tag => tag.view())
     .then(response.success(res, 201))
     .catch(response.error(res));
 }
 
-// Updates an existing Artist in the DB
+// Updates an existing Tag in the DB
 export function update(req, res) {
   if (req.body._id) delete req.body._id;
 
-  return Artist
+  return Tag
     .findById(req.params.id)
     .then(response.notFound(res))
-    .then(artist => artist ? _.merge(artist, req.body).save() : null)
-    .then(artist => artist ? artist.view() : null)
+    .then(tag => tag ? _.merge(tag, req.body).save() : null)
+    .then(tag => tag ? tag.view() : null)
     .then(response.success(res))
     .catch(response.error(res));
 }
 
-// Deletes a Artist from the DB
+// Deletes a Tag from the DB
 export function destroy(req, res) {
-  return Artist
+  return Tag
     .findById(req.params.id)
     .then(response.notFound(res))
-    .then(artist => artist ? artist.remove() : null)
+    .then(tag => tag ? tag.remove() : null)
     .then(response.success(res, 204))
     .catch(response.error(res));
 }

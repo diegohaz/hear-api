@@ -1,52 +1,26 @@
 'use strict';
 
-import User from './user.model';
 import _ from 'lodash';
-
-function respondWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function(entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function(entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function(err) {
-    console.log(err);
-    res.status(statusCode).send(err);
-  };
-}
+import * as response from '../../modules/response/';
+import User from './user.model';
 
 // Gets a list of Users
 export function index(req, res) {
   return User
     .find(req.search, null, req.options)
     .then(users => users.map(t => t.view()))
-    .then(respondWithResult(res))
-    .catch(handleError(res));
+    .then(response.success(res))
+    .catch(response.error(res));
 }
 
 // Get single User
 export function show(req, res, next) {
   return User
     .findById(req.params.id)
-    .then(handleEntityNotFound(res))
+    .then(response.notFound(res))
     .then(user => user ? user.view() : null)
-    .then(respondWithResult(res))
-    .catch(handleError(res));
+    .then(response.success(res))
+    .catch(response.error(res));
 }
 
 // Get my info
@@ -59,30 +33,39 @@ export function create(req, res) {
   return User
     .create(req.body)
     .then(user => user.view(true))
-    .then(respondWithResult(res, 201))
-    .catch(handleError(res));
+    .then(response.success(res, 201))
+    .catch(response.error(res));
 }
 
 // Updates an existing User in the DB
 export function update(req, res) {
   if (req.body._id) delete req.body._id;
-  if (req.body.password) delete req.body.password;
+  if (req.body.role) delete req.body.role;
+  if (req.body.createdAt) delete req.body.createdAt;
+  if (req.body.updatedAt) delete req.body.updatedAt;
 
   return User
     .findById(req.params.id)
-    .then(handleEntityNotFound(res))
+    .then(response.notFound(res))
+    .then(user => {
+      if (req.user.role !== 'admin' && req.user.id != user.id) {
+        res.status(401).end();
+      } else if (req.user.role === 'admin' && req.body.password) {
+        res.status(400).end();
+      } else return user;
+    })
     .then(user => user ? _.merge(user, req.body).save() : null)
     .then(user => user ? user.view(true) : null)
-    .then(respondWithResult(res))
-    .catch(handleError(res));
+    .then(response.success(res))
+    .catch(response.error(res));
 }
 
 // Deletes a User from the DB
 export function destroy(req, res) {
   return User
     .findById(req.params.id)
-    .then(handleEntityNotFound(res))
+    .then(response.notFound(res))
     .then(user => user ? user.remove() : null)
-    .then(respondWithResult(res, 204))
-    .catch(handleError(res));
+    .then(response.success(res, 204))
+    .catch(response.error(res));
 }

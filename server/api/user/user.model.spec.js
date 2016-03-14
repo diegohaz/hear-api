@@ -1,83 +1,45 @@
 'use strict';
 
 import app from '../..';
+import * as factory from '../../config/factory';
 import User from './user.model';
 import Session from '../session/session.model';
 
-var user;
-var genUser = function() {
-  user = new User({
-    name: 'Fake User',
-    email: 'test@example.com',
-    password: 'password'
-  });
-  return user;
-};
 
 describe('User Model', function() {
   before(function() {
-    return User.remove();
-  });
-
-  beforeEach(function() {
-    genUser();
+    return factory.clean();
   });
 
   afterEach(function() {
-    return User.remove();
-  });
-
-  it('should begin with no users', function() {
-    return User.find({}).should.eventually.have.lengthOf(0);
-  });
-
-  it('should fail when saving a duplicate user', function() {
-    return user.save().then(() => genUser().save()).should.be.rejected;
-  });
-
-  it('should fail when saving without an email', function() {
-    user.email = '';
-    return user.save().should.be.rejected;
+    return factory.clean();
   });
 
   it('should return full view', function() {
-    return user.save().then(user => {
-      var view = user.view(true);
-      view.should.have.property('email', 'test@example.com');
-      view.should.have.property('service');
-      view.should.have.property('country');
-      view.should.have.property('language');
-      view.should.have.property('createdAt');
+    return factory.user().then(user => {
+      user.view(true).should.include.keys(
+        'email', 'service', 'country', 'language', 'createdAt'
+      );
     });
   });
 
   it('should remove user sessions after removing user', function() {
-    return user.save()
-      .then(user => Session.create({user: user}))
-      .then(session => user.remove())
-      .delay(20)
-      .then(() => {
-        return Session.find({user: user}).should.eventually.have.lengthOf(0);
-      });
+    var user;
+    return factory.session()
+      .then(session => user = session.user)
+      .then(() => Session.find({user: user}).should.eventually.have.lengthOf(1))
+      .then(() => user.postRemove())
+      .then(() => Session.find({user: user}).should.eventually.have.lengthOf(0));
   });
 
-  describe('#password', function() {
-    beforeEach(function() {
-      return user.save();
-    });
+  it('should authenticate user when valid password', function() {
+    return factory.user()
+      .then(user => user.authenticate('password').should.eventually.not.be.false);
+  });
 
-    it('should authenticate user if valid', function() {
-      return user.authenticate('password').should.eventually.not.be.false;
-    });
-
-    it('should not authenticate user if invalid', function() {
-      return user.authenticate('blah').should.eventually.be.false;
-    });
-
-    it('should remain the same hash unless the password is updated', function() {
-      user.name = 'Test User';
-      return user.save().then(u => u.authenticate('password')).should.eventually.not.be.false;
-    });
+  it('should not authenticate user when invalid password', function() {
+    return factory.user()
+      .then(user => user.authenticate('blah').should.eventually.be.false);
   });
 
 });

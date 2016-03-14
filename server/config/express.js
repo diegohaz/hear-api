@@ -22,12 +22,11 @@ export default function(app) {
   app.use(bodyParser.json());
   app.use(methodOverride());
 
-  if ('production' === env) {
+  if ('production' === env || 'development' === env) {
     app.use(morgan('dev'));
   }
 
   if ('development' === env || 'test' === env) {
-    app.use(morgan('dev'));
     app.use(errorHandler()); // Error handler - has to be last
   }
 }
