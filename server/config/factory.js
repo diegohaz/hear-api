@@ -57,7 +57,7 @@ export function tags(...titles) {
   }).return(tags).all();
 }
 
-export function song(title = 'Imagine', artistName, tagTitle) {
+export function song(title = 'Imagine', artistName = undefined, tagTitle = undefined) {
   return Promise.join(artist(artistName), tag(tagTitle), (artist, tag) => {
     return Song.create({title: title, artist: artist, tags: [tag]})
   });

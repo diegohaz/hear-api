@@ -48,7 +48,7 @@ export function update(req, res) {
     .findById(req.params.id)
     .then(response.notFound(res))
     .then(user => {
-      if (req.user.role !== 'admin' && req.user.id != user.id) {
+      if (req.user.role !== 'admin' && req.user.id !== user.id) {
         res.status(401).end();
       } else if (req.user.role === 'admin' && req.body.password) {
         res.status(400).end();

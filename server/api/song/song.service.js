@@ -1,6 +1,6 @@
 'use strict';
 
-var request = require('request-promise');
+import request from 'request-promise';
 
 export default function(service) {
 
@@ -39,21 +39,6 @@ export default function(service) {
     var options = {q: q, limit : 1};
 
     return search(options).then(result => result[0]);
-  }
-
-  function tag(song) {
-    return request({
-      uri: 'http://ws.audioscrobbler.com/2.0/',
-      qs: {
-        method: 'track.getInfo',
-        api_key: 'c71971666af2c04970a103bc4330902c',
-        format: 'json',
-        track: _sanitize(song.title),
-        artist: song.artist.name
-      }
-    }).then(res => {
-      return JSON.parse(res).track.toptags.tag.map(t => t.name);
-    });
   }
 
   function _sanitize(string) {
@@ -127,7 +112,7 @@ export default function(service) {
     }
 
     for (var i = 0; i < response.length; i++) {
-      if (service == 'itunes' && !response[i].isStreamable) continue;
+      if (service === 'itunes' && !response[i].isStreamable) continue;
       result.push(_parseLookupResponse(response[i]));
     }
 
@@ -205,8 +190,7 @@ export default function(service) {
     allServices: allServices,
     search: search,
     lookup: lookup,
-    match: match,
-    tag: tag
+    match: match
   }
 
 }

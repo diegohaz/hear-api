@@ -6,6 +6,7 @@ import Promise from 'bluebird';
 import service from './song.service';
 import User from '../user/user.model';
 import Tag from '../tag/tag.model';
+import TagService from '../tag/tag.service';
 
 var SongSchema = new mongoose.Schema({
   title: {
@@ -74,14 +75,16 @@ SongSchema.methods.view = function({
 };
 
 SongSchema.methods.fetchAndUpdate = function() {
-  return song.populate('artist').execPopulate()
+  let Song = mongoose.model('Song');
+
+  return this.populate('artist').execPopulate()
     .then(song => service().allServices)
-    .each(service => song.fetchInfo(service))
-    .then(tags => song.fetchTags())
+    .each(service => this.fetchInfo(service))
+    .then(tags => this.fetchTags())
     .then(song => {
       return Song.findByIdAndUpdate(
-        song._id,
-        {$set: {info: song.info, tags: song.tags}},
+        this._id,
+        {$set: {info: this.info, tags: this.tags}},
         {new: true}
       ).exec();
     });
@@ -97,7 +100,7 @@ SongSchema.methods.fetchInfo = function(svc) {
 SongSchema.methods.fetchTags = function() {
   if (this.tags.length) return Promise.resolve(this);
 
-  return service().tag(this).each(tag => {
+  return TagService.reveal(this).each(tag => {
     return Tag.create({title: tag}).then(tag => {
       this.tags.push(tag);
     });

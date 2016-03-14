@@ -1,6 +1,7 @@
 'use strict';
 
 import mongoose from 'mongoose';
+import config from '../../config/environment';
 import Song from '../song/song.model';
 
 var TagSchema = new mongoose.Schema({
@@ -14,7 +15,7 @@ var TagSchema = new mongoose.Schema({
 });
 
 TagSchema.post('remove', function(tag) {
-  if (process.env.NODE_ENV === 'test') return;
+  if (config.env === 'test') return;
   tag.postRemove();
 });
 

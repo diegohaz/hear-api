@@ -28,6 +28,7 @@ export default function({
       var fields = sort.split(',');
       sort = {};
       fields.forEach(field => {
+        field = field.toLowerCase().trim();
              if (field.charAt(0) === '-') sort[field.slice(1)] = -1;
         else if (field.charAt(0) === '+') sort[field.slice(1)] = 1;
         else sort[field] = 1;

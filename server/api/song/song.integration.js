@@ -61,6 +61,31 @@ describe('Song API', function() {
         });
     });
 
+    it('should respond to sort with array', function() {
+      return request(app)
+        .get('/songs')
+        .query({sort: '-title'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array);
+          res.body[0].should.have.property('title', 'Woman');
+        });
+    });
+
+    it('should fail 400 to page out of range', function() {
+      return request(app)
+        .get('/songs')
+        .query({page: 31})
+        .expect(400);
+    });
+
+    it('should fail 400 to per_page out of range', function() {
+      return request(app)
+        .get('/songs')
+        .query({per_page: 101})
+        .expect(400);
+    });
+
   });
 
   describe('POST /songs', function() {

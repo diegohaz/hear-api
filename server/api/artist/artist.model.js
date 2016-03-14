@@ -2,6 +2,7 @@
 
 import mongoose from 'mongoose';
 import Promise from 'bluebird';
+import config from '../../config/environment';
 import Song from '../song/song.model';
 
 var ArtistSchema = new mongoose.Schema({
@@ -14,7 +15,7 @@ var ArtistSchema = new mongoose.Schema({
 });
 
 ArtistSchema.post('remove', function(artist) {
-  if (process.env.NODE_ENV === 'test') return;
+  if (config.env === 'test') return;
   artist.postRemove();
 });
 

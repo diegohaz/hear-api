@@ -63,6 +63,14 @@ describe('Session API', function() {
         });
     });
 
+    it('should respond with the logged session with registered user', function() {
+      return request(app)
+        .post('/sessions')
+        .auth('test@example.com', 'password')
+        .expect(201)
+        .then(res => res.body.should.have.property('access_token'));
+    });
+
     it('should respond with the created anonymous session', function() {
       return request(app)
         .post('/sessions')

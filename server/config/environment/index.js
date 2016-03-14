@@ -31,7 +31,9 @@ var all = {
         safe: true
       }
     }
-  }
+  },
+
+  lastfmKey: requiredProcessEnv('LASTFM_KEY')
 };
 
 // Export the config object based on the NODE_ENV
