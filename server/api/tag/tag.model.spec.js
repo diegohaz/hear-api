@@ -37,6 +37,8 @@ describe('Tag Model', function() {
     ).then(songs => {
       tag = songs[0].tags[0];
       songs.should.all.have.deep.property('tags[0].id', tag.id);
+      return Song.find({tags: tag}).exec().should.eventually.have.lengthOf(3);
+    }).then(() => {
       return tag.remove();
     }).then(tag => {
       return tag.postRemove();

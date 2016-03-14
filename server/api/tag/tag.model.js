@@ -27,7 +27,7 @@ TagSchema.methods.view = function() {
   return {
     id: this.id,
     title: this.title
-  };
+  }
 };
 
 TagSchema.statics.create = function(doc) {

@@ -20,6 +20,7 @@ export function error(res, statusCode) {
       var message = errors ? errors[_.keys(errors)[0]].message : err.message;
       res.status(statusCode).send(message);
     } else {
+      console.log(err);
       statusCode = statusCode || 500;
       res.status(statusCode).send(err.message);
     }

@@ -29,7 +29,7 @@ export function destroy(req, res) {
     return Session
       .findOne({token: req.params.token})
       .then(response.notFound(res))
-      .then(session => session? session.remove() : null)
+      .then(session => session ? session.remove() : null)
       .then(response.success(res, 204))
       .catch(response.error(res))
   } else {

@@ -11,7 +11,7 @@ router.get('/',
   query({searchField: 'title', sortingField: 'title', querySorting: true}),
   controller.index);
 
-// router.get('/:service', auth.bearer(), controller.serviceIndex);
+router.get('/search', auth.bearer(), query(), controller.search);
 
 router.get('/:id', controller.show);
 

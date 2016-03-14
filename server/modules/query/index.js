@@ -38,6 +38,7 @@ export default function({
       sort[sortingField] = 1;
     }
 
+    req.q = query.q;
     req.search = {};
 
     if (q) {

@@ -27,7 +27,7 @@ ArtistSchema.methods.view = function() {
   return {
     id: this.id,
     name: this.name
-  };
+  }
 };
 
 ArtistSchema.statics.create = function(doc) {

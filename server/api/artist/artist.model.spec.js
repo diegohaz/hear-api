@@ -23,7 +23,7 @@ describe('Artist Model:', function() {
     });
   });
 
-  it('should unify equal artists', function() {
+  it('should combine artists with same name', function() {
     return factory.artists('Shakira', 'Shakira').then(artists => {
       artists.should.have.lengthOf(2);
       artists[0].should.have.property('id', artists[1].id);
@@ -31,13 +31,18 @@ describe('Artist Model:', function() {
   });
 
   it('should remove artist songs after removing artist', function() {
+    var artist;
+
     return factory.songs(
-      ['Bang', 'John'],
-      ['Meiga e Abusada', 'John'],
-      ['Show das Poderosas', 'John']
+      ['Imagine', 'John Lennon'],
+      ['Woman', 'John Lennon'],
+      ['Yesterday', 'John Lennon']
     ).then(songs => {
-      songs.should.all.have.deep.property('artist.id', songs[0].artist.id);
-      return songs[0].artist.remove();
+      artist = songs[0].artist;
+      songs.should.all.have.deep.property('artist.id', artist.id);
+      return Song.find({artist: artist}).exec().should.eventually.have.lengthOf(3);
+    }).then(() => {
+      return artist.remove();
     }).then(artist => {
       return artist.postRemove();
     }).then(() => {

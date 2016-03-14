@@ -1,9 +1,11 @@
 'use strict';
 
 import app from '../..';
+import vcr from 'nock-vcr-recorder';
 import * as factory from '../../config/factory';
 import request from 'supertest-as-promised';
 import Song from './song.model';
+import SongService from './song.service';
 import Artist from '../artist/artist.model';
 
 describe('Song API', function() {
@@ -86,6 +88,47 @@ describe('Song API', function() {
         .expect(400);
     });
 
+  });
+
+  describe('GET /songs/search', function() {
+    SongService.allServices().forEach(function(service) {
+
+      it('should respond with array when authenticated to ' + service, function() {
+        return vcr.useCassette(`Song API/${this.test.parent.title}/${this.test.title}`, function() {
+          user.user.service = service;
+          return user.user.save().then(user => {
+            return request(app)
+              .get('/songs/search')
+              .query({access_token: user.token, q: 'Anitta', per_page: 5})
+              .expect(200)
+              .then(res => {
+                res.body.should.be.instanceOf(Array).and.have.lengthOf(5);
+                res.body.should.all.have.property('title');
+              })
+          });
+        });
+      });
+
+    });
+  });
+
+  SongService.allServices().forEach(function(service) {
+    describe('GET /songs/search?service=' + service, function() {
+
+      it('should respond to query search with array', function() {
+        return vcr.useCassette(`Song API/${this.test.parent.title}/${this.test.title}`, function() {
+          return request(app)
+            .get('/songs/search')
+            .query({q: 'Imagine', per_page: 5, service: service})
+            .expect(200)
+            .then(res => {
+              res.body.should.be.instanceOf(Array).and.have.lengthOf(5);
+              res.body.should.all.have.property('title');
+            });
+        });
+      });
+
+    });
   });
 
   describe('POST /songs', function() {

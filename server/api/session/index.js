@@ -14,8 +14,6 @@ router.get('/',
 
 router.post('/', auth.basic(), controller.create);
 
-// router.delete('/', auth.bearer({required: true}), controller.destroy);
-
 router.delete('/:token?', auth.bearer({required: true}), controller.destroy);
 
 export default router;

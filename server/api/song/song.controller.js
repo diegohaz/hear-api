@@ -3,6 +3,8 @@
 import _ from 'lodash';
 import * as response from '../../modules/response/';
 import Song from './song.model';
+import SongService from './song.service';
+import User from '../user/user.model';
 
 // Gets a list of Songs
 export function index(req, res) {
@@ -10,6 +12,17 @@ export function index(req, res) {
     .find(req.search, null, req.options)
     .populate('artist tags')
     .then(songs => songs.map(s => s.view()))
+    .then(response.success(res))
+    .catch(response.error(res));
+}
+
+// Search for songs in service
+export function search(req, res) {
+  let service = req.query.service || (req.user ? req.user.service : User.default('service'));
+  req.options.q = req.query.q;
+
+  return SongService
+    .search(req.options, service)
     .then(response.success(res))
     .catch(response.error(res));
 }

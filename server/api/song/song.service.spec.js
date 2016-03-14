@@ -1,43 +1,49 @@
 'use strict';
 
 import vcr from 'nock-vcr-recorder-mocha';
-import Artist from '../artist/artist.model';
-import Song from '../song/song.model';
-import service from './song.service';
-
-var ids = {
-  itunes: '1044543493',
-  spotify: '1Cml3fnCNLZUC1EEtkcgVb',
-  deezer: '108075536'
-};
+import * as factory from '../../config/factory';
+import Song from './song.model';
+import SongService from './song.service';
 
 vcr.describe('Song Service', function() {
+  var song, ids = {};
 
-  service().allServices.forEach(function(svc) {
-    describe(svc, function() {
+  before(function() {
+    return factory.clean()
+      .then(() => factory.artist('John Lennon'))
+      .then(artist => Song.create({title: 'Imagine', artist: artist}))
+      .then(so => song = so);
+  });
+
+  it('should retrieve tags for a song', function() {
+    return SongService.tags(song).should.eventually.be.instanceOf(Array);
+  });
+
+  SongService.allServices().forEach(function(service) {
+    describe(service, function() {
 
       it('should search for a song', function() {
-        var options = {q: 'Anitta', limit: 5};
-        return service(svc)
-        .search(options)
-        .should.be.eventually.instanceOf(Array);
+        return SongService.search({q: 'John Lennon', limit: 5}, service).then(songs => {
+          songs.should.have.lengthOf(5);
+          songs.should.all.have.property('title');
+          songs.should.all.have.property('artist');
+        });
       });
 
       it('should match a song', function() {
-        var artist = new Artist({name: 'Anitta'});
-        var song = new Song({artist: artist, title: 'Bang'});
-
-        return service(svc)
-        .match(song)
-        .should.be.eventually.instanceOf(Object)
-        .and.have.property('artist', 'Anitta');
+        return SongService.match(song, service).then(match => {
+          match.should.have.property('serviceId');
+          match.should.have.property('title').contain('Imagine');
+          match.should.have.property('artist').contain('John Lennon');
+          ids[service] = match.serviceId;
+        });
       });
 
       it('should lookup for a song', function() {
-        return service(svc)
-        .lookup(ids[svc])
-        .should.be.eventually.instanceOf(Object)
-        .and.have.property('title', 'Bang');
+        return SongService.lookup(ids[service], service).then(song => {
+          song.should.have.property('title').contain('Imagine');
+          song.should.have.property('artist').contain('John Lennon');
+        });
       });
 
     });

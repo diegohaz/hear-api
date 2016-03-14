@@ -1,28 +1,35 @@
 'use strict';
 
 import request from 'request-promise';
+import config from '../../config/environment';
 
-export default function(service) {
+export default class SongService {
+  constructor(service) { this.service = service }
+  search(options) { return SongService.search(options, this.service) }
+  lookup(id)      { return SongService.lookup(id, this.service) }
+  match(song)     { return SongService.match(song, this.service) }
 
-  var allServices = ['itunes', 'spotify', 'deezer'];
-
-  function search(options) {
-    return request(_formatSearchRequest(options))
-      .then(res => _parseSearchResponse(res));
+  static allServices() {
+    return ['itunes', 'spotify', 'deezer'];
   }
 
-  function lookup(id) {
-    return request(_formatLookupRequest(id))
-      .then(res => _parseLookupResponse(res));
+  static search(options, service) {
+    return request(this._formatSearchRequest(options, service))
+      .then(res => this._parseSearchResponse(res, service));
   }
 
-  function match(song) {
+  static lookup(id, service) {
+    return request(this._formatLookupRequest(id, service))
+      .then(res => this._parseLookupResponse(res, service));
+  }
+
+  static match(song, service) {
     if (service === 'deezer' && song.isrc) {
-      return lookup('isrc:' + song.isrc);
+      return this.lookup('isrc:' + song.isrc, service);
     }
 
     var q = '';
-    var title = _sanitize(song.title);
+    var title = this._sanitize(song.title);
 
     switch (service) {
       case 'itunes':
@@ -36,16 +43,31 @@ export default function(service) {
         break;
     }
 
-    var options = {q: q, limit : 1};
+    var options = {q: q, limit: 1};
 
-    return search(options).then(result => result[0]);
+    return this.search(options, service).then(result => result[0]);
   }
 
-  function _sanitize(string) {
+  static tags(song) {
+    return request({
+      uri: 'http://ws.audioscrobbler.com/2.0/',
+      qs: {
+        method: 'track.getInfo',
+        api_key: config.lastfmKey,
+        format: 'json',
+        track: this._sanitize(song.title),
+        artist: song.artist.name
+      }
+    }).then(res => {
+      return JSON.parse(res).track.toptags.tag.map(t => t.name);
+    });
+  }
+
+  static _sanitize(string) {
     return string.replace(/ ?\-.+$|\.|,| ?\(.+\)/g, '');
   }
 
-  function _formatSearchRequest(options) {
+  static _formatSearchRequest(options, service) {
     var request = {};
 
     switch (service) {
@@ -79,7 +101,7 @@ export default function(service) {
     return request;
   }
 
-  function _formatLookupRequest(id) {
+  static _formatLookupRequest(id, service) {
     var request = {};
 
     switch (service) {
@@ -98,7 +120,7 @@ export default function(service) {
     return request;
   }
 
-  function _parseSearchResponse(response) {
+  static _parseSearchResponse(response, service) {
     var result = [];
 
     if (typeof response === 'string') {
@@ -113,13 +135,13 @@ export default function(service) {
 
     for (var i = 0; i < response.length; i++) {
       if (service === 'itunes' && !response[i].isStreamable) continue;
-      result.push(_parseLookupResponse(response[i]));
+      result.push(this._parseLookupResponse(response[i], service));
     }
 
     return result;
   }
 
-  function _parseLookupResponse(response) {
+  static _parseLookupResponse(response, service) {
     var result = {};
 
     if (typeof response === 'string') {
@@ -128,7 +150,7 @@ export default function(service) {
 
     switch (service) {
       case 'itunes':
-        response = response.results? response.results[0] : response;
+        response = response.results ? response.results[0] : response;
         if (response) {
           result.title      = response.trackName;
           result.artist     = response.artistName;
@@ -185,12 +207,4 @@ export default function(service) {
 
     return result;
   }
-
-  return {
-    allServices: allServices,
-    search: search,
-    lookup: lookup,
-    match: match
-  }
-
 }
