@@ -8,14 +8,14 @@ import Place from './place.model.js';
 
 export default class PlaceService {
 
-  static lookup(latitude, longitude) {
+  static sublocality(latitude, longitude, parent) {
     let types = ['country', 'administrative_area_level_1', 'locality', 'sublocality'];
 
     return request({
       uri: 'https://maps.googleapis.com/maps/api/geocode/json',
       qs: {
         latlng: `${latitude},${longitude}`,
-        key: config.gmapsKey
+        key: config.googlemapsKey
       }
     }).then(res => {
       let data = JSON.parse(res);
@@ -23,7 +23,7 @@ export default class PlaceService {
       if (data.status === 'OK') {
         let results = data.results.reverse();
         let places = [];
-        let place, parent;
+        let place;
 
         types.forEach(type => {
           let result = _.find(results, result => ~result.types.indexOf(type));
@@ -60,6 +60,45 @@ export default class PlaceService {
       }
     }).then(places => {
       return places[places.length - 1];
+    });
+  }
+
+  static venue(latitude, longitude, parent) {
+    return request({
+      uri: 'https://api.foursquare.com/v2/venues/trending',
+      qs: {
+        client_id: config.foursquareId,
+        client_secret: config.foursquareSecret,
+        v: 20160315,
+        m: 'swarm',
+        ll: `${latitude},${longitude}`,
+        limit: 1,
+        radius: 2000
+      }
+    }).then(res => {
+      let data = JSON.parse(res);
+
+      if (data.meta.code === 200) {
+        let venue = data.response.venues.length ? data.response.venues[0] : null;
+
+        if (!venue) return parent;
+
+        let place = new Place({
+          _id: venue.id,
+          name: venue.name,
+          location: [venue.location.lng, venue.location.lat],
+          radius: 250,
+          type: 'venue'
+        });
+
+        if (parent) {
+          place.parent = parent;
+        }
+
+        return Place.create(place);
+      } else {
+        throw new Error(data.meta.code);
+      }
     });
   }
 

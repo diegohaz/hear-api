@@ -1,7 +1,6 @@
 'use strict';
 
 import app from '../..';
-// import vcr from 'nock-vcr-recorder-mocha';
 import * as factory from '../../config/factory';
 import Place from './place.model';
 

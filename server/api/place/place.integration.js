@@ -110,12 +110,11 @@ describe('Place API', function() {
       return vcr.useCassette(`Place API/${this.test.title}`, function() {
         return request(app)
           .post('/places')
-          .query({access_token: user.token})
-          .send({latitude: 37.757815, longitude: -122.5076406})
+          .send({access_token: user.token, latitude: -22.9790625, longitude: -43.2345556})
           .expect(201)
           .then(res => {
             place = res.body;
-            res.body.should.have.property('name', 'San Francisco')
+            res.body.should.have.property('name').which.contains('PUC-Rio');
           });
         });
     });

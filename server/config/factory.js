@@ -76,7 +76,7 @@ export function songs(...titles) {
 
 export function place(point = [37.757815,-122.5076406]) {
   return vcr.useCassette(`Place Service/Factory/${point[0]}.${point[1]}`, function() {
-    return PlaceService.lookup(point[0], point[1]);
+    return PlaceService.sublocality(point[0], point[1]);
   });
 }
 

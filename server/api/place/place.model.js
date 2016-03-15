@@ -73,7 +73,7 @@ PlaceSchema.statics.create = function(doc) {
 
 PlaceSchema.plugin(deepPopulate, {
   rewrite: {
-    parent: 'parent.parent.parent'
+    parent: 'parent.parent.parent.parent'
   }
 });
 

@@ -34,7 +34,9 @@ var all = {
   },
 
   lastfmKey: requiredProcessEnv('LASTFM_KEY'),
-  gmapsKey: requiredProcessEnv('GMAPS_KEY')
+  googlemapsKey: requiredProcessEnv('GOOGLEMAPS_KEY'),
+  foursquareId: requiredProcessEnv('FOURSQUARE_ID'),
+  foursquareSecret: requiredProcessEnv('FOURSQUARE_SECRET')
 };
 
 // Export the config object based on the NODE_ENV

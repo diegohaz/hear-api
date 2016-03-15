@@ -40,8 +40,11 @@ export function create(req, res) {
     return res.status(400).send('Missing latitude/longitude');
   }
 
+  let ll = [req.body.latitude, req.body.longitude];
+
   return PlaceService
-    .lookup(req.body.latitude, req.body.longitude)
+    .sublocality(...ll)
+    .then(place => PlaceService.venue(...ll, place))
     .then(place => place.deepPopulate('parent'))
     .then(place => place.view(true))
     .then(response.success(res, 201))
