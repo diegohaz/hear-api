@@ -33,7 +33,8 @@ var all = {
     }
   },
 
-  lastfmKey: requiredProcessEnv('LASTFM_KEY')
+  lastfmKey: requiredProcessEnv('LASTFM_KEY'),
+  gmapsKey: requiredProcessEnv('GMAPS_KEY')
 };
 
 // Export the config object based on the NODE_ENV

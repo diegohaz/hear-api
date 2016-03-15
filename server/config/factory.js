@@ -3,12 +3,14 @@
 import Promise from 'bluebird';
 import mongoose from 'mongoose';
 import _ from 'lodash';
+import vcr from 'nock-vcr-recorder';
 
 import User from '../api/user/user.model';
 import Session from '../api/session/session.model';
 import Artist from '../api/artist/artist.model';
 import Tag from '../api/tag/tag.model';
 import Song from '../api/song/song.model';
+import PlaceService from '../api/place/place.service';
 
 export function clean() {
   let collections = mongoose.connection.collections;
@@ -70,4 +72,19 @@ export function songs(...titles) {
     songs[i] = _.isArray(title) ? song(...title) : song(title);
     return songs[i];
   }).return(songs).all();
+}
+
+export function place(point = [37.757815,-122.5076406]) {
+  return vcr.useCassette(`Place Service/Factory/${point[0]}.${point[1]}`, function() {
+    return PlaceService.lookup(point[0], point[1]);
+  });
+}
+
+export function places(...points) {
+  let places = [];
+
+  return Promise.each(points, (point, i) => {
+    places[i] = place(point);
+    return places[i];
+  }).return(places).all();
 }

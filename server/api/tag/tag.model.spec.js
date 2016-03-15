@@ -20,7 +20,7 @@ describe('Tag Model', function() {
     });
   });
 
-  it('should unify tags with same name', function() {
+  it('should combine tags with same name', function() {
     return factory.tags('mundO ', ' Mundo  ').then(tags => {
       tags.should.have.lengthOf(2);
       tags[0].should.have.property('id', tags[1].id);

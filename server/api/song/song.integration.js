@@ -94,7 +94,7 @@ describe('Song API', function() {
     SongService.allServices().forEach(function(service) {
 
       it('should respond with array when authenticated to ' + service, function() {
-        return vcr.useCassette(`Song API/${this.test.parent.title}/${this.test.title}`, function() {
+        return vcr.useCassette(`Song API/${this.test.title}`, function() {
           user.user.service = service;
           return user.user.save().then(user => {
             return request(app)
