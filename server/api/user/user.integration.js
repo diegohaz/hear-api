@@ -29,12 +29,23 @@ describe('User API', function() {
         .then(res => res.body.should.be.instanceOf(Array));
     });
 
-    it('should respond for pagination with array when authenticated as admin', function() {
+    it('should respond to pagination with array when authenticated as admin', function() {
       return request(app)
         .get('/users')
-        .query({access_token: adminSession.token, page: 2, per_page: 1})
+        .query({access_token: adminSession.token, page: 2, limit: 1})
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array).with.lengthOf(1));
+    });
+
+    it('should respond to query search with array when authenticated as admin', function() {
+      return request(app)
+        .get('/users')
+        .query({access_token: adminSession.token, q: user.email})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(1);
+          res.body[0].should.have.property('id', user.id);
+        });
     });
 
     it('should fail 401 when authenticated as user', function() {

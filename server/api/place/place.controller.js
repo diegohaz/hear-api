@@ -10,7 +10,6 @@ import User from '../user/user.model';
 export function index(req, res) {
   let query = req.query;
 
-  if (query.type) req.search.type = query.type;
   if (query.latitude && query.longitude) {
     req.search.location = {$near: [query.longitude, query.latitude]};
     delete req.options.sort;

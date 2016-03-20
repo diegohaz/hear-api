@@ -26,7 +26,7 @@ export default class PlaceService {
         let place;
 
         types.forEach(type => {
-          let result = _.find(results, result => ~result.types.indexOf(type));
+          let result = _.find(results, result => result.types.indexOf(type) !== -1);
           if (!result) return;
 
           let location = result.geometry.location;
@@ -35,7 +35,7 @@ export default class PlaceService {
           let radius = geolib.getDistance(
             {latitude: ne.lat, longitude: ne.lng},
             {latitude: sw.lat, longitude: sw.lng}
-          )/2;
+          ) / 2;
 
           place = new Place({
             _id: result.place_id,
@@ -72,14 +72,17 @@ export default class PlaceService {
         v: 20160315,
         m: 'swarm',
         ll: `${latitude},${longitude}`,
-        limit: 1,
-        radius: 2000
+        radius: 500
       }
     }).then(res => {
       let data = JSON.parse(res);
+      let exclude = ['City', 'County', 'Country', 'Neighborhood', 'State', 'Town', 'Village'];
 
       if (data.meta.code === 200) {
-        let venue = data.response.venues.length ? data.response.venues[0] : null;
+        let venues = _.filter(data.response.venues, venue => {
+          return !_.find(venue.categories, cat => exclude.indexOf(cat.name) !== -1);
+        });
+        let venue = venues.length ? venues[0] : null;
 
         if (!venue) return parent;
 

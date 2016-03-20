@@ -30,9 +30,31 @@ describe('Session API', function() {
     it('should respond to pagination with array when authenticated as admin', function() {
       return request(app)
         .get('/sessions')
-        .query({access_token: adminSession.token, page: 2, per_page: 1})
+        .query({access_token: adminSession.token, page: 2, limit: 1})
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array).and.have.lengthOf(1));
+    });
+
+    it('should respond to query search with array when authenticated as admin', function() {
+      return request(app)
+        .get('/sessions')
+        .query({access_token: adminSession.token, q: userSession.user.email})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).and.have.lengthOf(1);
+          res.body[0].should.have.deep.property('user.id', userSession.user.id);
+        });
+    });
+
+    it('should respond to userid with array when authenticated as admin', function() {
+      return request(app)
+        .get('/sessions')
+        .query({access_token: adminSession.token, userid: userSession.user.id})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).and.have.lengthOf(1);
+          res.body[0].should.have.deep.property('user.id', userSession.user.id);
+        });
     });
 
     it('should fail 401 when authenticated as user', function() {

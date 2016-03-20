@@ -30,7 +30,7 @@ describe('Song API', function() {
       return factory.songs(
         ['Imagine', 'John Lennon'],
         ['Mother', 'John Lennon'],
-        ['Woman', 'John Lennon']
+        ['Woman', 'John Lennon', '70s']
       );
     });
 
@@ -44,7 +44,7 @@ describe('Song API', function() {
     it('should respond to pagination with array', function() {
       return request(app)
         .get('/songs')
-        .query({page: 2, per_page: 1})
+        .query({page: 2, limit: 1})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(1);
@@ -52,10 +52,32 @@ describe('Song API', function() {
         });
     });
 
+    it('should respond to query tag with array', function() {
+      return request(app)
+        .get('/songs')
+        .query({tag: '70s'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(1);
+          res.body[0].should.have.property('title', 'Woman');
+        });
+    });
+
+    it('should respond to query search tag with array', function() {
+      return request(app)
+        .get('/songs')
+        .query({q: '70'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(1);
+          res.body[0].should.have.property('title', 'Woman');
+        });
+    });
+
     it('should respond to query search with array', function() {
       return request(app)
         .get('/songs')
-        .query({q: 'woma'})
+        .query({q: 'wo'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(1);
@@ -66,7 +88,7 @@ describe('Song API', function() {
     it('should respond to sort with array', function() {
       return request(app)
         .get('/songs')
-        .query({sort: '-title'})
+        .query({order: 'desc'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array);
@@ -81,10 +103,10 @@ describe('Song API', function() {
         .expect(400);
     });
 
-    it('should fail 400 to per_page out of range', function() {
+    it('should fail 400 to limit out of range', function() {
       return request(app)
         .get('/songs')
-        .query({per_page: 101})
+        .query({limit: 101})
         .expect(400);
     });
 
@@ -99,7 +121,7 @@ describe('Song API', function() {
           return user.user.save().then(user => {
             return request(app)
               .get('/songs/search')
-              .query({access_token: user.token, q: 'Anitta', per_page: 5})
+              .query({access_token: user.token, q: 'Anitta', limit: 5})
               .expect(200)
               .then(res => {
                 res.body.should.be.instanceOf(Array).and.have.lengthOf(5);
@@ -119,7 +141,7 @@ describe('Song API', function() {
         return vcr.useCassette(`Song API/${this.test.parent.title}/${this.test.title}`, function() {
           return request(app)
             .get('/songs/search')
-            .query({q: 'Imagine', per_page: 5, service: service})
+            .query({q: 'Imagine', limit: 5, service: service})
             .expect(200)
             .then(res => {
               res.body.should.be.instanceOf(Array).and.have.lengthOf(5);

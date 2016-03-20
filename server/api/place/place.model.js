@@ -47,7 +47,7 @@ PlaceSchema.methods.view = function(full) {
     name: this.name,
     shortName: this.shortName,
     type: this.type,
-    location : {
+    location: {
       latitude: this.location[1],
       longitude: this.location[0]
     },

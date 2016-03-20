@@ -9,7 +9,13 @@ var router = new Router();
 
 router.get('/',
   auth.bearer({required: true, roles: ['admin']}),
-  query({querySorting: true}),
+  query({
+    q: {paths: {name: 'name', email: 'email'}},
+    country: String,
+    language: String,
+    sort: 'createdAt',
+    order: 'desc'
+  }),
   controller.index);
 
 router.get('/me', auth.bearer({required: true}), controller.me);

@@ -61,7 +61,7 @@ describe('Place API', function() {
     it('should respond to pagination with array', function() {
       return request(app)
         .get('/places')
-        .query({access_token: admin.token, page: 2, per_page: 1})
+        .query({access_token: admin.token, page: 2, limit: 1})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(1);
@@ -72,11 +72,11 @@ describe('Place API', function() {
     it('should respond to query search with array', function() {
       return request(app)
         .get('/places')
-        .query({access_token: admin.token, q: 'francis'})
+        .query({access_token: admin.token, q: 'ca'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(1);
-          res.body[0].should.have.property('name', 'San Francisco');
+          res.body[0].should.have.property('name', 'California');
         });
     });
 
@@ -94,7 +94,7 @@ describe('Place API', function() {
     it('should respond to sort with array', function() {
       return request(app)
         .get('/places')
-        .query({access_token: admin.token, sort: '-name'})
+        .query({access_token: admin.token, sort: 'name', order: 'desc'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array);
@@ -114,7 +114,7 @@ describe('Place API', function() {
           .expect(201)
           .then(res => {
             place = res.body;
-            res.body.should.have.property('name').which.contains('PUC-Rio');
+            res.body.should.have.property('name').which.contains('Gávea');
           });
         });
     });

@@ -33,7 +33,7 @@ describe('Tag API', function() {
     it('should respond to pagination with array', function() {
       return request(app)
         .get('/tags')
-        .query({page: 2, per_page: 1})
+        .query({page: 2, limit: 1})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).and.have.lengthOf(1);
@@ -49,6 +49,17 @@ describe('Tag API', function() {
         .then(res => {
           res.body.should.be.instanceOf(Array).and.have.lengthOf(1);
           res.body[0].should.have.property('title', 'pop');
+        });
+    });
+
+    it('should respond to sort with array', function() {
+      return request(app)
+        .get('/tags')
+        .query({order: 'desc'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).and.have.lengthOf(3);
+          res.body[0].should.have.property('title', 'rock');
         });
     });
   });

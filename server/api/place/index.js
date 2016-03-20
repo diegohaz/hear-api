@@ -9,7 +9,10 @@ var router = new Router();
 
 router.get('/',
   auth.bearer({required: true, roles: ['admin']}),
-  query({querySorting: true}),
+  query({
+    q: {paths: {name: 'name', shortName: 'shortName'}},
+    type: String
+  }),
   controller.index);
 
 router.get('/:id', controller.show);
