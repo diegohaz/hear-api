@@ -4,12 +4,11 @@ import app from '../..';
 import vcr from 'nock-vcr-recorder';
 import * as factory from '../../config/factory';
 import request from 'supertest-as-promised';
-import Song from './song.model';
-import SongService from './song.service';
+import Broadcast from './broadcast.model';
 import Artist from '../artist/artist.model';
 
-describe('Song API', function() {
-  var song, user, admin;
+describe.skip('Broadcast API', function() {
+  var broadcast, user, admin;
 
   before(function() {
     return factory.clean()
@@ -24,10 +23,10 @@ describe('Song API', function() {
     return factory.clean();
   });
 
-  describe('GET /songs', function() {
+  describe('GET /broadcasts', function() {
 
     before(function() {
-      return factory.songs(
+      return factory.broadcasts(
         ['Imagine', 'John Lennon'],
         ['Mother', 'John Lennon'],
         ['Woman', 'John Lennon', '70s']
@@ -36,14 +35,14 @@ describe('Song API', function() {
 
     it('should respond with array', function() {
       return request(app)
-        .get('/songs')
+        .get('/broadcasts')
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array));
     });
 
     it('should respond to pagination with array', function() {
       return request(app)
-        .get('/songs')
+        .get('/broadcasts')
         .query({page: 2, limit: 1})
         .expect(200)
         .then(res => {
@@ -54,7 +53,7 @@ describe('Song API', function() {
 
     it('should respond to query tag with array', function() {
       return request(app)
-        .get('/songs')
+        .get('/broadcasts')
         .query({tag: '70s'})
         .expect(200)
         .then(res => {
@@ -65,7 +64,7 @@ describe('Song API', function() {
 
     it('should respond to query search tag with array', function() {
       return request(app)
-        .get('/songs')
+        .get('/broadcasts')
         .query({q: '70'})
         .expect(200)
         .then(res => {
@@ -76,7 +75,7 @@ describe('Song API', function() {
 
     it('should respond to query search with array', function() {
       return request(app)
-        .get('/songs')
+        .get('/broadcasts')
         .query({q: 'wo'})
         .expect(200)
         .then(res => {
@@ -87,7 +86,7 @@ describe('Song API', function() {
 
     it('should respond to sort with array', function() {
       return request(app)
-        .get('/songs')
+        .get('/broadcasts')
         .query({order: 'desc'})
         .expect(200)
         .then(res => {
@@ -98,171 +97,130 @@ describe('Song API', function() {
 
     it('should fail 400 to page out of range', function() {
       return request(app)
-        .get('/songs')
+        .get('/broadcasts')
         .query({page: 31})
         .expect(400);
     });
 
     it('should fail 400 to limit out of range', function() {
       return request(app)
-        .get('/songs')
+        .get('/broadcasts')
         .query({limit: 101})
         .expect(400);
     });
 
   });
 
-  describe('GET /songs/search', function() {
-    SongService.allServices().forEach(function(service) {
-
-      it('should respond with array when authenticated to ' + service, function() {
-        return vcr.useCassette(`Song API/${this.test.title}`, function() {
-          user.user.service = service;
-          return user.user.save().then(user => {
-            return request(app)
-              .get('/songs/search')
-              .query({access_token: user.token, q: 'Anitta', limit: 5})
-              .expect(200)
-              .then(res => {
-                res.body.should.be.instanceOf(Array).and.have.lengthOf(5);
-                res.body.should.all.have.property('title');
-              })
-          });
-        });
-      });
-
-    });
-  });
-
-  SongService.allServices().forEach(function(service) {
-    describe('GET /songs/search?service=' + service, function() {
-
-      it('should respond to query search with array', function() {
-        return vcr.useCassette(`Song API/${this.test.parent.title}/${this.test.title}`, function() {
-          return request(app)
-            .get('/songs/search')
-            .query({q: 'Imagine', limit: 5, service: service})
-            .expect(200)
-            .then(res => {
-              res.body.should.be.instanceOf(Array).and.have.lengthOf(5);
-              res.body.should.all.have.property('title');
-            });
-        });
-      });
-
-    });
-  });
-
-  describe('POST /songs', function() {
+  describe('POST /broadcasts', function() {
     var artist;
 
     before(function() {
       return factory.artist('Anitta').then(a => artist = a);
     });
 
-    it('should respond with the created song when authenticated as admin', function() {
+    it('should respond with the created broadcast when authenticated as admin', function() {
       return request(app)
-        .post('/songs')
+        .post('/broadcasts')
         .send({access_token: admin.token, title: 'Bang', artist: artist})
         .expect(201)
         .then(res => {
-          song = res.body;
-          song.should.have.property('title', 'Bang');
+          broadcast = res.body;
+          broadcast.should.have.property('title', 'Bang');
         });
     });
 
     it('should fail 401 when authenticated as user', function() {
       return request(app)
-        .post('/songs')
+        .post('/broadcasts')
         .send({access_token: user.token, title: 'Bang', artist: artist})
         .expect(401);
     });
 
     it('should fail 401 when not authenticated', function() {
       return request(app)
-        .post('/songs')
+        .post('/broadcasts')
         .send({title: 'Bang', artist: artist})
         .expect(401);
     });
 
   });
 
-  describe('GET /songs/:id', function() {
+  describe('GET /broadcasts/:id', function() {
 
-    it('should respond with a song', function() {
+    it('should respond with a broadcast', function() {
       return request(app)
-        .get('/songs/' + song.id)
+        .get('/broadcasts/' + broadcast.broadcastId)
         .expect(200)
-        .then(res => res.body.should.have.property('id', song.id));
+        .then(res => res.body.should.have.property('broadcastId', broadcast.broadcastId));
     });
 
-    it('should fail 404 when song does not exist', function() {
+    it('should fail 404 when broadcast does not exist', function() {
       return request(app)
-        .get('/songs/123456789098765432123456')
+        .get('/broadcasts/123456789098765432123456')
         .expect(404);
     });
 
   });
 
-  describe('PUT /songs/:id', function() {
+  describe('PUT /broadcasts/:id', function() {
 
-    it('should respond with the updated song when authenticated as admin', function() {
+    it('should respond with the updated broadcast when authenticated as admin', function() {
       return request(app)
-        .put('/songs/' + song.id)
+        .put('/broadcasts/' + broadcast.broadcastId)
         .send({access_token: admin.token, title: 'Woman'})
         .expect(200)
         .then(res => res.body.should.have.property('title', 'Woman'));
     });
 
-    it('should fail 404 when song does not exist', function() {
+    it('should fail 404 when broadcast does not exist', function() {
       return request(app)
-        .put('/songs/123456789098765432123456')
+        .put('/broadcasts/123456789098765432123456')
         .send({access_token: admin.token, title: 'Woman'})
         .expect(404);
     });
 
     it('should fail 401 when authenticated as user', function() {
       return request(app)
-        .put('/songs/' + song.id)
+        .put('/broadcasts/' + broadcast.broadcastId)
         .send({access_token: user.token, title: 'Woman'})
         .expect(401);
     });
 
     it('should fail 401 when not authenticated', function() {
       return request(app)
-        .put('/songs/' + song.id)
+        .put('/broadcasts/' + broadcast.broadcastId)
         .send({title: 'Woman'})
         .expect(401);
     });
 
   });
 
-  describe('DELETE /songs/:id', function() {
+  describe('DELETE /broadcasts/:id', function() {
 
     it('should delete when authenticated as admin', function() {
       return request(app)
-        .delete('/songs/' + song.id)
+        .delete('/broadcasts/' + broadcast.broadcastId)
         .send({access_token: admin.token})
         .expect(204);
     });
 
     it('should fail 404 when user does not exist', function() {
       return request(app)
-        .delete('/songs/' + song.id)
+        .delete('/broadcasts/' + broadcast.broadcastId)
         .send({access_token: admin.token})
         .expect(404);
     });
 
     it('should fail 401 when authenticated as user', function() {
       return request(app)
-        .delete('/songs/' + song.id)
+        .delete('/broadcasts/' + broadcast.broadcastId)
         .send({access_token: user.token})
         .expect(401);
     });
 
     it('should fail 401 when not authenticated', function() {
       return request(app)
-        .delete('/songs/' + song.id)
+        .delete('/broadcasts/' + broadcast.broadcastId)
         .expect(401);
     });
 

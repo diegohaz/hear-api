@@ -1,5 +1,6 @@
 'use strict';
 
+import app from '../../';
 import moment from 'moment';
 import tk from 'timekeeper';
 import * as factory from '../../config/factory';

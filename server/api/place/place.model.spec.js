@@ -1,6 +1,6 @@
 'use strict';
 
-import app from '../..';
+import app from '../../';
 import * as factory from '../../config/factory';
 import Place from './place.model';
 

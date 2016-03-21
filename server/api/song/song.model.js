@@ -52,7 +52,7 @@ SongSchema.methods.view = function({
   var view = {};
   var info = _.find(this.info, {service: service});
 
-  view.songId = this.id;
+  view.id     = this.id;
   view.title  = this.title;
   view.artist = this.artist.view();
   view.isrc   = this.isrc;

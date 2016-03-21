@@ -1,6 +1,6 @@
 'use strict';
 
-import app from '../..';
+import app from '../../';
 import vcr from 'nock-vcr-recorder-mocha';
 import Song from './song.model';
 import Artist from '../artist/artist.model';
@@ -22,7 +22,7 @@ describe('Song Model', function() {
 
   it('should return a view', function() {
     var view = song.view();
-    view.should.have.property('songId', song.id);
+    view.should.have.property('id', song.id);
     view.should.have.property('title', song.title);
     view.should.have.deep.property('artist.name', artist.name);
   });
