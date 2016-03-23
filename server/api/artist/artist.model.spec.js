@@ -5,7 +5,7 @@ import * as factory from '../../config/factory';
 import Artist from './artist.model';
 import Song from '../song/song.model';
 
-describe('Artist Model:', function() {
+describe('Artist Model', function() {
 
   before(function() {
     return factory.clean();
