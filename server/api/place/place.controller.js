@@ -58,7 +58,7 @@ export function update(req, res) {
     .findById(req.params.id)
     .deepPopulate('parent')
     .then(response.notFound(res))
-    .then(place => place ? _.merge(place, req.body).save() : null)
+    .then(place => place ? _.assign(place, req.body).save() : null)
     .then(place => place ? place.view(true) : null)
     .then(response.success(res))
     .catch(response.error(res));

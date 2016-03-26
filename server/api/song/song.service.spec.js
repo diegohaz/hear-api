@@ -16,7 +16,7 @@ vcr.describe('Song Service', function() {
   });
 
   it('should retrieve tags for a song', function() {
-    return SongService.tags(song).should.eventually.be.instanceOf(Array);
+    return SongService.tag(song).should.eventually.be.instanceOf(Array);
   });
 
   SongService.allServices().forEach(function(service) {
@@ -24,7 +24,7 @@ vcr.describe('Song Service', function() {
 
       it('should search for a song', function() {
         return SongService.search({q: 'John Lennon', limit: 5}, service).then(songs => {
-          songs.should.have.lengthOf(5);
+          songs.should.have.length.above(0);
           songs.should.all.have.property('title');
           songs.should.all.have.property('artist');
         });

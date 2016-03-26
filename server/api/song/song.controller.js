@@ -11,7 +11,7 @@ export function index(req, res) {
   return Song
     .find(req.search, null, req.options)
     .populate('artist tags')
-    .then(songs => songs.map(s => s.view()))
+    .then(songs => songs.map(s => s.view(req.user)))
     .then(response.success(res))
     .catch(response.error(res));
 }
@@ -33,17 +33,26 @@ export function show(req, res) {
     .findById(req.params.id)
     .populate('artist tags')
     .then(response.notFound(res))
-    .then(song => song ? song.view() : null)
+    .then(song => song ? song.view(req.user) : null)
     .then(response.success(res))
     .catch(response.error(res));
 }
 
 // Creates a new Song in the DB
 export function create(req, res) {
-  return Song
-    .create(req.body)
-    .then(song => Song.populate(song, 'artist tags'))
-    .then(song => song.view())
+  let service = req.body.service || (req.user ? req.user.service : User.default('service'));
+  let serviceId = req.body.serviceId;
+  let promise;
+
+  if (serviceId) {
+    promise = Song.createByServiceId(serviceId, service);
+  } else {
+    promise = Song.create(req.body);
+  }
+
+  return promise
+    .then(song => song.populate('artist').execPopulate())
+    .then(song => song.view(req.user))
     .then(response.success(res, 201))
     .catch(response.error(res));
 }
@@ -56,8 +65,8 @@ export function update(req, res) {
     .findById(req.params.id)
     .populate('artist tags')
     .then(response.notFound(res))
-    .then(song => song ? _.merge(song, req.body).save() : null)
-    .then(song => song ? song.view() : null)
+    .then(song => song ? _.assign(song, req.body).save() : null)
+    .then(song => song ? song.view(req.user) : null)
     .then(response.success(res))
     .catch(response.error(res));
 }

@@ -48,7 +48,7 @@ export default class SongService {
     return this.search(options, service).then(result => result[0]);
   }
 
-  static tags(song) {
+  static tag(song) {
     return request({
       uri: 'http://ws.audioscrobbler.com/2.0/',
       qs: {
@@ -75,7 +75,7 @@ export default class SongService {
         request.uri = 'https://itunes.apple.com/search';
         request.qs = {
           term: options.q,
-          limit: options.limit,
+          limit: options.limit || 20,
           media: 'music'
         };
         break;
@@ -83,8 +83,8 @@ export default class SongService {
         request.uri = 'https://api.spotify.com/v1/search';
         request.qs = {
           q: options.q,
-          limit: options.limit,
-          offset: options.skip,
+          limit: options.limit || 20,
+          offset: options.skip || 0,
           type: 'track'
         };
         break;
@@ -92,8 +92,8 @@ export default class SongService {
         request.uri = 'http://api.deezer.com/search/track/';
         request.qs = {
           q: options.q,
-          limit: options.limit,
-          index: options.skip
+          limit: options.limit || 20,
+          index: options.skip || 0
         };
         break;
     }
@@ -186,7 +186,7 @@ export default class SongService {
         break;
       case 'deezer':
         if (response) {
-          result.title      = response.title;
+          result.title      = response.title_short || response.title;
           result.artist     = response.artist.name;
           result.previewUrl = response.preview;
           result.service    = service;

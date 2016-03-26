@@ -10,7 +10,8 @@ var TagSchema = new mongoose.Schema({
     index: true,
     lowercase: true,
     trim: true,
-    required: true
+    required: true,
+    q: true
   }
 });
 
@@ -30,21 +31,7 @@ TagSchema.methods.view = function() {
   }
 };
 
-TagSchema.statics.create = function(doc) {
-  var Tag = mongoose.model('Tag');
-
-  if (!Array.isArray(doc)) {
-    doc = new Tag(doc);
-    doc.title = doc.title.toLowerCase().trim();
-
-    return doc.validate().then(() => {
-      return Tag.findOneAndUpdate({title: doc.title}, {}, {upsert: true, new: true}).exec();
-    });
-  }
-
-  var promises = doc.map(d => Tag.create(d));
-
-  return Promise.all(promises);
-};
+TagSchema.plugin(require('../../modules/query/q'));
+TagSchema.plugin(require('../../modules/combine/'), {path: 'title'});
 
 export default mongoose.model('Tag', TagSchema);

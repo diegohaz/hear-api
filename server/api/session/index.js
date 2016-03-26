@@ -10,10 +10,8 @@ var router = new Router();
 router.get('/',
   auth.bearer({required: true, roles: ['admin']}),
   query({
-    q: {paths: {user: 'User.email'}},
-    userid: {paths: {user: 'User._id'}},
-    sort: 'createdAt',
-    order: 'desc'
+    user: String,
+    sort: '-createdAt'
   }),
   controller.index);
 

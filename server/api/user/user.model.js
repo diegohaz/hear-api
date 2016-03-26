@@ -18,7 +18,8 @@ var UserSchema = new Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    index: true
+    index: true,
+    q: true
   },
   password: {
     type: String,
@@ -26,7 +27,9 @@ var UserSchema = new Schema({
   },
   name: {
     type: String,
-    trim: true
+    index: true,
+    trim: true,
+    q: true
   },
   role: {
     type: String,
@@ -125,5 +128,7 @@ UserSchema.statics.default = function(path) {
 };
 
 UserSchema.statics.roles = roles;
+
+UserSchema.plugin(require('../../modules/query/q'));
 
 export default mongoose.model('User', UserSchema);

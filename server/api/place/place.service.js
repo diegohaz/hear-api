@@ -63,7 +63,7 @@ export default class PlaceService {
     });
   }
 
-  static venue(latitude, longitude, parent) {
+  static venue(latitude, longitude, parent, radius = 500) {
     return request({
       uri: 'https://api.foursquare.com/v2/venues/trending',
       qs: {
@@ -80,7 +80,7 @@ export default class PlaceService {
 
       if (data.meta.code === 200) {
         let venues = _.filter(data.response.venues, venue => {
-          return !_.find(venue.categories, cat => exclude.indexOf(cat.name) !== -1);
+          return _.find(venue.categories, cat => exclude.indexOf(cat.name) === -1);
         });
         let venue = venues.length ? venues[0] : null;
 
@@ -89,6 +89,7 @@ export default class PlaceService {
         let place = new Place({
           _id: venue.id,
           name: venue.name,
+          shortName: venue.name,
           location: [venue.location.lng, venue.location.lat],
           radius: 250,
           type: 'venue'

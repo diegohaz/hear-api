@@ -29,77 +29,81 @@ describe('Place API', function() {
       return factory.places([37.757815,-122.5076406], [-22.9790625,-43.2345556]);
     });
 
-    it('should respond with array when authenticated as admin', function() {
+    it('should respond with array when authenticated as user', function() {
       return request(app)
         .get('/places')
-        .query({access_token: admin.token})
+        .query({access_token: user.token})
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array));
     });
 
-    it('should fail 401 when authenticated as user', function() {
+    it('should respond with array to query type when authenticated as user', function() {
       return request(app)
         .get('/places')
-        .query({access_token: user.token})
-        .expect(401);
+        .query({access_token: user.token, type: 'sublocality'})
+        .expect(200)
+        .then(res => res.body.should.be.instanceOf(Array).with.lengthOf(1));
+    });
+
+    it('should respond with array to query page when authenticated as user', function() {
+      return request(app)
+        .get('/places')
+        .query({access_token: user.token, page: 2, limit: 1})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(1);
+          res.body[0].should.have.property('name', 'California');
+        });
+    });
+
+    it('should respond with array to query q name when authenticated as user', function() {
+      return request(app)
+        .get('/places')
+        .query({access_token: user.token, q: 'cali'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(1);
+          res.body[0].should.have.property('name', 'California');
+        });
+    });
+
+    it('should respond with array to query q short name when authenticated as user', function() {
+      return request(app)
+        .get('/places')
+        .query({access_token: user.token, q: 'us'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(1);
+          res.body[0].should.have.property('name', 'United States');
+        });
+    });
+
+    it('should respond with array to query location when authenticated as user', function() {
+      return request(app)
+        .get('/places')
+        .query({access_token: user.token, latitude: 36.578261, longitude: -119.6179324})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array);
+          res.body[0].should.have.property('name', 'California');
+        });
+    });
+
+    it('should respond with array to query sort when authenticated as user', function() {
+      return request(app)
+        .get('/places')
+        .query({access_token: user.token, sort: '-name'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array);
+          res.body[0].should.have.property('name', 'United States');
+        });
     });
 
     it('should fail 401 when not authenticated', function() {
       return request(app)
         .get('/places')
         .expect(401);
-    });
-
-    it('should respond to type with array', function() {
-      return request(app)
-        .get('/places')
-        .query({access_token: admin.token, type: 'sublocality'})
-        .expect(200)
-        .then(res => res.body.should.be.instanceOf(Array).with.lengthOf(1));
-    });
-
-    it('should respond to pagination with array', function() {
-      return request(app)
-        .get('/places')
-        .query({access_token: admin.token, page: 2, limit: 1})
-        .expect(200)
-        .then(res => {
-          res.body.should.be.instanceOf(Array).with.lengthOf(1);
-          res.body[0].should.have.property('name', 'California');
-        });
-    });
-
-    it('should respond to query search with array', function() {
-      return request(app)
-        .get('/places')
-        .query({access_token: admin.token, q: 'ca'})
-        .expect(200)
-        .then(res => {
-          res.body.should.be.instanceOf(Array).with.lengthOf(1);
-          res.body[0].should.have.property('name', 'California');
-        });
-    });
-
-    it('should respond to query near with array', function() {
-      return request(app)
-        .get('/places')
-        .query({access_token: admin.token, latitude: 36.578261, longitude: -119.6179324})
-        .expect(200)
-        .then(res => {
-          res.body.should.be.instanceOf(Array);
-          res.body[0].should.have.property('name', 'California');
-        });
-    });
-
-    it('should respond to sort with array', function() {
-      return request(app)
-        .get('/places')
-        .query({access_token: admin.token, sort: 'name', order: 'desc'})
-        .expect(200)
-        .then(res => {
-          res.body.should.be.instanceOf(Array);
-          res.body[0].should.have.property('name', 'United States');
-        });
     });
 
   });

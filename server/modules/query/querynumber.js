@@ -6,14 +6,16 @@ export default class QueryNumber extends QueryParam {
     super(param, value, options);
   }
 
-  min(value) {
-    let validator = v => v === null || v >= value;
+  min(value, min) {
+    let validator = v => v === null || v >= min;
     this.validators.push(validator);
+    return value;
   }
 
-  max(value) {
-    let validator = v => v === null || v <= value;
+  max(value, max) {
+    let validator = v => v === null || v <= max;
     this.validators.push(validator);
+    return value;
   }
 
 }

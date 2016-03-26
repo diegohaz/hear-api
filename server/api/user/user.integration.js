@@ -29,7 +29,7 @@ describe('User API', function() {
         .then(res => res.body.should.be.instanceOf(Array));
     });
 
-    it('should respond to pagination with array when authenticated as admin', function() {
+    it('should respond with array to query page when authenticated as admin', function() {
       return request(app)
         .get('/users')
         .query({access_token: adminSession.token, page: 2, limit: 1})
@@ -37,14 +37,13 @@ describe('User API', function() {
         .then(res => res.body.should.be.instanceOf(Array).with.lengthOf(1));
     });
 
-    it('should respond to query search with array when authenticated as admin', function() {
+    it('should respond with array to query q when authenticated as admin', function() {
       return request(app)
         .get('/users')
-        .query({access_token: adminSession.token, q: user.email})
+        .query({access_token: adminSession.token, q: 'fake user'})
         .expect(200)
         .then(res => {
-          res.body.should.be.instanceOf(Array).with.lengthOf(1);
-          res.body[0].should.have.property('id', user.id);
+          res.body.should.be.instanceOf(Array).with.lengthOf(2);
         });
     });
 
@@ -64,7 +63,7 @@ describe('User API', function() {
 
   describe('GET /users/me', function() {
 
-    it('should respond with the current user profile when authenticated', function() {
+    it('should respond with the current user profile when authenticated as user', function() {
       return request(app)
         .get('/users/me')
         .query({access_token: userSession.token})

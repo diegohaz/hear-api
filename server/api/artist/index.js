@@ -7,7 +7,10 @@ import * as auth from '../../modules/auth';
 
 var router = new Router();
 
-router.get('/', query(), controller.index);
+router.get('/',
+  query(),
+  controller.index);
+
 router.get('/:id', controller.show);
 
 router.post('/',

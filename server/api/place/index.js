@@ -8,11 +8,8 @@ import * as auth from '../../modules/auth';
 var router = new Router();
 
 router.get('/',
-  auth.bearer({required: true, roles: ['admin']}),
-  query({
-    q: {paths: {name: 'name', shortName: 'shortName'}},
-    type: String
-  }),
+  auth.bearer({required: true}),
+  query({type: String}),
   controller.index);
 
 router.get('/:id', controller.show);

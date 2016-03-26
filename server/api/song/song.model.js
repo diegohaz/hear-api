@@ -5,24 +5,32 @@ import mongoose from 'mongoose';
 import Promise from 'bluebird';
 import service from './song.service';
 import User from '../user/user.model';
+import Artist from '../artist/artist.model';
 import Tag from '../tag/tag.model';
+import config from '../../config/environment';
 
 var SongSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
     trim: true,
-    index: true
+    index: true,
+    q: true
   },
   artist: {
     type: mongoose.Schema.ObjectId,
     ref: 'Artist',
-    required: true
+    required: true,
+    q: true
   },
-  tags: [{
-    type: mongoose.Schema.ObjectId,
-    ref: 'Tag'
-  }],
+  tags: {
+    type: [{
+      type: mongoose.Schema.ObjectId,
+      ref: 'Tag'
+    }],
+    index: true,
+    q: true
+  },
   isrc: {
     type: String,
     uppercase: true,
@@ -44,6 +52,36 @@ var SongSchema = new mongoose.Schema({
     }
   }]
 });
+
+// ArtistSchema.post('remove', function(artist) {
+//   if (config.env === 'test') return;
+//   artist.postRemove();
+// });
+
+// ArtistSchema.methods.postRemove = function() {
+//   return Song.find({artist: this}).exec().map(song => song.remove());
+// };
+
+SongSchema.post('save', function(song) {
+  if (config.env === 'test') return;
+  song.postSave();
+});
+
+SongSchema.methods.postSave = function() {
+  let Song = mongoose.model('Song');
+
+  return this.populate('artist').execPopulate()
+    .then(song => service.allServices())
+    .each(service => this.match(service))
+    .then(song => this.tag())
+    .then(song => {
+      return Song.findByIdAndUpdate(
+        this._id,
+        {$set: {info: this.info, tags: this.tags}},
+        {new: true}
+      ).exec();
+    });
+};
 
 SongSchema.methods.view = function({
   service = User.default('service'),
@@ -73,33 +111,17 @@ SongSchema.methods.view = function({
   return view;
 };
 
-SongSchema.methods.fetchAndUpdate = function() {
-  let Song = mongoose.model('Song');
-
-  return this.populate('artist').execPopulate()
-    .then(song => service.allServices())
-    .each(service => this.fetchInfo(service))
-    .then(tags => this.fetchTags())
-    .then(song => {
-      return Song.findByIdAndUpdate(
-        this._id,
-        {$set: {info: this.info, tags: this.tags}},
-        {new: true}
-      ).exec();
-    });
-};
-
-SongSchema.methods.fetchInfo = function(svc) {
-  var info = _.find(this.info, {service: svc});
+SongSchema.methods.match = function(svc) {
+  let info = _.find(this.info, {service: svc});
   if (info) return Promise.resolve(this);
 
   return service.match(this, svc).then(match => this.translate(match));
 };
 
-SongSchema.methods.fetchTags = function() {
+SongSchema.methods.tag = function() {
   if (this.tags.length) return Promise.resolve(this);
 
-  return service.tags(this).each(tag => {
+  return service.tag(this).each(tag => {
     return Tag.create({title: tag}).then(tag => {
       this.tags.push(tag);
     });
@@ -107,21 +129,53 @@ SongSchema.methods.fetchTags = function() {
 }
 
 SongSchema.methods.translate = function(serviceSong) {
-  var info = {};
+  let promise = Promise.resolve(this);
 
-  info.service    = serviceSong.service;
-  info.id         = serviceSong.serviceId;
-  info.previewUrl = serviceSong.previewUrl;
-  info.url        = serviceSong.serviceUrl;
-  info.images     = serviceSong.images;
+  this.title = this.title || serviceSong.title;
 
-  this.info.push(info);
+  if (!this.artist) {
+    promise = Artist.create({name: serviceSong.artist}).then(artist => {
+      this.artist = artist;
+      return this;
+    });
+  }
 
-  if (serviceSong.isrc) {
+  if (!_.find(this.info, {service: serviceSong.service})) {
+    let info = {};
+
+    info.service    = serviceSong.service;
+    info.id         = serviceSong.serviceId;
+    info.previewUrl = serviceSong.previewUrl;
+    info.url        = serviceSong.serviceUrl;
+    info.images     = serviceSong.images;
+
+    this.info.push(info);
+  }
+
+  if (!this.isrc && serviceSong.isrc) {
     this.isrc = serviceSong.isrc;
   }
 
-  return this;
+  return promise;
 };
+
+SongSchema.statics.createByServiceId = function(id, svc) {
+  let Song = mongoose.model('Song');
+
+  return Song.findOne({info: {$elemMatch: {service: svc, id: id}}}).then(song => {
+    if (song) {
+      return song;
+    } else {
+      return service.lookup(id, svc).then(serviceSong => {
+        let song = new Song;
+        return song.translate(serviceSong);
+      }).then(song => {
+        return song.save();
+      });
+    }
+  });
+};
+
+SongSchema.plugin(require('../../modules/query/q'));
 
 export default mongoose.model('Song', SongSchema);

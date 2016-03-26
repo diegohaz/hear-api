@@ -19,6 +19,10 @@ describe('Place Model', function() {
     view.should.have.deep.property('parent.parent').not.undefined;
   });
 
+  it('should set fullName automatically', function() {
+    place.should.have.property('fullName', 'San Francisco, CA, United States');
+  });
+
   it('should combine places with same id', function() {
     return factory.place([37.757815,-122.5076406])
       .then(place => Place.find({}).should.eventually.have.lengthOf(3));

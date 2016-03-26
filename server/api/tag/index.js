@@ -7,12 +7,7 @@ import * as auth from '../../modules/auth';
 
 var router = new Router();
 
-router.get('/',
-  query({
-    q: {paths: {title: 'title'}},
-    sort: 'title'
-  }),
-  controller.index);
+router.get('/', query({sort: 'title'}), controller.index);
 
 router.get('/:id', controller.show);
 

@@ -55,7 +55,7 @@ describe('Artist API', function() {
     it('should respond to sort with array', function() {
       return request(app)
         .get('/artists')
-        .query({sort: 'name', order: 'desc'})
+        .query({sort: '-name'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).and.have.lengthOf(3);

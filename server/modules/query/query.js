@@ -45,14 +45,12 @@ function instantiate(params, options, query) {
 
 export default function query(params = {}, options = {}) {
   return function(req, res, next) {
-    let promises = [];
-
     let _params = {
       q: {
         type: String,
+        normalize: true,
         trim: true,
-        regex: true,
-        paths: {name: 'name'}
+        regex: true
       },
       page: {
         type: Number,
@@ -69,12 +67,7 @@ export default function query(params = {}, options = {}) {
       sort: {
         type: String,
         trim: true,
-        lowercase: true,
         default: 'name'
-      },
-      order: {
-        type: String,
-        default: 'asc'
       }
     };
 
@@ -82,8 +75,7 @@ export default function query(params = {}, options = {}) {
       q: 'q',
       page: 'page',
       limit: 'limit',
-      sort: 'sort',
-      order: 'order'
+      sort: 'sort'
     };
 
     options = _.merge(_options, options);
@@ -97,78 +89,44 @@ export default function query(params = {}, options = {}) {
       let instance = instances[i];
       let {param, value} = instance;
       let paths = instance.getPaths();
-      let pathsLength = Object.keys(paths).length;
 
       if (!instance.validate()) {
         return res.status(400).send('Wrong value for ' + param);
       }
 
       if (param === 'sort') {
+        let fields = value.split(',');
         req.options.sort = {};
-        req.options.sort[value] = instances.order.value === 'desc' ? -1 : 1;
+        fields.forEach(field => {
+               if (field.charAt(0) === '-') req.options.sort[field.slice(1)] = -1;
+          else if (field.charAt(0) === '+') req.options.sort[field.slice(1)] = 1;
+          else req.options.sort[field] = 1;
+        });
       } else if (param === 'limit') {
         req.options.limit = value;
       } else if (param === 'page') {
         req.options.skip = instances.limit.value * (value - 1);
-      } else if (param !== 'order') {
-        if (!pathsLength) {
-          paths[param] = param;
-          pathsLength = 1;
+      } else {
+        if (!paths.length) paths.push(param);
+        if (value === undefined || value === null || value === '') continue;
+        if (paths.length > 1) req.search.$or = [];
+
+        if (Array.isArray(value)) {
+          value = {$in: value};
         }
-        if (value === undefined || value === null || value === '') {
-          continue;
-        }
-        if (pathsLength > 1) {
-          req.search.$or = [];
-        }
-        for (let i in paths) {
-          let path = paths[i];
-          let field = i;
-          let array = field.indexOf('$') === 0;
 
-          if (array) {
-            field = field.slice(1);
-          }
-
-          if (path.indexOf('.') > 0) {
-            let [model, pth] = path.split(/\.(.+)/);
-            let query = {};
-            query[pth] = value;
-
-            let promise = mongoose.model(model)
-              .find(query).select('_id').lean().then(ids => {
-                if (pathsLength > 1 && ids.length) {
-                  let op = {};
-                  op[field] = {};
-                  if (array) {
-                    op[field].$elemMatch = {$in: ids};
-                  } else {
-                    op[field].$in = ids;
-                  }
-                  req.search.$or.push(op);
-                } else if (ids.length) {
-                  if (array) {
-                    req.search[field] = {$elemMatch: {$in: ids}};
-                  } else {
-                    req.search[field] = {$in: ids};
-                  }
-                }
-              });
-
-            promises.push(promise);
-          } else if (pathsLength > 1) {
+        paths.forEach(path => {
+          if (paths.length > 1) {
             let op = {};
             op[path] = value;
             req.search.$or.push(op);
           } else {
             req.search[path] = value;
           }
-        }
+        });
       }
     }
 
-    Promise.all(promises).then(() => {
-      next();
-    }).catch(next);
+    next();
   }
 }

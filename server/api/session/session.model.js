@@ -8,7 +8,9 @@ import {Schema} from 'mongoose';
 var SessionSchema = new Schema({
   user: {
     type: Schema.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    index: true,
+    q: true
   },
   token: {
     type: String,
@@ -63,5 +65,7 @@ SessionSchema.statics.login = function(token) {
     return session;
   });
 };
+
+SessionSchema.plugin(require('../../modules/query/q'));
 
 export default mongoose.model('Session', SessionSchema);

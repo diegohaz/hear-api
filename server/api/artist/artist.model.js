@@ -1,7 +1,6 @@
 'use strict';
 
 import mongoose from 'mongoose';
-import Promise from 'bluebird';
 import config from '../../config/environment';
 import Song from '../song/song.model';
 
@@ -10,7 +9,8 @@ var ArtistSchema = new mongoose.Schema({
     type: String,
     index: true,
     trim: true,
-    required: true
+    required: true,
+    q: true
   }
 });
 
@@ -30,19 +30,7 @@ ArtistSchema.methods.view = function() {
   }
 };
 
-ArtistSchema.statics.create = function(doc) {
-  var Artist = mongoose.model('Artist');
-
-  if (!Array.isArray(doc)) {
-    doc = new Artist(doc);
-    return doc.validate().then(() => {
-      return Artist.findOneAndUpdate({name: doc.name}, {}, {upsert: true, new: true}).exec();
-    });
-  }
-
-  var promises = doc.map(d => Artist.create(d));
-
-  return Promise.all(promises);
-};
+ArtistSchema.plugin(require('../../modules/query/q'));
+ArtistSchema.plugin(require('../../modules/combine/'), {path: 'name'});
 
 export default mongoose.model('Artist', ArtistSchema);

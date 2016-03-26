@@ -19,7 +19,12 @@ export function clean() {
 }
 
 export function user(role = 'user') {
-  return User.create({email: 'anonymous', password: 'password', role: role});
+  return User.create({
+    email: 'anonymous',
+    password: 'password',
+    name: 'Fake ' + role,
+    role: role
+  });
 }
 
 export function users(...roles) {
@@ -61,8 +66,18 @@ export function tags(...titles) {
 }
 
 export function song(title = 'Imagine', artistName = undefined, tagTitle = undefined) {
-  return Promise.join(artist(artistName), tag(tagTitle), (artist, tag) => {
-    return Song.create({title: title, artist: artist, tags: [tag]})
+  let join = [artist(artistName)];
+
+  if (tagTitle) {
+    join.push(tag(tagTitle));
+  }
+
+  return Promise.join(...join, (artist, tag) => {
+    let obj = {title: title, artist: artist};
+    if (tag) {
+      obj.tags = [tag];
+    }
+    return Song.create(obj);
   });
 }
 
@@ -76,7 +91,7 @@ export function songs(...titles) {
 }
 
 export function place(point = [37.757815,-122.5076406]) {
-  return vcr.useCassette(`Place Service/Factory/${point[0]}.${point[1]}`, function() {
+  return vcr.useCassette(`Place Factory/${point[0]}.${point[1]}`, function() {
     return PlaceService.sublocality(point[0], point[1]);
   });
 }
@@ -90,17 +105,22 @@ export function places(...points) {
   }).return(places).all();
 }
 
-export function broadcast(songTitle = 'Imagine', artistName = undefined, tagTitle = undefined) {
-  return Promise.join(user(), song(songTitle, artistName, tagTitle), (user, song) => {
-    return Broadcast.create({user: user, song: song, location: [-122.5076406,37.757815]})
+export function broadcast(...songArguments) {
+  let point = _.remove(songArguments, Array.isArray)[0] || [37.757815,-122.5076406];
+  let cassette = `Broadcast Factory/${songArguments.slice(0,2).join(' - ')} ${point[0]},${point[1]}`;
+
+  return vcr.useCassette(cassette, function() {
+    return Promise.join(user(), song(...songArguments), (user, song) => {
+      return Broadcast.create({user: user, song: song, location: [point[1], point[0]]});
+    });
   });
 }
 
-export function broadcasts(...songTitles) {
+export function broadcasts(...points) {
   let broadcasts = [];
 
-  return Promise.each(songTitles, (title, i) => {
-    broadcasts[i] = _.isArray(title) ? broadcast(...title) : broadcast(title);
+  return Promise.each(points, (point, i) => {
+    broadcasts[i] = _.isArray(point) ? broadcast(...point) : broadcast(point);
     return broadcasts[i];
   }).return(broadcasts).all();
 }

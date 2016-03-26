@@ -30,7 +30,7 @@ describe('Tag API', function() {
         .then(res => res.body.should.be.instanceOf(Array));
     });
 
-    it('should respond to pagination with array', function() {
+    it('should respond with array to query page', function() {
       return request(app)
         .get('/tags')
         .query({page: 2, limit: 1})
@@ -41,7 +41,7 @@ describe('Tag API', function() {
       });
     });
 
-    it('should respond to query search with array', function() {
+    it('should respond with array to query q', function() {
       return request(app)
         .get('/tags')
         .query({q: 'po'})
@@ -52,10 +52,10 @@ describe('Tag API', function() {
         });
     });
 
-    it('should respond to sort with array', function() {
+    it('should respond with array to query sort', function() {
       return request(app)
         .get('/tags')
-        .query({order: 'desc'})
+        .query({sort: '-title'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).and.have.lengthOf(3);

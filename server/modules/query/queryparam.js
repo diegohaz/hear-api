@@ -1,43 +1,50 @@
+import {Types} from 'mongoose';
 import _ from 'lodash';
 
 export default class QueryParam {
   constructor(param, value, options) {
     this.param = param;
     this.value = value;
+    this.options = options;
     this.validators = [];
+    this._id = false;
     this._regex = false;
-    this._paths = {};
+    this._paths = [];
 
-    for (let i in options) {
-      if (this[i] && typeof this[i] === 'function') {
-        this[i].call(this, options[i]);
-      }
+    if (value && value.indexOf && value.indexOf(',') !== -1) {
+      this.value = value.split(',').map(v => v.trim && v.trim() || v);
     }
 
-    if (this._regex && this.value) {
-      this.value = new RegExp(this.value, 'i');
-    }
+    this.value = this.evaluate(this.value);
   }
 
-  regex(regex) {
+  id(value) {
+    this._id = true;
+    return value;
+  }
+
+  regex(value, regex) {
     this._regex = true;
+    return value;
   }
 
-  paths(paths) {
+  paths(value, paths) {
     this._paths = paths;
+    return value;
   }
 
   getPaths() {
     return this._paths;
   }
 
-  default(value) {
-    if (!this.value) {
-      this.value = typeof value === 'function' ? value.call(this) : value;
+  default(value, def) {
+    if (!value) {
+      return typeof def === 'function' ? def.call(this) : def;
     }
+    return value;
   }
 
-  required(required) {
+  required(value, required) {
     if (required) {
       let validator = value => {
         return value !== null && value !== undefined && value !== '';
@@ -45,17 +52,50 @@ export default class QueryParam {
 
       this.validators.unshift(validator);
     }
+    return value;
   }
 
-  validate() {
+  evaluate(value = this.value) {
+    if (Array.isArray(value)) {
+      value = value.map(v => this.evaluate(v));
+      return value;
+    }
+
+    for (let i in this.options) {
+      if (this[i] && typeof this[i] === 'function') {
+        value = this[i].call(this, value, this.options[i]);
+      }
+    }
+
+    if (this._regex && value) {
+      value = new RegExp(value, 'i');
+    }
+
+    if (this._id && value) {
+      value = Types.ObjectId(value);
+    }
+
+    return value;
+  }
+
+  validate(value = this.value) {
     let success = true;
+
+    if (Array.isArray(value)) {
+      for (var i = 0; i < value.length; i++) {
+        if (!success) break;
+        success = this.validate(value[i]);
+      }
+
+      return success;
+    }
 
     for (var i = 0; i < this.validators.length; i++) {
       if (!success) break;
       let validator = this.validators[i];
 
       if (typeof validator === 'function') {
-        if (!validator.call(this, this.value)) {
+        if (!validator.call(this, value)) {
           success = false;
         }
       }

@@ -5,15 +5,14 @@ import query from '../../modules/query/';
 import * as controller from './song.controller';
 import * as auth from '../../modules/auth';
 import Artist from '../artist/artist.model';
-import Tag from '../tag/tag.model';
 
 var router = new Router();
 
 router.get('/',
+  auth.bearer(),
   query({
-    q: {paths: {title: 'title', artist: 'Artist.name', $tags: 'Tag.title'}},
-    sort: 'title',
-    tag: {paths: {$tags: 'Tag.title'}}
+    tags: String,
+    sort: 'title'
   }),
   controller.index);
 
@@ -22,7 +21,7 @@ router.get('/search',
   query({}, {sort: false, order: false}),
   controller.search);
 
-router.get('/:id', controller.show);
+router.get('/:id', auth.bearer(), controller.show);
 
 router.post('/',
   auth.bearer({required: true, roles: ['admin']}),

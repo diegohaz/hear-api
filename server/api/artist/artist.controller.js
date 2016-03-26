@@ -39,7 +39,7 @@ export function update(req, res) {
   return Artist
     .findById(req.params.id)
     .then(response.notFound(res))
-    .then(artist => artist ? _.merge(artist, req.body).save() : null)
+    .then(artist => artist ? _.assign(artist, req.body).save() : null)
     .then(artist => artist ? artist.view() : null)
     .then(response.success(res))
     .catch(response.error(res));

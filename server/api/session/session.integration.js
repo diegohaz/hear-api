@@ -27,7 +27,7 @@ describe('Session API', function() {
         .then(res => res.body.should.be.instanceOf(Array));
     });
 
-    it('should respond to pagination with array when authenticated as admin', function() {
+    it('should respond with array to query page when authenticated as admin', function() {
       return request(app)
         .get('/sessions')
         .query({access_token: adminSession.token, page: 2, limit: 1})
@@ -35,21 +35,18 @@ describe('Session API', function() {
         .then(res => res.body.should.be.instanceOf(Array).and.have.lengthOf(1));
     });
 
-    it('should respond to query search with array when authenticated as admin', function() {
+    it('should respond with array to query q when authenticated as admin', function() {
       return request(app)
         .get('/sessions')
-        .query({access_token: adminSession.token, q: userSession.user.email})
+        .query({access_token: adminSession.token, q: 'anonymous'})
         .expect(200)
-        .then(res => {
-          res.body.should.be.instanceOf(Array).and.have.lengthOf(1);
-          res.body[0].should.have.deep.property('user.id', userSession.user.id);
-        });
+        .then(res => res.body.should.be.instanceOf(Array).and.have.lengthOf(2));
     });
 
-    it('should respond to userid with array when authenticated as admin', function() {
+    it('should respond with array to query user when authenticated as admin', function() {
       return request(app)
         .get('/sessions')
-        .query({access_token: adminSession.token, userid: userSession.user.id})
+        .query({access_token: adminSession.token, user: userSession.user.id})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).and.have.lengthOf(1);

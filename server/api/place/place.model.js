@@ -4,20 +4,24 @@ import _ from 'lodash';
 import mongoose from 'mongoose';
 import Promise from 'bluebird';
 import config from '../../config/environment';
-import service from './place.service';
 
 var deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 var PlaceSchema = new mongoose.Schema({
   _id: String,
+  type: String,
   name: {
     type: String,
     required: true,
     trim: true,
-    index: true
+    index: true,
+    q: true
   },
-  type: String,
-  shortName: String,
+  shortName: {
+    type: String,
+    q: true
+  },
+  fullName: String,
   radius: Number,
   location: {
     type: [Number],
@@ -28,6 +32,25 @@ var PlaceSchema = new mongoose.Schema({
     type: String,
     ref: 'Place'
   }
+});
+
+PlaceSchema.pre('save', function(next) {
+  if (!this.isModified('parent')) return next();
+
+  let parent = this.parent;
+  this.fullName = this.name;
+
+  while (parent) {
+    if (parent.type === 'country') {
+      this.fullName += ', ' + parent.name;
+    } else {
+      this.fullName += ', ' + parent.shortName;
+    }
+
+    parent = parent.parent;
+  }
+
+  next();
 });
 
 PlaceSchema.post('remove', function(place) {
@@ -46,6 +69,7 @@ PlaceSchema.methods.view = function(full) {
     id: this.id,
     name: this.name,
     shortName: this.shortName,
+    fullName: this.fullName,
     type: this.type,
     location: {
       latitude: this.location[1],
@@ -55,21 +79,8 @@ PlaceSchema.methods.view = function(full) {
   }
 };
 
-PlaceSchema.statics.create = function(doc) {
-  var Place = mongoose.model('Place');
-
-  if (!Array.isArray(doc)) {
-    doc = new Place(doc);
-
-    return doc.validate().then(() => {
-      return Place.findByIdAndUpdate(doc._id, doc, {upsert: true, new: true}).exec();
-    });
-  }
-
-  var promises = doc.map(d => Place.create(d));
-
-  return Promise.all(promises);
-};
+PlaceSchema.plugin(require('../../modules/query/q'));
+PlaceSchema.plugin(require('../../modules/combine/'), {path: '_id'});
 
 PlaceSchema.plugin(deepPopulate, {
   rewrite: {
