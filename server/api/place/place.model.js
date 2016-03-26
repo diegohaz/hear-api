@@ -35,8 +35,6 @@ var PlaceSchema = new mongoose.Schema({
 });
 
 PlaceSchema.pre('save', function(next) {
-  if (!this.isModified('parent')) return next();
-
   let parent = this.parent;
   this.fullName = this.name;
 
