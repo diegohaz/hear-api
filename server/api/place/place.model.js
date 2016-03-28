@@ -80,6 +80,7 @@ PlaceSchema.methods.view = function(full) {
     name: this.name,
     shortName: this.shortName,
     fullName: this.fullName,
+    radius: this.radius,
     type: this.type,
     location: {
       latitude: this.location[1],
