@@ -103,11 +103,12 @@ export default function query(params = {}, options = {}) {
       if (param === 'sort') {
         let fields = value.split(',');
         req[bind].sort = {};
-        fields.forEach(field => {
+        for (let i = 0; i < fields.length; i++) {
+          let field = fields[i];
                if (field.charAt(0) === '-') req[bind].sort[field.slice(1)] = -1;
           else if (field.charAt(0) === '+') req[bind].sort[field.slice(1)] = 1;
           else req[bind].sort[field] = 1;
-        });
+        }
       } else if (param === 'limit') {
         req[bind].limit = value;
       } else if (param === 'page') {
@@ -121,7 +122,8 @@ export default function query(params = {}, options = {}) {
           value = {$in: value};
         }
 
-        paths.forEach(path => {
+        for (let i = 0; i < paths.length; i++) {
+          let path = paths[i];
           if (paths.length > 1) {
             let op = {};
             op[path] = value;
@@ -129,7 +131,7 @@ export default function query(params = {}, options = {}) {
           } else {
             req[bind][path] = value;
           }
-        });
+        }
       }
     }
 

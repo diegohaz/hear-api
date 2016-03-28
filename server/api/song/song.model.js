@@ -167,7 +167,7 @@ SongSchema.statics.createByServiceId = function(id, svc) {
       return song;
     } else {
       return service.lookup(id, svc).then(serviceSong => {
-        let song = new Song;
+        let song = new Song();
         return song.translate(serviceSong);
       }).then(song => {
         return song.save();

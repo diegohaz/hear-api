@@ -73,7 +73,7 @@ export default class QueryParam {
     let success = true;
 
     if (Array.isArray(value)) {
-      for (var i = 0; i < value.length; i++) {
+      for (let i = 0; i < value.length; i++) {
         if (!success) break;
         success = this.validate(value[i]);
       }
@@ -81,7 +81,7 @@ export default class QueryParam {
       return success;
     }
 
-    for (var i = 0; i < this.validators.length; i++) {
+    for (let i = 0; i < this.validators.length; i++) {
       if (!success) break;
       let validator = this.validators[i];
 
