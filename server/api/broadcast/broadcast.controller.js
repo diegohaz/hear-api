@@ -8,73 +8,42 @@ import Song from '../song/song.model';
 
 // Gets a list of Broadcasts
 export function index(req, res) {
-  let aggregations;
   let promise = Promise.resolve();
   let query = req.query;
+  let search = req.search;
 
-  if (req.search.tags || req.search.artist) {
-    let search = {};
-    if (req.search.tags) {
-      search.tags = req.search.tags;
-      delete req.search.tags;
+  if (query.tags || query.artist) {
+    let s = {};
+    if (query.tags)   s.tags   = query.tags;
+    if (query.artist) s.artist = query.artist;
+
+    promise = Song.find(s, null, req.options).select('_id').lean().then(songs => {
+      search.song = {$in: songs.map(s => s._id)};
+    });
+  }
+
+  if (req.search.song) {
+    req.search.song = {$nin: req.search.song.$in || req.search.song};
+  }
+
+  if (req.user && req.user.removedSongs.length) {
+    if (req.search.song && req.search.song.$nin) {
+      req.search.song.$nin = req.search.song.$nin.concat(req.user.removedSongs);
+    } else if (req.search.song) {
+      req.search.song = {$nin: req.user.removedSongs.concat(req.search.song)};
+    } else {
+      req.search.song = {$nin: req.user.removedSongs};
     }
-    if (req.search.artist) {
-      search.artist = req.search.artist;
-      delete req.search.artist;
-    }
-    promise = Song
-      .find(search, null, req.options)
-      .select('_id')
-      .lean()
-      .then(songs => {
-        req.search.song = {$in: songs.map(s => s._id)};
-      });
+  }
+
+  if (query.service) {
+    req.user = req.user || {};
+    req.user.service = query.service;
   }
 
   return promise
-    .then(() => {
-      let aggregate = Broadcast.aggregate();
-
-      if (query.latitude && query.longitude) {
-        aggregate.near({
-          near: [+query.longitude, +query.latitude],
-          distanceField: 'distance',
-          limit: req.options.limit * 100,
-          query: req.search
-        });
-        req.options.sort = 'distance';
-      } else {
-        aggregate.match(req.search);
-      }
-
-      return aggregate.group({
-        _id: '$song',
-        id: {$first: '$_id'},
-        song: {$first: '$song'},
-        user: {$first: '$user'},
-        place: {$first: '$place'},
-        location: {$first: '$location'},
-        createdAt: {$first: '$createdAt'},
-        distance: {$first: '$distance'},
-        total: {$sum: 1}
-      })
-      .sort(req.options.sort)
-      .skip(req.options.skip)
-      .limit(req.options.limit)
-      .exec();
-    })
-    // .tap(console.log)
-    .then(aggr => Broadcast.deepPopulate(aggr, 'user song artist tags place'))
-    .tap(aggr => aggregations = aggr)
-    // .tap(console.log)
-    .then(aggr => aggr.map(a => new Broadcast(a)))
-    // .tap(console.log)
-    .then(broadcasts => broadcasts.map((b, i) => {
-      let view = b.view(req.user);
-      view.distance = aggregations[i].distance;
-      view.total = aggregations[i].total;
-      return view;
-    }))
+    .then(() => Broadcast.findAndGroup(query, search, req.options))
+    .then(groups => groups.map(g => Broadcast.groupView(g, req.user)))
     .then(response.success(res))
     .catch(response.error(res));
 }
@@ -97,7 +66,7 @@ export function create(req, res) {
     return res.status(400).send('Missing latitude/longitude');
   }
 
-  let location = [req.body.longitude, req.body.latitude];
+  let location = {coordinates: [req.body.longitude, req.body.latitude]};
   let service = req.body.service || req.user.service;
   let serviceId = req.body.serviceId;
   let promise;
@@ -122,7 +91,18 @@ export function destroy(req, res) {
   return Broadcast
     .findById(req.params.id)
     .then(response.notFound(res))
-    .then(broadcast => broadcast ? broadcast.remove() : null)
-    .then(response.success(res, 204))
+    .then(broadcast => {
+      if (broadcast) {
+        if (req.user.role === 'admin' || req.user.id === broadcast.user) {
+          return broadcast.remove()
+            .then(response.success(res, 204));
+        } else {
+          req.user.removedSongs.addToSet(broadcast.song);
+          return req.user.save()
+            .then(user => user.view(true))
+            .then(response.success(res, 200));
+        }
+      }
+    })
     .catch(response.error(res));
 }

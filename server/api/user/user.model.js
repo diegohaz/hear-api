@@ -108,7 +108,7 @@ UserSchema.methods.view = function(full) {
   var fields = ['id', 'name', 'pictureUrl'];
 
   if (full) {
-    fields = fields.concat(['email', 'service', 'country', 'language', 'createdAt']);
+    fields = fields.concat(['email', 'service', 'country', 'language', 'createdAt', 'removedSongs']);
   }
 
   fields.forEach(field => { view[field] = this[field] });

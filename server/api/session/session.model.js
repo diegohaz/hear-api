@@ -1,7 +1,7 @@
 'use strict';
 
 import mongoose from 'mongoose';
-import randtoken from 'rand-token';
+import {uid} from 'rand-token';
 import moment from 'moment';
 import {Schema} from 'mongoose';
 
@@ -16,7 +16,7 @@ var SessionSchema = new Schema({
     type: String,
     unique: true,
     index: true,
-    default: () => randtoken.generate(32)
+    default: () => uid(32)
   },
   createdAt: {
     type: Date,

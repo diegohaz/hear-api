@@ -7,15 +7,14 @@ import * as auth from '../../modules/auth';
 
 var router = new Router();
 
-router.get('/',
-  auth.bearer({required: true}),
-  query({type: String}),
-  controller.index);
+router.get('/', query({type: String}), controller.index);
+
+router.get('/lookup', controller.lookup);
 
 router.get('/:id', controller.show);
 
 router.post('/',
-  auth.bearer({required: true}),
+  auth.bearer({required: true, roles: ['admin']}),
   controller.create);
 
 router.put('/:id',

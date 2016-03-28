@@ -10,13 +10,15 @@ describe('Place Model', function() {
   before(function() {
     return factory.clean()
       .then(() => factory.place([37.757815,-122.5076406]))
-      .then(pl => pl.deepPopulate('parent'))
       .then(pl => place = pl);
   });
 
+  it('should return view', function() {
+    return place.view().should.have.property('id');
+  });
+
   it('should return full view', function() {
-    var view = place.view(true);
-    view.should.have.deep.property('parent.parent').not.undefined;
+    return place.view(true).should.have.deep.property('parent.parent').not.undefined;
   });
 
   it('should set fullName automatically', function() {

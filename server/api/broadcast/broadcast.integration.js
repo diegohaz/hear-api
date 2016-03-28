@@ -25,7 +25,7 @@ describe('Broadcast API', function() {
   });
 
   describe('GET /broadcasts', function() {
-    let anitta, john, pop, folk, author, list;
+    let bang, anitta, john, pop, folk, author, list;
 
     let verifyDistances = function(res) {
       for (var i = 0; i < res.body.length; i++) {
@@ -37,9 +37,7 @@ describe('Broadcast API', function() {
     }
 
     before(function() {
-      let between = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
-      let geoRand = () => Math.random() * (90 + 90 + 1) - 90;
-      let geoSample = () => [geoRand(),geoRand()];
+      let geoSample = () => [_.random(-89.9, 89.9), _.random(-89.9, 89.9)];
 
       return factory.songs(
         ['Bang', 'Anitta', 'pop'],
@@ -50,20 +48,23 @@ describe('Broadcast API', function() {
         ['Survivor', 'Clarice Falcão'],
         ['In the End', 'Linkin Park']
       ).tap(songs => {
+        bang = songs[0];
         anitta = songs[0].artist;
         john = songs[2].artist;
         pop = songs[0].tags[0];
         folk = songs[2].tags[0];
       }).each(song => {
-        return Broadcast.create(..._.times(between(5,20), _.constant({
+        return Broadcast.create(..._.times(_.random(1,30), () => ({
           user: admin.user,
-          location: geoSample(),
+          location: {coordinates: geoSample()},
           song: song
         })));
       }).then(() => {
-        return factory.broadcast(geoSample(), 'Ameno', 'ERA');
+        return factory.broadcast([-22.0301,-43.01011], 'Ameno', 'ERA');
       }).then(broadcast => {
         author = broadcast.user;
+        bang.info.push({service: 'deezer'});
+        return bang.save();
       });
     });
 
@@ -72,6 +73,17 @@ describe('Broadcast API', function() {
         .get('/broadcasts')
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array));
+    });
+
+    it('should respond with array to query service', function() {
+      return request(app)
+        .get('/broadcasts')
+        .query({service: 'deezer'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(8);
+          res.body.should.contain.one.with.deep.property('song.service', 'deezer');
+        });
     });
 
     it('should respond with array to query page', function() {
@@ -181,7 +193,7 @@ describe('Broadcast API', function() {
     it('should respond with array to query location', function() {
       return request(app)
         .get('/broadcasts')
-        .query({access_token: user.token, latitude: -22.03, longitude: -43.01})
+        .query({latitude: -22.03, longitude: -43.01})
         .expect(200)
         .then(res => {
           list = res.body;
@@ -194,12 +206,7 @@ describe('Broadcast API', function() {
     it('should respond with array to query location q', function() {
       return request(app)
         .get('/broadcasts')
-        .query({
-          access_token: user.token,
-          latitude: -22.03,
-          longitude: -43.01,
-          q: 'john'
-        })
+        .query({latitude: -22.03, longitude: -43.01, q: 'john'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(2);
@@ -207,20 +214,22 @@ describe('Broadcast API', function() {
         });
     });
 
-    it('should respond with array to query location page', function() {
+    it('should respond with array to query location min_distance exclude', function() {
+
       return request(app)
         .get('/broadcasts')
         .query({
-          access_token: user.token,
           latitude: -22.03,
           longitude: -43.01,
-          page: 2,
-          limit: 3
+          limit: 3,
+          min_distance: list[2].distance + 0.0001,
+          exclude: list.slice(0, 3).map(b => b.song.id).join(',')
         })
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(3);
           res.body[0].should.have.property('id', list[3].id);
+          verifyDistances(res);
         });
     });
 
@@ -233,6 +242,20 @@ describe('Broadcast API', function() {
           res.body.should.be.instanceOf(Array);
           res.body[0].should.have.deep.property('song.title', 'Bang');
         });
+    });
+
+    it('should respond with array without removedSongs', function() {
+      user.user.removedSongs.addToSet(bang.id);
+
+      return user.user.save().then(() => {
+        return request(app)
+          .get('/broadcasts')
+          .query({access_token: user.token})
+          .expect(200)
+      }).then(res => {
+        res.body.should.be.instanceOf(Array).with.lengthOf(7);
+        res.body.should.not.contain.something.with.deep.property('song.id', bang.id);
+      });
     });
 
     it('should fail 400 to query page out of range', function() {
@@ -353,6 +376,16 @@ describe('Broadcast API', function() {
 
   describe('DELETE /broadcasts/:id', function() {
 
+    it('should add song to removedSongs when delete broadcast of another user authenticated as user', function() {
+      return factory.session('user').then(session => {
+        return request(app)
+          .delete('/broadcasts/' + broadcast.id)
+          .send({access_token: session.token})
+          .expect(200);
+      });
+
+    });
+
     it('should delete when authenticated as admin', function() {
       return request(app)
         .delete('/broadcasts/' + broadcast.id)
@@ -360,18 +393,11 @@ describe('Broadcast API', function() {
         .expect(204);
     });
 
-    it('should fail 404 when user does not exist', function() {
+    it('should fail 404 when broadcast does not exist', function() {
       return request(app)
         .delete('/broadcasts/' + broadcast.id)
         .send({access_token: admin.token})
         .expect(404);
-    });
-
-    it('should fail 401 when authenticated as user', function() {
-      return request(app)
-        .delete('/broadcasts/' + broadcast.id)
-        .send({access_token: user.token})
-        .expect(401);
     });
 
     it('should fail 401 when not authenticated', function() {

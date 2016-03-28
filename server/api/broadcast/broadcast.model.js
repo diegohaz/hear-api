@@ -12,11 +12,13 @@ var BroadcastSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Song',
     index: true,
+    required: true,
     q: true
   },
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
+    required: true,
     index: true
   },
   place: {
@@ -30,11 +32,12 @@ var BroadcastSchema = new mongoose.Schema({
     default: Date.now
   },
   location: {
-    type: [Number],
-    index: '2d',
-    required: true
+    type: {type: String, enum: 'Point', default: 'Point'},
+    coordinates: [Number]
   },
 });
+
+BroadcastSchema.index({location: '2dsphere'});
 
 BroadcastSchema.post('save', function(broadcast) {
   if (config.env === 'test') return;
@@ -45,7 +48,7 @@ BroadcastSchema.methods.postSave = function() {
   if (this.place) return;
 
   let Broadcast = mongoose.model('Broadcast');
-  let ll = [this.location[1], this.location[0]];
+  let ll = [this.location.coordinates[1], this.location.coordinates[0]];
 
   return PlaceService.sublocality(...ll)
     .then(place => PlaceService.venue(...ll, place))
@@ -62,19 +65,90 @@ BroadcastSchema.methods.view = function({
   service = User.default('service'),
   country = User.default('country')
 } = {}) {
-  var view = {};
+  return {
+    id: this.id,
+    song: this.song.view({service: service, country: country}),
+    user: this.user.view(),
+    place: this.place ? this.place.view(true) : this.place,
+    createdAt: this.createdAt,
+    location: {
+      latitude: this.location.coordinates[1],
+      longitude: this.location.coordinates[0]
+    }
+  }
+};
 
-  view.id = this.id;
-  view.song = this.song.view({service: service, country: country});
-  view.user = this.user.view();
-  view.place = this.place && this.place.view ? this.place.view(true) : this.place;
-  view.createdAt = this.createdAt;
-  view.location = {
-    latitude: this.location[1],
-    longitude: this.location[0]
-  };
+BroadcastSchema.statics.groupView = function(group, {
+  service = User.default('service'),
+  country = User.default('country')
+} = {}) {
+  let Broadcast = mongoose.model('Broadcast');
+  let broadcast = new Broadcast(group);
+  let view = broadcast.view({service: service, country: country});
+
+  view.id = group.id;
+  view.users = group.users.map(u => new User(u).view());
+  view.distance = group.distance;
+  view.total = group.total;
 
   return view;
+}
+
+BroadcastSchema.statics.findAndGroup = function(location, query = {}, options = {}, items = []) {
+  let Broadcast = mongoose.model('Broadcast');
+  let aggregate = Broadcast.aggregate();
+  let nearLimit = (options.limit || 30) * 10;
+  let group = {
+    _id: '$song',
+    id: {$first: '$_id'},
+    song: {$first: '$song'},
+    user: {$first: '$user'},
+    place: {$first: '$place'},
+    location: {$first: '$location'},
+    createdAt: {$first: '$createdAt'},
+    distance: {$first: '$distance'},
+    users: {$addToSet: '$user'},
+    total: {$sum: 1}
+  };
+
+  if (location.latitude && location.longitude) {
+    aggregate.near({
+      near: {type: 'Point', coordinates: [+location.longitude, +location.latitude]},
+      spherical: true,
+      distanceField: 'distance',
+      limit: nearLimit,
+      minDistance: options.min_distance || 0,
+      query: query
+    });
+    options.sort = {'distance': 1};
+    options.skip = 0;
+  } else {
+    aggregate.match(query);
+    options.sort = options.sort || {createdAt: -1};
+  }
+
+  return aggregate
+    .group(group)
+    .sort(options.sort)
+    .skip(options.skip || 0)
+    .limit(options.limit || 30)
+    .exec()
+    .then(aggr => Broadcast.deepPopulate(aggr, 'song user artist tags users place'))
+    .then(aggr => Broadcast.populate(aggr, {path: 'users', model: User}))
+    .then(aggr => {
+      if (!location.latitude || !aggr.length) return items.concat(aggr);
+      let total = aggr.reduce((total, curr) => total + curr.total, 0);
+      aggr = items.concat(aggr).slice(0, options.limit);
+
+      if (total >= nearLimit) {
+        query.song = query.song || {$nin: []};
+        query.song.$nin = query.song.$nin.concat(aggr.map(a => a.song._id));
+        options.min_distance = aggr[aggr.length - 1].distance + 0.0001;
+        return Broadcast.findAndGroup(location, query, options, aggr);
+      } else {
+        return aggr;
+      }
+    });
 };
 
 BroadcastSchema.plugin(require('../../modules/query/q'));

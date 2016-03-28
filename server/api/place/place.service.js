@@ -3,6 +3,7 @@
 import request from 'request-promise';
 import geolib from 'geolib';
 import _ from 'lodash';
+import Promise from 'bluebird';
 import config from '../../config/environment';
 import Place from './place.model.js';
 
@@ -29,32 +30,20 @@ export default class PlaceService {
           let result = _.find(results, result => result.types.indexOf(type) !== -1);
           if (!result) return;
 
-          let location = result.geometry.location;
-          let ne = result.geometry.bounds.northeast;
-          let sw = result.geometry.bounds.southwest;
-          let radius = geolib.getDistance(
-            {latitude: ne.lat, longitude: ne.lng},
-            {latitude: sw.lat, longitude: sw.lng}
-          ) / 2;
-
-          place = new Place({
-            _id: result.place_id,
-            name: result.address_components[0].long_name.replace('State of ', ''),
-            shortName: result.address_components[0].short_name,
-            location: [location.lng, location.lat],
-            radius: radius,
-            type: type
-          });
+          place = this._parsePlace(result, 'google');
+          place.type = type;
 
           if (parent) {
-            place.parent = parent;
+            place.parent = parent._id;
           }
 
-          places.push(place);
           parent = place;
+          places.push(place);
         });
 
-        return Place.create(places);
+        return Promise.each(places, (place, i) => {
+          return Place.create(place).tap(place => places[i] = place);
+        }).return(places);
       } else {
         throw new Error(data.status);
       }
@@ -82,21 +71,14 @@ export default class PlaceService {
         let venues = _.filter(data.response.venues, venue => {
           return _.find(venue.categories, cat => exclude.indexOf(cat.name) === -1);
         });
-        let venue = venues.length ? venues[0] : null;
 
-        if (!venue) return parent;
+        if (!venues.length) return parent;
 
-        let place = new Place({
-          _id: venue.id,
-          name: venue.name,
-          shortName: venue.name,
-          location: [venue.location.lng, venue.location.lat],
-          radius: 250,
-          type: 'venue'
-        });
+        let venue = venues[0];
+        let place = this._parsePlace(venue, 'foursquare');
 
         if (parent) {
-          place.parent = parent;
+          place.parent = parent._id;
         }
 
         return Place.create(place);
@@ -104,6 +86,35 @@ export default class PlaceService {
         throw new Error(data.meta.code);
       }
     });
+  }
+
+  static _parsePlace(place, service) {
+    if (service === 'google') {
+      let location = place.geometry.location;
+      let ne = place.geometry.bounds.northeast;
+      let sw = place.geometry.bounds.southwest;
+      let radius = geolib.getDistance(
+        {latitude: ne.lat, longitude: ne.lng},
+        {latitude: sw.lat, longitude: sw.lng}
+      ) / 2;
+
+      return {
+        _id: place.place_id,
+        name: place.address_components[0].long_name.replace('State of ', ''),
+        shortName: place.address_components[0].short_name,
+        location: [location.lng, location.lat],
+        radius: radius
+      };
+    } else if (service === 'foursquare') {
+      return {
+        _id: place.id,
+        name: place.name,
+        shortName: place.name,
+        location: [place.location.lng, place.location.lat],
+        radius: 250,
+        type: 'venue'
+      };
+    }
   }
 
 }

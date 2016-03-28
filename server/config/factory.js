@@ -111,7 +111,8 @@ export function broadcast(...songArguments) {
 
   return vcr.useCassette(cassette, function() {
     return Promise.join(user(), song(...songArguments), (user, song) => {
-      return Broadcast.create({user: user, song: song, location: [point[1], point[0]]});
+      let location = {coordinates: [point[1], point[0]]};
+      return Broadcast.create({user: user, song: song, location: location});
     });
   });
 }

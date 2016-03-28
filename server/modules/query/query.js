@@ -50,24 +50,28 @@ export default function query(params = {}, options = {}) {
         type: String,
         normalize: true,
         trim: true,
-        regex: true
+        regex: true,
+        bindTo: 'search'
       },
       page: {
         type: Number,
         default: 1,
         max: 30,
-        min: 1
+        min: 1,
+        bindTo: 'options'
       },
       limit: {
         type: Number,
         default: 30,
         max: 100,
-        min: 1
+        min: 1,
+        bindTo: 'options'
       },
       sort: {
         type: String,
         trim: true,
-        default: 'name'
+        default: 'name',
+        bindTo: 'options'
       }
     };
 
@@ -87,8 +91,10 @@ export default function query(params = {}, options = {}) {
 
     for (let i in instances) {
       let instance = instances[i];
-      let {param, value} = instance;
+      let {param, value, bindTo: bind} = instance;
       let paths = instance.getPaths();
+
+      req[bind] = req[bind] || {};
 
       if (!instance.validate()) {
         return res.status(400).send('Wrong value for ' + param);
@@ -96,20 +102,20 @@ export default function query(params = {}, options = {}) {
 
       if (param === 'sort') {
         let fields = value.split(',');
-        req.options.sort = {};
+        req[bind].sort = {};
         fields.forEach(field => {
-               if (field.charAt(0) === '-') req.options.sort[field.slice(1)] = -1;
-          else if (field.charAt(0) === '+') req.options.sort[field.slice(1)] = 1;
-          else req.options.sort[field] = 1;
+               if (field.charAt(0) === '-') req[bind].sort[field.slice(1)] = -1;
+          else if (field.charAt(0) === '+') req[bind].sort[field.slice(1)] = 1;
+          else req[bind].sort[field] = 1;
         });
       } else if (param === 'limit') {
-        req.options.limit = value;
+        req[bind].limit = value;
       } else if (param === 'page') {
-        req.options.skip = instances.limit.value * (value - 1);
+        req[bind].skip = instances.limit.value * (value - 1);
       } else {
         if (!paths.length) paths.push(param);
-        if (value === undefined || value === null || value === '') continue;
-        if (paths.length > 1) req.search.$or = [];
+        if (value !== 0 && !value) continue;
+        if (paths.length > 1) req[bind].$or = [];
 
         if (Array.isArray(value)) {
           value = {$in: value};
@@ -119,9 +125,9 @@ export default function query(params = {}, options = {}) {
           if (paths.length > 1) {
             let op = {};
             op[path] = value;
-            req.search.$or.push(op);
+            req[bind].$or.push(op);
           } else {
-            req.search[path] = value;
+            req[bind][path] = value;
           }
         });
       }

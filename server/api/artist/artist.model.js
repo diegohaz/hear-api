@@ -1,6 +1,7 @@
 'use strict';
 
 import mongoose from 'mongoose';
+import Promise from 'bluebird';
 import config from '../../config/environment';
 import Song from '../song/song.model';
 
@@ -27,7 +28,7 @@ ArtistSchema.methods.view = function() {
   return {
     id: this.id,
     name: this.name
-  }
+  };
 };
 
 ArtistSchema.plugin(require('../../modules/query/q'));

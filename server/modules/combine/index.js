@@ -17,7 +17,6 @@ export default function combinePlugin(schema, options) {
     return this.findOne(query).then(foundDoc => {
       if (foundDoc) return foundDoc;
 
-      delete doc._id;
       let newDoc = new this(doc);
       return newDoc.save();
     });

@@ -7,25 +7,14 @@ export default class QueryParam {
     this.value = value;
     this.options = options;
     this.validators = [];
-    this._id = false;
-    this._regex = false;
     this._paths = [];
+    this.bindTo = 'search';
 
     if (value && value.indexOf && value.indexOf(',') !== -1) {
       this.value = value.split(',').map(v => v.trim && v.trim() || v);
     }
 
     this.value = this.evaluate(this.value);
-  }
-
-  id(value) {
-    this._id = true;
-    return value;
-  }
-
-  regex(value, regex) {
-    this._regex = true;
-    return value;
   }
 
   paths(value, paths) {
@@ -64,14 +53,16 @@ export default class QueryParam {
     for (let i in this.options) {
       if (this[i] && typeof this[i] === 'function') {
         value = this[i].call(this, value, this.options[i]);
+      } else {
+        this[i] = this.options[i];
       }
     }
 
-    if (this._regex && value) {
+    if (this.options.regex && value) {
       value = new RegExp(value, 'i');
     }
 
-    if (this._id && value) {
+    if (this.options.id && value) {
       value = Types.ObjectId(value);
     }
 

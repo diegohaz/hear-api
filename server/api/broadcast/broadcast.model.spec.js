@@ -17,7 +17,7 @@ describe('Broadcast Model', function() {
   });
 
   vcr.it('should fetch place after save', function() {
-    broadcast.postSave().then(broadcast => {
+    return broadcast.postSave().then(broadcast => {
       broadcast.should.have.property('place').not.empty;
     });
   });

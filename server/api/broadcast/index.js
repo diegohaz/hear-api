@@ -10,9 +10,12 @@ var router = new Router();
 router.get('/',
   auth.bearer(),
   query({
+    exclude: {id: true, paths: ['song']},
+    service: {bindTo: 'query'},
+    min_distance: {type: Number, bindTo: 'options'},
     user: {id: true},
-    tags: {id: true},
-    artists: {paths: ['artist'], id: true},
+    tags: {id: true, bindTo: 'query'},
+    artists: {id: true, paths: ['artist'], bindTo: 'query'},
     sort: '-createdAt'
   }),
   controller.index);
@@ -24,7 +27,7 @@ router.post('/',
   controller.create);
 
 router.delete('/:id',
-  auth.bearer({required: true, roles: ['admin']}),
+  auth.bearer({required: true}),
   controller.destroy);
 
 export default router;

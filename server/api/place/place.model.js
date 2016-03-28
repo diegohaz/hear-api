@@ -1,15 +1,22 @@
 'use strict';
 
 import _ from 'lodash';
+import {uid} from 'rand-token';
 import mongoose from 'mongoose';
 import Promise from 'bluebird';
 import config from '../../config/environment';
 
-var deepPopulate = require('mongoose-deep-populate')(mongoose);
-
 var PlaceSchema = new mongoose.Schema({
-  _id: String,
-  type: String,
+  _id: {
+    type: String,
+    default: () => uid(24)
+  },
+  type: {
+    type: String,
+    default: 'place',
+    lowercase: true,
+    trim: true
+  },
   name: {
     type: String,
     required: true,
@@ -22,7 +29,10 @@ var PlaceSchema = new mongoose.Schema({
     q: true
   },
   fullName: String,
-  radius: Number,
+  radius: {
+    type: Number,
+    default: 50
+  },
   location: {
     type: [Number],
     index: '2d',
@@ -35,20 +45,22 @@ var PlaceSchema = new mongoose.Schema({
 });
 
 PlaceSchema.pre('save', function(next) {
-  let parent = this.parent;
-  this.fullName = this.name;
+  this.shortName = this.shortName || this.name;
+  this.fullName = this.fullName || this.name;
 
-  while (parent) {
-    if (parent.type === 'country') {
-      this.fullName += ', ' + parent.name;
-    } else {
-      this.fullName += ', ' + parent.shortName;
+  if (this.fullName !== this.name) return next();
+
+  this.deepPopulate('parent').then(place => {
+    let parent = this.parent;
+
+    while (parent) {
+      this.fullName += ', ';
+      this.fullName += parent.type === 'country' ? parent.name : parent.shortName;
+      parent = parent.parent;
     }
 
-    parent = parent.parent;
-  }
-
-  next();
+    next();
+  }).catch(next);
 });
 
 PlaceSchema.post('remove', function(place) {
@@ -73,14 +85,15 @@ PlaceSchema.methods.view = function(full) {
       latitude: this.location[1],
       longitude: this.location[0]
     },
-    parent: this.parent && full ? this.parent.view(full) : undefined
-  }
+    parent: full && this.parent && this.parent.view ?
+            this.parent.view(full) :
+            this.parent
+  };
 };
 
 PlaceSchema.plugin(require('../../modules/query/q'));
 PlaceSchema.plugin(require('../../modules/combine/'), {path: '_id'});
-
-PlaceSchema.plugin(deepPopulate, {
+PlaceSchema.plugin(require('mongoose-deep-populate')(mongoose), {
   rewrite: {
     parent: 'parent.parent.parent.parent'
   }

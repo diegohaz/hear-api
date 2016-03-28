@@ -16,11 +16,12 @@ describe('Artist Model', function() {
   });
 
   it('should return a view', function() {
-    return factory.artist('Anitta').then(artist => {
-      var view = artist.view();
-      view.should.have.property('id');
-      view.should.have.property('name', 'Anitta');
-    });
+    return factory.artist('Anitta')
+      .then(artist => artist.view())
+      .then(view => {
+        expect(view).to.have.property('id');
+        expect(view).to.have.property('name', 'Anitta');
+      });
   });
 
   it('should combine artists with same name', function() {

@@ -29,26 +29,25 @@ describe('Place API', function() {
       return factory.places([37.757815,-122.5076406], [-22.9790625,-43.2345556]);
     });
 
-    it('should respond with array when authenticated as user', function() {
+    it('should respond with array', function() {
       return request(app)
         .get('/places')
-        .query({access_token: user.token})
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array));
     });
 
-    it('should respond with array to query type when authenticated as user', function() {
+    it('should respond with array to query type', function() {
       return request(app)
         .get('/places')
-        .query({access_token: user.token, type: 'sublocality'})
+        .query({type: 'sublocality'})
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array).with.lengthOf(1));
     });
 
-    it('should respond with array to query page when authenticated as user', function() {
+    it('should respond with array to query page', function() {
       return request(app)
         .get('/places')
-        .query({access_token: user.token, page: 2, limit: 1})
+        .query({page: 2, limit: 1})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(1);
@@ -56,10 +55,10 @@ describe('Place API', function() {
         });
     });
 
-    it('should respond with array to query q name when authenticated as user', function() {
+    it('should respond with array to query q name', function() {
       return request(app)
         .get('/places')
-        .query({access_token: user.token, q: 'cali'})
+        .query({q: 'cali'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(1);
@@ -67,10 +66,10 @@ describe('Place API', function() {
         });
     });
 
-    it('should respond with array to query q short name when authenticated as user', function() {
+    it('should respond with array to query q short name', function() {
       return request(app)
         .get('/places')
-        .query({access_token: user.token, q: 'us'})
+        .query({q: 'us'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(1);
@@ -78,10 +77,10 @@ describe('Place API', function() {
         });
     });
 
-    it('should respond with array to query location when authenticated as user', function() {
+    it('should respond with array to query location', function() {
       return request(app)
         .get('/places')
-        .query({access_token: user.token, latitude: 36.578261, longitude: -119.6179324})
+        .query({latitude: 36.578261, longitude: -119.6179324})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array);
@@ -89,38 +88,71 @@ describe('Place API', function() {
         });
     });
 
-    it('should respond with array to query sort when authenticated as user', function() {
+    it('should respond with array to query location type', function() {
       return request(app)
         .get('/places')
-        .query({access_token: user.token, sort: '-name'})
+        .query({latitude: 36.578261, longitude: -119.6179324, type: 'sublocality'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(1);
+          res.body[0].should.have.property('name', 'Gávea');
+        });
+    });
+
+    it('should respond with array to query sort', function() {
+      return request(app)
+        .get('/places')
+        .query({sort: '-name'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array);
           res.body[0].should.have.property('name', 'United States');
         });
-    });
-
-    it('should fail 401 when not authenticated', function() {
-      return request(app)
-        .get('/places')
-        .expect(401);
     });
 
   });
 
   describe('POST /places', function() {
 
-    it('should respond with the created place when authenticated as user', function() {
+    it('should respond with the created place when authenticated as admin', function() {
       return vcr.useCassette(`Place API/${this.test.title}`, function() {
         return request(app)
           .post('/places')
-          .send({access_token: user.token, latitude: -22.9790625, longitude: -43.2345556})
+          .send({
+            access_token: admin.token,
+            latitude: -22.7483081,
+            longitude: -43.4531537,
+            name: 'Home'
+          })
           .expect(201)
           .then(res => {
             place = res.body;
-            res.body.should.have.property('name').which.contains('Gávea');
+            res.body.should.have.property('name', 'Home');
           });
-        });
+      });
+    });
+
+    it('should fail 400 when location was not sent', function() {
+      return request(app)
+        .post('/places')
+        .send({access_token: admin.token, name: 'Home'})
+        .expect(400);
+    });
+
+    it('should fail 400 when name was not sent', function() {
+      return vcr.useCassette(`Place API/${this.test.title}`, function() {
+        return request(app)
+          .post('/places')
+          .send({access_token: admin.token, latitude: -22.7483081, longitude: -43.4531537})
+          .expect(400);
+      });
+    });
+
+    it('should fail 401 when authenticated as user', function() {
+      return request(app)
+        .post('/places')
+        .send({access_token: user.token, latitude: 37.757815, longitude: -122.5076406})
+        .expect(401);
     });
 
     it('should fail 401 when not authenticated', function() {
@@ -138,7 +170,10 @@ describe('Place API', function() {
       return request(app)
         .get('/places/' + place.id)
         .expect(200)
-        .then(res => res.body.should.have.deep.property('parent.parent').not.undefined);
+        .then(res => {
+          res.body.should.have.property('name', place.name);
+          res.body.should.have.deep.property('parent.parent').not.undefined;
+        });
     });
 
     it('should fail 404 when place does not exist', function() {
@@ -150,6 +185,29 @@ describe('Place API', function() {
 
   });
 
+  describe('GET /places/lookup', function() {
+
+    it('should respond with the place', function() {
+      return vcr.useCassette(`Place API/${this.test.title}`, function() {
+        return request(app)
+          .get('/places/lookup')
+          .query({latitude: -22.997673, longitude: -43.3603154})
+          .expect(200)
+          .then(res => {
+            res.body.should.have.property('name', 'Barra da Tijuca');
+          });
+      });
+    });
+
+    it('should fail 400 when location was not sent', function() {
+      return request(app)
+        .get('/places/lookup')
+        .query({access_token: user.token})
+        .expect(400);
+    });
+
+  });
+
   describe('PUT /places/:id', function() {
 
     it('should respond with the updated place when authenticated as admin', function() {
@@ -157,7 +215,9 @@ describe('Place API', function() {
         .put('/places/' + place.id)
         .send({access_token: admin.token, name: 'São Francisco'})
         .expect(200)
-        .then(res => res.body.should.have.property('name', 'São Francisco'));
+        .then(res => {
+          res.body.should.have.property('name', 'São Francisco')
+        });
     });
 
     it('should fail 404 when place does not exist', function() {
