@@ -170,7 +170,7 @@ describe('Song API', function() {
             .expect(200)
             .then(res => {
               res.body.should.be.instanceOf(Array).and.have.lengthOf(5);
-              res.body.should.all.have.property('title');
+              res.body.should.all.have.property('service', service);
             });
         });
       });
