@@ -6,9 +6,8 @@
 // You will need to set these on the server you deploy to.
 
 module.exports = {
-  DOMAIN:           'http://localhost:9000',
-  SESSION_SECRET:   'hear-api-secret',
-
-  // Control debug level for modules using visionmedia/debug
-  DEBUG: ''
+  LASTFM_KEY: 'lastfmkey',
+  GOOGLEMAPS_KEY: 'googlemapskey',
+  FOURSQUARE_ID: 'foursquareid',
+  FOURSQUARE_SECRET: 'foursquaresecret'
 };
