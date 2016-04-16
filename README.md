@@ -44,4 +44,5 @@ This is a single part of a larger project. I still don't know with which license
 
 - add Stories API
 - add Taste API (using Echonest API)
+- return error messages in errors 400
 - improve query module (and maybe release it as a npm package)
