@@ -25,7 +25,7 @@ describe('Broadcast API', function() {
   });
 
   describe('GET /broadcasts', function() {
-    let bang, anitta, john, pop, folk, author, list;
+    let bang, woman, anitta, john, pop, folk, author, list;
 
     let verifyDistances = function(res) {
       for (var i = 0; i < res.body.length; i++) {
@@ -49,6 +49,7 @@ describe('Broadcast API', function() {
         ['In the End', 'Linkin Park']
       ).tap(songs => {
         bang = songs[0];
+        woman = songs[3];
         anitta = songs[0].artist;
         john = songs[2].artist;
         pop = songs[0].tags[0];
@@ -97,17 +98,6 @@ describe('Broadcast API', function() {
         });
     });
 
-    it('should respond with array to query user', function() {
-      return request(app)
-        .get('/broadcasts')
-        .query({user: author.id})
-        .expect(200)
-        .then(res => {
-          res.body.should.be.instanceOf(Array).with.lengthOf(1);
-          res.body[0].should.have.deep.property('song.title', 'Ameno');
-        });
-    });
-
     it('should respond with array to query song', function() {
       return request(app)
         .get('/broadcasts')
@@ -116,6 +106,29 @@ describe('Broadcast API', function() {
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(1);
           res.body[0].should.have.deep.property('song.title', 'Bang');
+        });
+    });
+
+    it('should respond with array to query multiple songs', function() {
+      return request(app)
+        .get('/broadcasts')
+        .query({song: `${bang.id}, ${woman.id}`})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(2);
+          res.body[0].should.have.deep.property('song.title', 'Woman');
+          res.body[1].should.have.deep.property('song.title', 'Bang');
+        });
+    });
+
+    it('should respond with array to query user', function() {
+      return request(app)
+        .get('/broadcasts')
+        .query({user: author.id})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(1);
+          res.body[0].should.have.deep.property('song.title', 'Ameno');
         });
     });
 
@@ -222,6 +235,16 @@ describe('Broadcast API', function() {
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(2);
           verifyDistances(res);
+        });
+    });
+
+    it('should respond with array to query location song', function() {
+      return request(app)
+        .get('/broadcasts')
+        .query({latitude: -22.03, longitude: -43.01, song: bang.id})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(1);
         });
     });
 
