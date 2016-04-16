@@ -108,6 +108,17 @@ describe('Broadcast API', function() {
         });
     });
 
+    it('should respond with array to query song', function() {
+      return request(app)
+        .get('/broadcasts')
+        .query({song: bang.id})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).with.lengthOf(1);
+          res.body[0].should.have.deep.property('song.title', 'Bang');
+        });
+    });
+
     it('should respond with array to query multiple users', function() {
       return request(app)
         .get('/broadcasts')

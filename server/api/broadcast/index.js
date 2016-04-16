@@ -10,9 +10,10 @@ var router = new Router();
 router.get('/',
   auth.bearer(),
   query({
-    exclude: {id: true, paths: ['song']},
+    exclude: {id: true},
     service: {bindTo: 'query'},
     min_distance: {type: Number, bindTo: 'options'},
+    song: {id: true},
     user: {id: true},
     tags: {id: true, bindTo: 'query'},
     artists: {id: true, paths: ['artist'], bindTo: 'query'},

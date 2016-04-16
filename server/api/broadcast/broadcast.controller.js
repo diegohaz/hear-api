@@ -22,8 +22,9 @@ export function index(req, res) {
     });
   }
 
-  if (req.search.song) {
-    req.search.song = {$nin: req.search.song.$in || req.search.song};
+  if (req.search.exclude) {
+    req.search.song = _.assign(req.search.song, {$nin: req.search.exclude.$in || req.search.exclude});
+    delete req.search.exclude;
   }
 
   if (req.user && req.user.removedSongs.length) {
