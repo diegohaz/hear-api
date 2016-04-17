@@ -9,7 +9,7 @@ import User from '../user/user.model';
 // Gets a list of Songs
 export function index(req, res) {
   return Song
-    .find(req.search, null, req.options)
+    .find(req.filter, null, req.options)
     .populate('artist tags')
     .then(songs => songs.map(s => s.view(req.user)))
     .then(response.success(res))

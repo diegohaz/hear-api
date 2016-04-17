@@ -11,7 +11,7 @@ export function index(req, res) {
   let query = req.query;
 
   if (query.latitude && query.longitude) {
-    req.search.location = {
+    req.filter.location = {
       $near: {
         $geometry: {
           type: 'Point',
@@ -23,7 +23,7 @@ export function index(req, res) {
   }
 
   return Story
-    .find(req.search, null, req.options)
+    .find(req.filter, null, req.options)
     .deepPopulate('user song artist tags place')
     .then(places => places.map(s => s.view()))
     .then(response.success(res))

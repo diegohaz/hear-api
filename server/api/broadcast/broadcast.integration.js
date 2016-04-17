@@ -73,7 +73,10 @@ describe('Broadcast API', function() {
       return request(app)
         .get('/broadcasts')
         .expect(200)
-        .then(res => res.body.should.be.instanceOf(Array));
+        .then(res => {
+          res.body.should.be.instanceOf(Array);
+          res.body[0].should.have.deep.property('song.title', 'Ameno');
+        });
     });
 
     it('should respond with array to query service', function() {

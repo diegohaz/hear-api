@@ -11,12 +11,12 @@ export function index(req, res) {
   let query = req.query;
 
   if (query.latitude && query.longitude) {
-    req.search.location = {$near: [query.longitude, query.latitude]};
+    req.filter.location = {$near: [query.longitude, query.latitude]};
     delete req.options.sort;
   }
 
   return Place
-    .find(req.search, null, req.options)
+    .find(req.filter, null, req.options)
     .then(places => places.map(s => s.view()))
     .then(response.success(res))
     .catch(response.error(res));

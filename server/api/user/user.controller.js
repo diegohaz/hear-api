@@ -7,7 +7,7 @@ import User from './user.model';
 // Gets a list of Users
 export function index(req, res) {
   return User
-    .find(req.search, null, req.options)
+    .find(req.filter, null, req.options)
     .then(users => users.map(t => t.view()))
     .then(response.success(res))
     .catch(response.error(res));

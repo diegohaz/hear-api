@@ -10,7 +10,7 @@ export default function qPlugin(schema, options) {
   let paths = _.filter(schema.paths, {options: {q: true}});
 
   schema.add({
-    q: {type: [String], index: true}
+    _q: {type: [String], index: true}
   });
 
   paths.forEach(path => {
@@ -20,19 +20,19 @@ export default function qPlugin(schema, options) {
       if (value === oldValue) return value;
 
       if (path instanceof SchemaTypes.ObjectId) {
-        value.q && value.q.forEach(q => {
-          oldValue && oldValue.q && this.q.pull(...oldValue.q);
-          this.q.addToSet(q);
+        value._q && value._q.forEach(_q => {
+          oldValue && oldValue._q && this._q.pull(...oldValue._q);
+          this._q.addToSet(_q);
         });
       } else if (path instanceof SchemaTypes.Array) {
         value.forEach((val, i) => {
-          val.q && val.q.forEach(q => {
-            this.q.addToSet(q);
+          val._q && val._q.forEach(_q => {
+            this._q.addToSet(_q);
           });
         });
       } else {
-        oldValue && this.q.pull(normalize(oldValue));
-        this.q.addToSet(normalize(value));
+        oldValue && this._q.pull(normalize(oldValue));
+        this._q.addToSet(normalize(value));
       }
 
       return value;

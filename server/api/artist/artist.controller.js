@@ -7,7 +7,7 @@ import Artist from './artist.model';
 // Gets a list of Artists
 export function index(req, res) {
   return Artist
-    .find(req.search, null, req.options)
+    .find(req.filter, null, req.options)
     .then(artists => artists.map(t => t.view()))
     .then(response.success(res))
     .catch(response.error(res));

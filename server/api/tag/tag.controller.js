@@ -7,7 +7,7 @@ import Tag from './tag.model';
 // Gets a list of Tags
 export function index(req, res) {
   return Tag
-    .find(req.search, null, req.options)
+    .find(req.filter, null, req.options)
     .then(tags => tags.map(t => t.view()))
     .then(response.success(res))
     .catch(response.error(res));

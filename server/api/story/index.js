@@ -1,6 +1,7 @@
 'use strict';
 
 import {Router} from 'express';
+import {Types} from 'mongoose';
 import query from '../../modules/query/';
 import * as controller from './story.controller';
 import * as auth from '../../modules/auth';
@@ -11,8 +12,8 @@ router.get('/',
   auth.bearer(),
   query({
     q: {paths: ['text']},
-    user: {id: true},
-    song: {id: true},
+    user: Types.ObjectId,
+    song: Types.ObjectId,
     sort: '-createdAt'
   }),
   controller.index);

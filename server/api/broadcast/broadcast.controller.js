@@ -10,7 +10,7 @@ import Song from '../song/song.model';
 export function index(req, res) {
   let promise = Promise.resolve();
   let query = req.query;
-  let search = req.search;
+  let search = req.filter;
 
   if (query.tags || query.artist) {
     let s = {};
@@ -22,18 +22,13 @@ export function index(req, res) {
     });
   }
 
-  if (req.search.exclude) {
-    req.search.song = _.assign(req.search.song, {$nin: req.search.exclude.$in || req.search.exclude});
-    delete req.search.exclude;
-  }
-
   if (req.user && req.user.removedSongs.length) {
-    if (req.search.song && req.search.song.$nin) {
-      req.search.song.$nin = req.search.song.$nin.concat(req.user.removedSongs);
-    } else if (req.search.song) {
-      req.search.song = {$nin: req.user.removedSongs.concat(req.search.song)};
+    if (req.filter.song && req.filter.song.$nin) {
+      req.filter.song.$nin = req.filter.song.$nin.concat(req.user.removedSongs);
+    } else if (req.filter.song) {
+      req.filter.song = {$nin: req.user.removedSongs.concat(req.filter.song)};
     } else {
-      req.search.song = {$nin: req.user.removedSongs};
+      req.filter.song = {$nin: req.user.removedSongs};
     }
   }
 

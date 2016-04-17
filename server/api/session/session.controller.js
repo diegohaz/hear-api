@@ -7,7 +7,7 @@ import Session from './session.model';
 // Gets a list of Sessions
 export function index(req, res) {
   return Session
-    .find(req.search, null, req.options)
+    .find(req.filter, null, req.options)
     .populate('user')
     .then(sessions => sessions.map(s => s.view()))
     .then(response.success(res))

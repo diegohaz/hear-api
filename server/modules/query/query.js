@@ -1,23 +1,22 @@
 import _ from 'lodash';
-import QueryString from './querystring';
-import QueryNumber from './querynumber';
-
-let Type = {};
-Type.String = QueryString;
-Type.Number = QueryNumber;
+import QueryParam from './query-param';
 
 function mergeDefaults(defaults, overrides, options = {}) {
   overrides = _.clone(overrides);
+
+  _.forIn(overrides, (properties, param) => {
+    if (typeof properties === 'string') {
+      overrides[param] = {default: properties};
+    } else if (typeof properties === 'function') {
+      overrides[param] = {type: properties};
+    }
+  });
 
   _.forIn(defaults, (properties, param) => {
     if (options[param] === false) return;
     param = options[param] ? options[param] : param;
 
     if (overrides[param]) {
-      if (typeof overrides[param] === 'string') {
-        let def = overrides[param];
-        overrides[param] = {default: def};
-      }
       overrides[param] = _.assign(properties, overrides[param]);
     } else {
       overrides[param] = properties;
@@ -27,16 +26,12 @@ function mergeDefaults(defaults, overrides, options = {}) {
   return overrides;
 }
 
-function instantiate(params, options, query) {
+function instantiate(params, values, queryOptions) {
   params = _.clone(params);
 
-  _.forIn(params, (properties, param) => {
-    param = _.findKey(options, v => v === param) || param;
-    let type = typeof properties === 'function' ?
-                properties.name :
-                (properties.type ? properties.type.name : 'String');
-
-    params[param] = new Type[type](param, query[param], properties);
+  _.forIn(params, (options, param) => {
+    param = _.findKey(queryOptions, v => v === param) || param;
+    params[param] = new QueryParam(param, values[param], options);
   });
 
   return params;
@@ -48,13 +43,13 @@ export default function query(params = {}, options = {}) {
       q: {
         type: String,
         normalize: true,
-        trim: true,
         regex: true,
-        bindTo: 'search'
+        paths: ['_q']
       },
       page: {
         type: Number,
         default: 1,
+        multiple: false,
         max: 30,
         min: 1,
         bindTo: 'options'
@@ -62,13 +57,13 @@ export default function query(params = {}, options = {}) {
       limit: {
         type: Number,
         default: 30,
+        multiple: false,
         max: 100,
         min: 1,
         bindTo: 'options'
       },
       sort: {
         type: String,
-        trim: true,
         default: 'name',
         bindTo: 'options'
       }
@@ -83,24 +78,20 @@ export default function query(params = {}, options = {}) {
 
     options = _.merge(_options, options);
     params = mergeDefaults(_params, params, options);
-    let instances = instantiate(params, options, req.query);
-
-    req.search = {};
-    req.options = {};
+    let instances = instantiate(params, req.query, options);
 
     for (let i in instances) {
       let instance = instances[i];
-      let {param, value, bindTo: bind} = instance;
-      let paths = instance.getPaths();
+      let {param, value, options: {bindTo: bind}} = instance;
 
       req[bind] = req[bind] || {};
 
       if (!instance.validate()) {
-        return res.status(400).send('Wrong value for ' + param);
+        return res.status(400).send('Missing or wrong value for ' + param);
       }
 
       if (param === 'sort') {
-        let fields = value.split(',');
+        let fields = _.isArray(value) ? value : [value];
         req[bind].sort = {};
         for (let i = 0; i < fields.length; i++) {
           let field = fields[i];
@@ -113,24 +104,7 @@ export default function query(params = {}, options = {}) {
       } else if (param === 'page') {
         req[bind].skip = instances.limit.value * (value - 1);
       } else {
-        if (!paths.length) paths.push(param);
-        if (value !== 0 && !value) continue;
-        if (paths.length > 1) req[bind].$or = [];
-
-        if (Array.isArray(value)) {
-          value = {$in: value};
-        }
-
-        for (let i = 0; i < paths.length; i++) {
-          let path = paths[i];
-          if (paths.length > 1) {
-            let op = {};
-            op[path] = value;
-            req[bind].$or.push(op);
-          } else {
-            req[bind][path] = value;
-          }
-        }
+        req[bind] = _.assign(req[bind], instance.compose());
       }
     }
 
