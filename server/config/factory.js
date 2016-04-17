@@ -12,6 +12,7 @@ import Tag from '../api/tag/tag.model';
 import Song from '../api/song/song.model';
 import PlaceService from '../api/place/place.service';
 import Broadcast from '../api/broadcast/broadcast.model';
+import Story from '../api/story/story.model';
 
 export function clean() {
   let collections = mongoose.connection.collections;
@@ -106,7 +107,7 @@ export function places(...points) {
 }
 
 export function broadcast(...songArguments) {
-  let point = _.remove(songArguments, Array.isArray)[0] || [37.757815,-122.5076406];
+  let point = _.remove(songArguments, _.isArray)[0] || [37.757815,-122.5076406];
   let cassette = `Broadcast Factory/${songArguments.slice(0,2).join(' - ')} ${point[0]},${point[1]}`;
 
   return vcr.useCassette(cassette, function() {
@@ -124,4 +125,25 @@ export function broadcasts(...points) {
     broadcasts[i] = _.isArray(point) ? broadcast(...point) : broadcast(point);
     return broadcasts[i];
   }).return(broadcasts).all();
+}
+
+export function story(text, ...songArguments) {
+  let point = _.remove(songArguments, _.isArray)[0] || [37.757815,-122.5076406];
+  let cassette = `Story Factory/${songArguments.slice(0,2).join(' - ')} ${point[0]},${point[1]}`;
+
+  return vcr.useCassette(cassette, function() {
+    return Promise.join(user(), song(...songArguments), (user, song) => {
+      let location = {coordinates: [point[1], point[0]]};
+      return Story.create({user: user, song: song, text: text, location: location});
+    });
+  });
+}
+
+export function stories(...points) {
+  let stories = [];
+
+  return Promise.each(points, (point, i) => {
+    stories[i] = _.isArray(point) ? story(...point) : story(point);
+    return stories[i];
+  }).return(stories).all();
 }
