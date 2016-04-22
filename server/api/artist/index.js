@@ -1,14 +1,14 @@
 'use strict';
 
 import {Router} from 'express';
-import query from '../../modules/query/';
+import menquery from 'menquery';
 import * as controller from './artist.controller';
 import * as auth from '../../modules/auth';
 
 var router = new Router();
 
 router.get('/',
-  query(),
+  menquery(),
   controller.index);
 
 router.get('/:id', controller.show);

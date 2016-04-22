@@ -1,7 +1,7 @@
 'use strict';
 
 import {Router} from 'express';
-import query from '../../modules/query/';
+import menquery from 'menquery';
 import * as controller from './song.controller';
 import * as auth from '../../modules/auth';
 import Artist from '../artist/artist.model';
@@ -10,15 +10,15 @@ var router = new Router();
 
 router.get('/',
   auth.bearer(),
-  query({
-    tags: String,
+  menquery({
+    tags: {type: String, multiple: true},
     sort: 'title'
   }),
   controller.index);
 
 router.get('/search',
   auth.bearer(),
-  query({}, {sort: false, order: false}),
+  menquery({}, {sort: false, order: false}),
   controller.search);
 
 router.get('/:id', auth.bearer(), controller.show);

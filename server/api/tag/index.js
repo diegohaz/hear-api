@@ -1,13 +1,13 @@
 'use strict';
 
 import {Router} from 'express';
-import query from '../../modules/query/';
+import menquery from 'menquery';
 import * as controller from './tag.controller';
 import * as auth from '../../modules/auth';
 
 var router = new Router();
 
-router.get('/', query({sort: 'title'}), controller.index);
+router.get('/', menquery({sort: 'title'}), controller.index);
 
 router.get('/:id', controller.show);
 

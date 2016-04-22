@@ -1,7 +1,7 @@
 'use strict';
 
 import {Router} from 'express';
-import query from '../../modules/query/';
+import menquery from 'menquery';
 import * as controller from './user.controller';
 import * as auth from '../../modules/auth';
 
@@ -9,7 +9,7 @@ var router = new Router();
 
 router.get('/',
   auth.bearer({required: true, roles: ['admin']}),
-  query({
+  menquery({
     country: String,
     language: String,
     sort: '-createdAt'

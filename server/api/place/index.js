@@ -1,13 +1,13 @@
 'use strict';
 
 import {Router} from 'express';
-import query from '../../modules/query/';
+import menquery from 'menquery';
 import * as controller from './place.controller';
 import * as auth from '../../modules/auth';
 
 var router = new Router();
 
-router.get('/', query({type: String}), controller.index);
+router.get('/', menquery({type: String}), controller.index);
 
 router.get('/lookup', controller.lookup);
 
