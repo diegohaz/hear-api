@@ -1,7 +1,7 @@
 'use strict';
 
 import {Router} from 'express';
-import menquery from 'menquery';
+import querymen from 'querymen';
 import * as controller from './song.controller';
 import * as auth from '../../modules/auth';
 import Artist from '../artist/artist.model';
@@ -10,15 +10,16 @@ var router = new Router();
 
 router.get('/',
   auth.bearer(),
-  menquery({
-    tags: {type: String, multiple: true},
+  querymen.middleware({
+    q: {paths: ['_q']},
+    tags: [String],
     sort: 'title'
   }),
   controller.index);
 
 router.get('/search',
   auth.bearer(),
-  menquery({}, {sort: false, order: false}),
+  querymen.middleware({}, {sort: false}),
   controller.search);
 
 router.get('/:id', auth.bearer(), controller.show);

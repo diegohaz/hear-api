@@ -6,8 +6,10 @@ import User from './user.model';
 
 // Gets a list of Users
 export function index(req, res) {
+  let query = req.querymen;
+
   return User
-    .find(req.filter, null, req.options)
+    .find(query.query, null, query.cursor)
     .then(users => users.map(t => t.view()))
     .then(response.success(res))
     .catch(response.error(res));

@@ -8,8 +8,10 @@ import User from '../user/user.model';
 
 // Gets a list of Songs
 export function index(req, res) {
+  let query = req.querymen;
+
   return Song
-    .find(req.filter, null, req.options)
+    .find(query.query, null, query.cursor)
     .populate('artist tags')
     .then(songs => songs.map(s => s.view(req.user)))
     .then(response.success(res))
@@ -19,10 +21,10 @@ export function index(req, res) {
 // Search for songs in service
 export function search(req, res) {
   let service = req.query.service || (req.user ? req.user.service : User.default('service'));
-  req.options.q = req.query.q;
+  req.querymen.cursor.q = req.query.q;
 
   return SongService
-    .search(req.options, service)
+    .search(req.querymen.cursor, service)
     .then(response.success(res))
     .catch(response.error(res));
 }

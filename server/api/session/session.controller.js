@@ -6,8 +6,10 @@ import Session from './session.model';
 
 // Gets a list of Sessions
 export function index(req, res) {
+  let query = req.querymen;
+
   return Session
-    .find(req.filter, null, req.options)
+    .find(query.query, null, query.cursor)
     .populate('user')
     .then(sessions => sessions.map(s => s.view()))
     .then(response.success(res))

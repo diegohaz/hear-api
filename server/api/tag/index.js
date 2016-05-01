@@ -1,13 +1,13 @@
 'use strict';
 
 import {Router} from 'express';
-import menquery from 'menquery';
+import querymen from 'querymen';
 import * as controller from './tag.controller';
 import * as auth from '../../modules/auth';
 
 var router = new Router();
 
-router.get('/', menquery({sort: 'title'}), controller.index);
+router.get('/', querymen.middleware({q: {paths: ['_q']}, sort: 'title'}), controller.index);
 
 router.get('/:id', controller.show);
 

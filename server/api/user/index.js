@@ -1,7 +1,7 @@
 'use strict';
 
 import {Router} from 'express';
-import menquery from 'menquery';
+import querymen from 'querymen';
 import * as controller from './user.controller';
 import * as auth from '../../modules/auth';
 
@@ -9,7 +9,8 @@ var router = new Router();
 
 router.get('/',
   auth.bearer({required: true, roles: ['admin']}),
-  menquery({
+  querymen.middleware({
+    q: {paths: ['_q']},
     country: String,
     language: String,
     sort: '-createdAt'

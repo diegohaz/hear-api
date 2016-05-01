@@ -9,36 +9,37 @@ import Song from '../song/song.model';
 // Gets a list of Broadcasts
 export function index(req, res) {
   let promise = Promise.resolve();
-  let query = req.query;
-  let search = req.filter;
+  let query = req.querymen;
+  let search = query.search;
+  let filter = query.query;
 
-  if (query.tags || query.artist) {
+  if (search.tags || search.artist) {
     let s = {};
-    if (query.tags)   s.tags   = query.tags;
-    if (query.artist) s.artist = query.artist;
+    if (search.tags)   s.tags   = search.tags;
+    if (search.artist) s.artist = search.artist;
 
-    promise = Song.find(s, null, req.options).select('_id').lean().then(songs => {
-      search.song = {$in: songs.map(s => s._id)};
+    promise = Song.find(s, {_id: 1}, query.cursor).lean().then(songs => {
+      filter.song = {$in: songs.map(s => s._id)};
     });
   }
 
   if (req.user && req.user.removedSongs.length) {
-    if (req.filter.song && req.filter.song.$nin) {
-      req.filter.song.$nin = req.filter.song.$nin.concat(req.user.removedSongs);
-    } else if (req.filter.song) {
-      req.filter.song = {$nin: req.user.removedSongs.concat(req.filter.song)};
+    if (filter.song && filter.song.$nin) {
+      filter.song.$nin = filter.song.$nin.concat(req.user.removedSongs);
+    } else if (filter.song) {
+      filter.song = {$nin: req.user.removedSongs.concat(filter.song)};
     } else {
-      req.filter.song = {$nin: req.user.removedSongs};
+      filter.song = {$nin: req.user.removedSongs};
     }
   }
 
-  if (query.service) {
+  if (search.service) {
     req.user = req.user || {};
-    req.user.service = query.service;
+    req.user.service = search.service;
   }
 
   return promise
-    .then(() => Broadcast.findAndGroup(query, search, req.options))
+    .then(() => Broadcast.findAndGroup(req.query, filter, query.cursor))
     .then(groups => groups.map(g => Broadcast.groupView(g, req.user)))
     .then(response.success(res))
     .catch(response.error(res));

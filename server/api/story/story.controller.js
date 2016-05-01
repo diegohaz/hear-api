@@ -8,22 +8,10 @@ import Song from '../song/song.model';
 
 // Gets a list of Storys
 export function index(req, res) {
-  let query = req.query;
-
-  if (query.latitude && query.longitude) {
-    req.filter.location = {
-      $near: {
-        $geometry: {
-          type: 'Point',
-          coordinates: [query.longitude, query.latitude]
-        }
-      }
-    };
-    delete req.options.sort;
-  }
+  let query = req.querymen;
 
   return Story
-    .find(req.filter, null, req.options)
+    .find(query.query, null, query.cursor)
     .deepPopulate('user song artist tags place')
     .then(places => places.map(s => s.view()))
     .then(response.success(res))

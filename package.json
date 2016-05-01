@@ -13,7 +13,6 @@
     "express": "^4.13.3",
     "geolib": "^2.0.18",
     "lodash": "^4.6.1",
-    "menquery": "^0.2.0",
     "method-override": "^2.3.5",
     "moment": "^2.12.0",
     "mongoose": "^4.1.2",
@@ -22,6 +21,7 @@
     "passport": "^0.3.2",
     "passport-http": "^0.3.0",
     "passport-http-bearer": "^1.0.1",
+    "querymen": "^1.0.1",
     "rand-token": "^0.2.1",
     "request-promise": "^2.0.1",
     "string": "^3.3.1"

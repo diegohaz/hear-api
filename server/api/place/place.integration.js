@@ -80,7 +80,7 @@ describe('Place API', function() {
     it('should respond with array to query location', function() {
       return request(app)
         .get('/places')
-        .query({latitude: 36.578261, longitude: -119.6179324})
+        .query({near: '36.578261,-119.6179324'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array);
@@ -91,7 +91,7 @@ describe('Place API', function() {
     it('should respond with array to query location type', function() {
       return request(app)
         .get('/places')
-        .query({latitude: 36.578261, longitude: -119.6179324, type: 'sublocality'})
+        .query({near: '36.578261,-119.6179324', type: 'sublocality'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(1);

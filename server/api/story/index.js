@@ -2,7 +2,7 @@
 
 import {Router} from 'express';
 import {Types} from 'mongoose';
-import menquery from 'menquery';
+import querymen from 'querymen';
 import * as controller from './story.controller';
 import * as auth from '../../modules/auth';
 
@@ -10,12 +10,12 @@ var router = new Router();
 
 router.get('/',
   auth.bearer(),
-  menquery({
+  querymen.middleware({
     q: {paths: ['text']},
-    user: {type: Types.ObjectId, multiple: true},
-    song: {type: Types.ObjectId, multiple: true},
+    user: [Types.ObjectId],
+    song: [Types.ObjectId],
     sort: '-createdAt'
-  }),
+  }, {near: true}),
   controller.index);
 
 router.get('/:id', controller.show);

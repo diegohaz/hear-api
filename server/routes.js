@@ -4,6 +4,7 @@
 
 'use strict';
 
+import {errorHandler} from 'querymen'
 import path from 'path';
 
 export default function(app) {
@@ -17,4 +18,5 @@ export default function(app) {
   app.use('/tags', require('./api/tag'));
   app.use('/users', require('./api/user'));
 
+  app.use(errorHandler())
 }

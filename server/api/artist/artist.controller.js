@@ -6,8 +6,10 @@ import Artist from './artist.model';
 
 // Gets a list of Artists
 export function index(req, res) {
+  let query = req.querymen;
+
   return Artist
-    .find(req.filter, null, req.options)
+    .find(query.query, null, query.cursor)
     .then(artists => artists.map(t => t.view()))
     .then(response.success(res))
     .catch(response.error(res));

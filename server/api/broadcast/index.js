@@ -2,7 +2,7 @@
 
 import {Router} from 'express';
 import {Types} from 'mongoose';
-import menquery from 'menquery';
+import querymen from 'querymen';
 import * as controller from './broadcast.controller';
 import * as auth from '../../modules/auth';
 
@@ -10,14 +10,15 @@ var router = new Router();
 
 router.get('/',
   auth.bearer(),
-  menquery({
-    exclude: {type: Types.ObjectId, paths: ['song'], multiple: true, operator: '$ne'},
-    service: {bindTo: 'query'},
-    min_distance: {type: Number, bindTo: 'options'},
-    song: {type: Types.ObjectId, multiple: true},
-    user: {type: Types.ObjectId, multiple: true},
-    tags: {type: Types.ObjectId, multiple: true, bindTo: 'query'},
-    artists: {type: Types.ObjectId, multiple: true, paths: ['artist'], bindTo: 'query'},
+  querymen.middleware({
+    q: {paths: ['_q']},
+    exclude: {type: [Types.ObjectId], paths: ['song'], operator: '$ne'},
+    service: {bindTo: 'search'},
+    min_distance: {type: Number, bindTo: 'cursor'},
+    song: [Types.ObjectId],
+    user: [Types.ObjectId],
+    artists: {type: [Types.ObjectId], paths: ['artist'], bindTo: 'search'},
+    tags: {type: [Types.ObjectId], bindTo: 'search'},
     sort: '-createdAt'
   }),
   controller.index);

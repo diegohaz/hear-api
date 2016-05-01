@@ -1,13 +1,19 @@
 'use strict';
 
 import {Router} from 'express';
-import menquery from 'menquery';
+import querymen from 'querymen';
 import * as controller from './place.controller';
 import * as auth from '../../modules/auth';
 
 var router = new Router();
 
-router.get('/', menquery({type: String}), controller.index);
+router.get('/',
+  querymen.middleware({
+    q: {paths: ['_q']},
+    type: String,
+    near: {geojson: false}
+  }, {near: true}),
+  controller.index);
 
 router.get('/lookup', controller.lookup);
 

@@ -6,8 +6,10 @@ import Tag from './tag.model';
 
 // Gets a list of Tags
 export function index(req, res) {
+  let query = req.querymen;
+
   return Tag
-    .find(req.filter, null, req.options)
+    .find(query.query, null, query.cursor)
     .then(tags => tags.map(t => t.view()))
     .then(response.success(res))
     .catch(response.error(res));

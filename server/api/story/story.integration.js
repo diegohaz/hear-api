@@ -138,27 +138,25 @@ describe('Story API', function() {
     });
 
     it('should respond with array to query location', function() {
-      let location = {latitude: -22.03, longitude: -43.01};
       return request(app)
         .get('/stories')
-        .query(location)
+        .query({near: '-22.03, -43.01'})
         .expect(200)
         .then(res => {
           list = res.body;
           res.body.should.be.instanceOf(Array).with.lengthOf(11);
-          verifyDistances(location, res);
+          verifyDistances({latitude: -22.03, longitude: -43.01}, res);
         });
     });
 
     it('should respond with array to query location q', function() {
-      let location = {latitude: -22.03, longitude: -43.01};
       return request(app)
         .get('/stories')
-        .query(_.assign(location, {q: 'in love'}))
+        .query({near: '-22.03, -43.01', q: 'in love'})
         .expect(200)
         .then(res => {
           res.body.should.be.instanceOf(Array).with.lengthOf(10);
-          verifyDistances(location, res);
+          verifyDistances({latitude: -22.03, longitude: -43.01}, res);
         });
     });
 
