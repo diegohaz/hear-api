@@ -17,6 +17,16 @@ import mongoose from 'mongoose';
 export default function(app) {
   var env = app.get('env');
 
+  if ('production' === env) {
+    app.use(function(req, res, next) {
+      if (req.headers['x-forwarded-proto'] !== 'https') {
+        res.redirect('https://' + req.headers.host + req.path);
+      } else {
+        return next();
+      }
+    });
+  }
+
   app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
