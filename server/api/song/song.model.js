@@ -90,9 +90,9 @@ SongSchema.methods.view = function({
 
   view.id     = this.id;
   view.title  = this.title;
-  view.artist = this.artist.view();
+  view.artist = this.artist ? this.artist.view() : undefined;
   view.isrc   = this.isrc;
-  view.tags   = this.tags.map(t => t.view());
+  view.tags   = this.tags ? this.tags.map(t => t.view()) : undefined;
 
   if (info) {
     view.previewUrl = info.previewUrl;

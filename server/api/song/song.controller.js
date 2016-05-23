@@ -11,7 +11,7 @@ export function index(req, res) {
   let query = req.querymen;
 
   return Song
-    .find(query.query, null, query.cursor)
+    .find(query.query, query.select, query.cursor)
     .populate('artist tags')
     .then(songs => songs.map(s => s.view(req.user)))
     .then(response.success(res))

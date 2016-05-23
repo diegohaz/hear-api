@@ -120,6 +120,17 @@ describe('Song API', function() {
         });
     });
 
+    it('should respond with array to fields', function() {
+      return request(app)
+        .get('/songs')
+        .query({fields: '-title'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array);
+          res.body.should.all.not.have.property('title');
+        });
+    });
+
     it('should fail 400 to query page out of range', function() {
       return request(app)
         .get('/songs')
