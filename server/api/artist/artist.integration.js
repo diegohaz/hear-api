@@ -30,7 +30,7 @@ describe('Artist API', function() {
         .then(res => res.body.should.be.instanceOf(Array));
     });
 
-    it('should respond to pagination with array', function() {
+    it('should respond with array to pagination', function() {
       return request(app)
         .get('/artists')
         .query({page: 2, limit: 1})
@@ -41,7 +41,7 @@ describe('Artist API', function() {
         });
     });
 
-    it('should respond to query search with array', function() {
+    it('should respond with array to query search', function() {
       return request(app)
         .get('/artists')
         .query({q: 'shak'})
@@ -52,7 +52,7 @@ describe('Artist API', function() {
         });
     });
 
-    it('should respond to sort with array', function() {
+    it('should respond with array to sort', function() {
       return request(app)
         .get('/artists')
         .query({sort: '-name'})
@@ -60,6 +60,17 @@ describe('Artist API', function() {
         .then(res => {
           res.body.should.be.instanceOf(Array).and.have.lengthOf(3);
           res.body[0].should.have.property('name', 'Shakira');
+        });
+    });
+
+    it('should respond with array to fields', function() {
+      return request(app)
+        .get('/artists')
+        .query({fields: '-name'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array).and.have.lengthOf(3);
+          res.body.should.all.not.have.property('name');
         });
     });
   });
