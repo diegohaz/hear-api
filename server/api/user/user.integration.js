@@ -47,6 +47,17 @@ describe('User API', function() {
         });
     });
 
+    it('should respond with array to fields when authenticated as admin', function() {
+      return request(app)
+        .get('/users')
+        .query({access_token: adminSession.token, fields: 'name'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array);
+          Object.keys(res.body[0]).should.be.deep.equal(['id', 'name']);
+        });
+    });
+
     it('should fail 401 when authenticated as user', function() {
       return request(app)
         .get('/users')
