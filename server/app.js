@@ -6,10 +6,12 @@
 
 import express from 'express';
 import mongoose from 'mongoose';
+import mongooseCreateUnique from 'mongoose-create-unique';
 import config from './config/environment';
 import http from 'http';
 
 mongoose.Promise = require('bluebird');
+mongoose.plugin(mongooseCreateUnique);
 
 // Connect to MongoDB
 mongoose.connect(config.mongo.uri, config.mongo.options);

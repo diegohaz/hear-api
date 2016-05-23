@@ -28,7 +28,7 @@ export function show(req, res) {
 // Creates a new Tag in the DB
 export function create(req, res) {
   return Tag
-    .create(req.body)
+    .createUnique(req.body)
     .then(tag => tag.view())
     .then(response.success(res, 201))
     .catch(response.error(res));

@@ -10,6 +10,7 @@ import config from '../../config/environment';
 var PlaceSchema = new mongoose.Schema({
   _id: {
     type: String,
+    unique: true,
     default: () => uid(24)
   },
   type: {
@@ -92,7 +93,6 @@ PlaceSchema.methods.view = function(full) {
 };
 
 PlaceSchema.plugin(mongooseKeywords, {paths: ['name', 'shortName']});
-PlaceSchema.plugin(require('../../modules/combine/'), {path: '_id'});
 PlaceSchema.plugin(require('mongoose-deep-populate')(mongoose), {
   rewrite: {
     parent: 'parent.parent.parent.parent'

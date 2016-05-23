@@ -11,7 +11,8 @@ var ArtistSchema = new mongoose.Schema({
     type: String,
     index: true,
     trim: true,
-    required: true
+    required: true,
+    unique: true
   }
 });
 
@@ -32,6 +33,5 @@ ArtistSchema.methods.view = function() {
 };
 
 ArtistSchema.plugin(mongooseKeywords, {paths: ['name']});
-ArtistSchema.plugin(require('../../modules/combine/'), {path: 'name'});
 
 export default mongoose.model('Artist', ArtistSchema);

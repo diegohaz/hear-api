@@ -28,7 +28,7 @@ export function show(req, res) {
 // Creates a new Artist in the DB
 export function create(req, res) {
   return Artist
-    .create(req.body)
+    .createUnique(req.body)
     .then(artist => artist.view())
     .then(response.success(res, 201))
     .catch(response.error(res));

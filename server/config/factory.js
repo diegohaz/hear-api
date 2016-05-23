@@ -41,7 +41,7 @@ export function sessions(...roles) {
 }
 
 export function artist(name = 'John Lennon') {
-  return Artist.create({name: name});
+  return Artist.createUnique({name: name});
 }
 
 export function artists(...names) {
@@ -54,7 +54,7 @@ export function artists(...names) {
 }
 
 export function tag(title = 'Rock') {
-  return Tag.create({title: title});
+  return Tag.createUnique({title: title});
 }
 
 export function tags(...titles) {

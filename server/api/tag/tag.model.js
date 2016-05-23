@@ -11,7 +11,8 @@ var TagSchema = new mongoose.Schema({
     index: true,
     lowercase: true,
     trim: true,
-    required: true
+    required: true,
+    unique: true
   }
 });
 
@@ -32,6 +33,5 @@ TagSchema.methods.view = function() {
 };
 
 TagSchema.plugin(mongooseKeywords, {paths: ['title']});
-TagSchema.plugin(require('../../modules/combine/'), {path: 'title'});
 
 export default mongoose.model('Tag', TagSchema);

@@ -56,7 +56,7 @@ export function create(req, res) {
   return PlaceService
     .sublocality(location[1], location[0])
     .tap(parent => req.body.parent = parent.id)
-    .then(() => Place.create(req.body))
+    .then(() => Place.createUnique(req.body))
     .then(place => place.deepPopulate('parent'))
     .then(place => place.view(true))
     .then(response.success(res, 201))
