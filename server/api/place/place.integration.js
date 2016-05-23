@@ -110,6 +110,17 @@ describe('Place API', function() {
         });
     });
 
+    it('should respond with array to fields', function() {
+      return request(app)
+        .get('/places')
+        .query({fields: 'name'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array);
+          Object.keys(res.body[0]).should.have.lengthOf(2).and.be.deep.equal(['id', 'name']);
+        });
+    });
+
   });
 
   describe('POST /places', function() {

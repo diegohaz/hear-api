@@ -11,7 +11,7 @@ export function index(req, res) {
   let query = req.querymen;
 
   return Place
-    .find(query.query, null, query.cursor)
+    .find(query.query, query.select, query.cursor)
     .then(places => places.map(s => s.view()))
     .then(response.success(res))
     .catch(response.error(res));

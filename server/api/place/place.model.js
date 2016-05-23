@@ -82,10 +82,10 @@ PlaceSchema.methods.view = function(full) {
     fullName: this.fullName,
     radius: this.radius,
     type: this.type,
-    location: {
+    location: this.location ? {
       latitude: this.location[1],
       longitude: this.location[0]
-    },
+    } : undefined,
     parent: full && this.parent && this.parent.view ?
             this.parent.view(full) :
             this.parent
