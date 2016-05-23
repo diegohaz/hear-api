@@ -9,7 +9,7 @@ export function index(req, res) {
   let query = req.querymen;
 
   return Tag
-    .find(query.query, null, query.cursor)
+    .find(query.query, query.select, query.cursor)
     .then(tags => tags.map(t => t.view()))
     .then(response.success(res))
     .catch(response.error(res));

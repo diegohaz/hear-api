@@ -62,6 +62,17 @@ describe('Tag API', function() {
           res.body[0].should.have.property('title', 'rock');
         });
     });
+
+    it('should respond with array to fields', function() {
+      return request(app)
+        .get('/tags')
+        .query({fields: '-title'})
+        .expect(200)
+        .then(res => {
+          res.body.should.be.instanceOf(Array);
+          res.body.should.all.not.have.property('title');
+        });
+    });
   });
 
   describe('POST /tags', function() {
