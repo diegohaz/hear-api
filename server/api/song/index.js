@@ -11,7 +11,6 @@ var router = new Router();
 router.get('/',
   auth.bearer(),
   querymen.middleware({
-    q: {paths: ['_q']},
     tags: [String],
     sort: 'title'
   }),

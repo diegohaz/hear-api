@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import {uid} from 'rand-token';
 import mongoose from 'mongoose';
+import mongooseKeywords from 'mongoose-keywords';
 import Promise from 'bluebird';
 import config from '../../config/environment';
 
@@ -21,12 +22,10 @@ var PlaceSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    index: true,
-    q: true
+    index: true
   },
   shortName: {
-    type: String,
-    q: true
+    type: String
   },
   fullName: String,
   radius: {
@@ -92,7 +91,7 @@ PlaceSchema.methods.view = function(full) {
   };
 };
 
-PlaceSchema.plugin(require('../../modules/query/q'));
+PlaceSchema.plugin(mongooseKeywords, {paths: ['name', 'shortName']});
 PlaceSchema.plugin(require('../../modules/combine/'), {path: '_id'});
 PlaceSchema.plugin(require('mongoose-deep-populate')(mongoose), {
   rewrite: {

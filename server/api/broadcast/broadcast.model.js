@@ -1,6 +1,7 @@
 'use strict';
 
 import mongoose from 'mongoose';
+import mongooseKeywords from 'mongoose-keywords';
 import config from '../../config/environment';
 import User from '../user/user.model';
 import PlaceService from '../place/place.service';
@@ -12,8 +13,7 @@ var BroadcastSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Song',
     index: true,
-    required: true,
-    q: true
+    required: true
   },
   user: {
     type: mongoose.Schema.ObjectId,
@@ -24,8 +24,7 @@ var BroadcastSchema = new mongoose.Schema({
   place: {
     type: String,
     ref: 'Place',
-    index: true,
-    q: true
+    index: true
   },
   createdAt: {
     type: Date,
@@ -151,7 +150,7 @@ BroadcastSchema.statics.findAndGroup = function(location, query = {}, options = 
     });
 };
 
-BroadcastSchema.plugin(require('../../modules/query/q'));
+BroadcastSchema.plugin(mongooseKeywords, {paths: ['song', 'place']});
 BroadcastSchema.plugin(deepPopulate, {
   rewrite: {
     artist: 'song.artist',

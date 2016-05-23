@@ -1,6 +1,7 @@
 'use strict';
 
 import mongoose from 'mongoose';
+import mongooseKeywords from 'mongoose-keywords';
 import config from '../../config/environment';
 import Song from '../song/song.model';
 
@@ -10,8 +11,7 @@ var TagSchema = new mongoose.Schema({
     index: true,
     lowercase: true,
     trim: true,
-    required: true,
-    q: true
+    required: true
   }
 });
 
@@ -31,7 +31,7 @@ TagSchema.methods.view = function() {
   }
 };
 
-TagSchema.plugin(require('../../modules/query/q'));
+TagSchema.plugin(mongooseKeywords, {paths: ['title']});
 TagSchema.plugin(require('../../modules/combine/'), {path: 'title'});
 
 export default mongoose.model('Tag', TagSchema);

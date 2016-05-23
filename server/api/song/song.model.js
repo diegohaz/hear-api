@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import mongoose from 'mongoose';
+import mongooseKeywords from 'mongoose-keywords';
 import Promise from 'bluebird';
 import service from './song.service';
 import User from '../user/user.model';
@@ -14,22 +15,19 @@ var SongSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    index: true,
-    q: true
+    index: true
   },
   artist: {
     type: mongoose.Schema.ObjectId,
     ref: 'Artist',
-    required: true,
-    q: true
+    required: true
   },
   tags: {
     type: [{
       type: mongoose.Schema.ObjectId,
       ref: 'Tag'
     }],
-    index: true,
-    q: true
+    index: true
   },
   isrc: {
     type: String,
@@ -176,6 +174,6 @@ SongSchema.statics.createByServiceId = function(id, svc) {
   });
 };
 
-SongSchema.plugin(require('../../modules/query/q'));
+SongSchema.plugin(mongooseKeywords, {paths: ['title', 'artist', 'tags']});
 
 export default mongoose.model('Song', SongSchema);

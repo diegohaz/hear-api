@@ -1,6 +1,7 @@
 'use strict';
 
 import mongoose from 'mongoose';
+import mongooseKeywords from 'mongoose-keywords';
 import {uid} from 'rand-token';
 import moment from 'moment';
 import {Schema} from 'mongoose';
@@ -9,8 +10,7 @@ var SessionSchema = new Schema({
   user: {
     type: Schema.ObjectId,
     ref: 'User',
-    index: true,
-    q: true
+    index: true
   },
   token: {
     type: String,
@@ -66,6 +66,6 @@ SessionSchema.statics.login = function(token) {
   });
 };
 
-SessionSchema.plugin(require('../../modules/query/q'));
+SessionSchema.plugin(mongooseKeywords, {paths: ['user']});
 
 export default mongoose.model('Session', SessionSchema);

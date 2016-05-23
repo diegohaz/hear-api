@@ -11,7 +11,6 @@ var router = new Router();
 router.get('/',
   auth.bearer(),
   querymen.middleware({
-    q: {paths: ['_q']},
     exclude: {type: [Types.ObjectId], paths: ['song'], operator: '$ne'},
     service: {bindTo: 'search'},
     min_distance: {type: Number, bindTo: 'cursor'},

@@ -10,7 +10,6 @@ var router = new Router();
 router.get('/',
   auth.bearer({required: true, roles: ['admin']}),
   querymen.middleware({
-    q: {paths: ['_q']},
     country: String,
     language: String,
     sort: '-createdAt'

@@ -12,8 +12,7 @@ var StorySchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Song',
     index: true,
-    required: true,
-    q: true
+    required: true
   },
   user: {
     type: mongoose.Schema.ObjectId,
@@ -24,8 +23,7 @@ var StorySchema = new mongoose.Schema({
   place: {
     type: String,
     ref: 'Place',
-    index: true,
-    q: true
+    index: true
   },
   text: {
     type: String,
@@ -82,7 +80,6 @@ StorySchema.methods.view = function({
   }
 };
 
-StorySchema.plugin(require('../../modules/query/q'));
 StorySchema.plugin(deepPopulate, {
   rewrite: {
     artist: 'song.artist',

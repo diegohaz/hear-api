@@ -9,7 +9,6 @@ var router = new Router();
 
 router.get('/',
   querymen.middleware({
-    q: {paths: ['_q']},
     type: String,
     near: {geojson: false}
   }, {near: true}),

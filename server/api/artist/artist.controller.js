@@ -9,7 +9,7 @@ export function index(req, res) {
   let query = req.querymen;
 
   return Artist
-    .find(query.query, null, query.cursor)
+    .find(query.query, query.select, query.cursor)
     .then(artists => artists.map(t => t.view()))
     .then(response.success(res))
     .catch(response.error(res));

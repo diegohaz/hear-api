@@ -3,6 +3,7 @@
 import bcrypt from 'bcrypt';
 import randtoken from 'rand-token';
 import mongoose from 'mongoose';
+import mongooseKeywords from 'mongoose-keywords';
 import {Schema} from 'mongoose';
 import config from '../../config/environment';
 import Session from '../session/session.model';
@@ -18,8 +19,7 @@ var UserSchema = new Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    index: true,
-    q: true
+    index: true
   },
   password: {
     type: String,
@@ -28,8 +28,7 @@ var UserSchema = new Schema({
   name: {
     type: String,
     index: true,
-    trim: true,
-    q: true
+    trim: true
   },
   role: {
     type: String,
@@ -129,6 +128,6 @@ UserSchema.statics.default = function(path) {
 
 UserSchema.statics.roles = roles;
 
-UserSchema.plugin(require('../../modules/query/q'));
+UserSchema.plugin(mongooseKeywords, {paths: ['email', 'name']});
 
 export default mongoose.model('User', UserSchema);

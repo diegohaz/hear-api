@@ -1,6 +1,7 @@
 'use strict';
 
 import mongoose from 'mongoose';
+import mongooseKeywords from 'mongoose-keywords';
 import Promise from 'bluebird';
 import config from '../../config/environment';
 import Song from '../song/song.model';
@@ -10,8 +11,7 @@ var ArtistSchema = new mongoose.Schema({
     type: String,
     index: true,
     trim: true,
-    required: true,
-    q: true
+    required: true
   }
 });
 
@@ -31,7 +31,7 @@ ArtistSchema.methods.view = function() {
   };
 };
 
-ArtistSchema.plugin(require('../../modules/query/q'));
+ArtistSchema.plugin(mongooseKeywords, {paths: ['name']});
 ArtistSchema.plugin(require('../../modules/combine/'), {path: 'name'});
 
 export default mongoose.model('Artist', ArtistSchema);
