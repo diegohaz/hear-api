@@ -68,8 +68,8 @@ StorySchema.methods.view = function({
 } = {}) {
   return {
     id: this.id,
-    song: this.song.view({service: service, country: country}),
-    user: this.user.view(),
+    song: this.song ? this.song.view({service: service, country: country}) : undefined,
+    user: this.user ? this.user.view() : undefined,
     place: this.place ? this.place.view(true) : this.place,
     text: this.text,
     createdAt: this.createdAt,

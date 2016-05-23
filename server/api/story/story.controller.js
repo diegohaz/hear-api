@@ -11,7 +11,7 @@ export function index(req, res) {
   let query = req.querymen;
 
   return Story
-    .find(query.query, null, query.cursor)
+    .find(query.query, query.select, query.cursor)
     .deepPopulate('user song artist tags place')
     .then(places => places.map(s => s.view()))
     .then(response.success(res))
