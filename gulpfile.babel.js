@@ -47,7 +47,7 @@ const babel = lazypipe()
   .pipe(plugins.sourcemaps.write, '.')
 
 gulp.task('env:all', () => {
-  const vars = require('./src/config/local.env')
+  const vars = require(`./${paths.server}/config/local.env`)
   plugins.env({vars})
 })
 
@@ -61,6 +61,12 @@ gulp.task('env:prod', () => {
   plugins.env({
     vars: {NODE_ENV: 'production'}
   })
+})
+
+gulp.task('lint', () => {
+  return gulp.src(paths.scripts)
+    .pipe(plugins.eslint())
+    .pipe(plugins.eslint.format())
 })
 
 gulp.task('test:pre', () => {
@@ -86,6 +92,7 @@ gulp.task('test:integration', () => {
 
 gulp.task('test', (cb) => {
   runSequence(
+    'lint',
     'test:pre',
     'env:all',
     'env:test',
