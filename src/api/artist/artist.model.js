@@ -2,6 +2,7 @@
 
 import mongoose from 'mongoose';
 import mongooseKeywords from 'mongoose-keywords';
+import mongooseCreateUnique from 'mongoose-create-unique';
 import Promise from 'bluebird';
 import config from '../../config/environment';
 import Song from '../song/song.model';
@@ -33,5 +34,6 @@ ArtistSchema.methods.view = function() {
 };
 
 ArtistSchema.plugin(mongooseKeywords, {paths: ['name']});
+ArtistSchema.plugin(mongooseCreateUnique);
 
 export default mongoose.model('Artist', ArtistSchema);

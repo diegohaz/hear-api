@@ -2,6 +2,7 @@
 
 import mongoose from 'mongoose';
 import mongooseKeywords from 'mongoose-keywords';
+import mongooseCreateUnique from 'mongoose-create-unique';
 import config from '../../config/environment';
 import Song from '../song/song.model';
 
@@ -33,5 +34,6 @@ TagSchema.methods.view = function() {
 };
 
 TagSchema.plugin(mongooseKeywords, {paths: ['title']});
+TagSchema.plugin(mongooseCreateUnique)
 
 export default mongoose.model('Tag', TagSchema);

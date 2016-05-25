@@ -4,6 +4,7 @@ import _ from 'lodash';
 import {uid} from 'rand-token';
 import mongoose from 'mongoose';
 import mongooseKeywords from 'mongoose-keywords';
+import mongooseCreateUnique from 'mongoose-create-unique';
 import Promise from 'bluebird';
 import config from '../../config/environment';
 
@@ -93,6 +94,7 @@ PlaceSchema.methods.view = function(full) {
 };
 
 PlaceSchema.plugin(mongooseKeywords, {paths: ['name', 'shortName']});
+PlaceSchema.plugin(mongooseCreateUnique);
 PlaceSchema.plugin(require('mongoose-deep-populate')(mongoose), {
   rewrite: {
     parent: 'parent.parent.parent.parent'
