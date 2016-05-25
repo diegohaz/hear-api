@@ -1,7 +1,7 @@
 {
   "name": "hear-api",
   "version": "0.0.0",
-  "main": "src/app.js",
+  "main": "server/app.js",
   "dependencies": {
     "babel-runtime": "^6.9.0",
     "bcrypt": "^0.8.5",
@@ -38,12 +38,15 @@
     "chai": "^3.2.0",
     "chai-as-promised": "^5.1.0",
     "chai-things": "^0.2.0",
+    "del": "^2.2.0",
     "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
     "gulp-env": "^0.4.0",
     "gulp-istanbul": "^0.10.4",
     "gulp-istanbul-enforcer": "^1.0.3",
     "gulp-load-plugins": "^1.2.4",
     "gulp-mocha": "^2.2.0",
+    "gulp-sourcemaps": "^1.6.0",
     "isparta": "^4.0.0",
     "lazypipe": "^1.0.1",
     "nock": "^7.7.2",
@@ -62,7 +65,7 @@
     "npm": "^2.14.7"
   },
   "scripts": {
-    "start": "node src",
+    "start": "node server",
     "test": "gulp test"
   },
   "private": true
