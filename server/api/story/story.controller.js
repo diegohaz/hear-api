@@ -7,7 +7,7 @@ import Story from './story.model'
 import Song from '../song/song.model'
 
 // Gets a list of Storys
-export function index(req, res) {
+export function index (req, res) {
   let query = req.querymen
 
   return Story
@@ -19,7 +19,7 @@ export function index(req, res) {
 }
 
 // Gets a single Story from the DB
-export function show(req, res) {
+export function show (req, res) {
   return Story
     .findById(req.params.id)
     .deepPopulate('user song artist tags place')
@@ -30,7 +30,7 @@ export function show(req, res) {
 }
 
 // Creates a new Story in the DB
-export function create(req, res) {
+export function create (req, res) {
   if (req.body._id) delete req.body._id
   if (!req.body.latitude || !req.body.longitude) {
     return res.status(400).send('Missing latitude/longitude')
@@ -62,7 +62,7 @@ export function create(req, res) {
 }
 
 // Updates an existing Story in the DB
-export function update(req, res) {
+export function update (req, res) {
   if (req.body._id) delete req.body._id
 
   return Story
@@ -76,7 +76,7 @@ export function update(req, res) {
 }
 
 // Deletes a Story from the DB
-export function destroy(req, res) {
+export function destroy (req, res) {
   return Story
     .findById(req.params.id)
     .then(response.notFound(res))

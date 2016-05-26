@@ -6,13 +6,13 @@ import Tag from './tag.model'
 import Artist from '../artist/artist.model'
 import Song from '../song/song.model'
 
-describe('Tag Model', function() {
+describe('Tag Model', function () {
 
-  before(function() {
+  before(function () {
     return factory.clean()
   })
 
-  it('should return a view', function() {
+  it('should return a view', function () {
     return factory.tag('Rock').then(tag => {
       var view = tag.view()
       view.should.have.property('id')
@@ -20,14 +20,14 @@ describe('Tag Model', function() {
     })
   })
 
-  it('should combine tags with same name', function() {
+  it('should combine tags with same name', function () {
     return factory.tags('mundO ', ' Mundo  ').then(tags => {
       tags.should.have.lengthOf(2)
       tags[0].should.have.property('id', tags[1].id)
     })
   })
 
-  it('should remove tag from songs after removing tag', function() {
+  it('should remove tag from songs after removing tag', function () {
     var tag
 
     return factory.songs(

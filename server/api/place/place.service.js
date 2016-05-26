@@ -9,7 +9,7 @@ import Place from './place.model.js'
 
 export default class PlaceService {
 
-  static sublocality(latitude, longitude, parent) {
+  static sublocality (latitude, longitude, parent) {
     let types = ['country', 'administrative_area_level_1', 'locality', 'sublocality']
 
     return request({
@@ -52,7 +52,7 @@ export default class PlaceService {
     })
   }
 
-  static venue(latitude, longitude, parent, radius = 500) {
+  static venue (latitude, longitude, parent, radius = 500) {
     return request({
       uri: 'https://api.foursquare.com/v2/venues/trending',
       qs: {
@@ -88,7 +88,7 @@ export default class PlaceService {
     })
   }
 
-  static _parsePlace(place, service) {
+  static _parsePlace (place, service) {
     if (service === 'google') {
       let location = place.geometry.location
       let ne = place.geometry.bounds.northeast

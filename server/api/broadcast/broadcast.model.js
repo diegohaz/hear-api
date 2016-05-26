@@ -38,12 +38,12 @@ var BroadcastSchema = new mongoose.Schema({
 
 BroadcastSchema.index({location: '2dsphere'})
 
-BroadcastSchema.post('save', function(broadcast) {
+BroadcastSchema.post('save', function (broadcast) {
   if (config.env === 'test') return
   broadcast.postSave()
 })
 
-BroadcastSchema.methods.postSave = function() {
+BroadcastSchema.methods.postSave = function () {
   if (this.place) return
 
   let Broadcast = mongoose.model('Broadcast')

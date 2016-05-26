@@ -5,7 +5,7 @@ import * as response from '../../modules/response/'
 import User from './user.model'
 
 // Gets a list of Users
-export function index(req, res) {
+export function index (req, res) {
   let query = req.querymen
 
   return User
@@ -16,7 +16,7 @@ export function index(req, res) {
 }
 
 // Get single User
-export function show(req, res, next) {
+export function show (req, res, next) {
   return User
     .findById(req.params.id)
     .then(response.notFound(res))
@@ -26,12 +26,12 @@ export function show(req, res, next) {
 }
 
 // Get my info
-export function me(req, res, next) {
+export function me (req, res, next) {
   res.json(req.user.view(true))
 }
 
 // Creates a new User in the DB
-export function create(req, res) {
+export function create (req, res) {
   return User
     .create(req.body)
     .then(user => user.view(true))
@@ -40,7 +40,7 @@ export function create(req, res) {
 }
 
 // Updates an existing User in the DB
-export function update(req, res) {
+export function update (req, res) {
   if (req.body._id) delete req.body._id
   if (req.body.role) delete req.body.role
   if (req.body.createdAt) delete req.body.createdAt
@@ -63,7 +63,7 @@ export function update(req, res) {
 }
 
 // Deletes a User from the DB
-export function destroy(req, res) {
+export function destroy (req, res) {
   return User
     .findById(req.params.id)
     .then(response.notFound(res))

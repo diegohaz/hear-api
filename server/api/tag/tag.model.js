@@ -17,16 +17,16 @@ var TagSchema = new mongoose.Schema({
   }
 })
 
-TagSchema.post('remove', function(tag) {
+TagSchema.post('remove', function (tag) {
   if (config.env === 'test') return
   tag.postRemove()
 })
 
-TagSchema.methods.postRemove = function() {
+TagSchema.methods.postRemove = function () {
   return Song.update({tags: this}, {$pull: {tags: this._id}}, {multi: true}).exec()
 }
 
-TagSchema.methods.view = function() {
+TagSchema.methods.view = function () {
   return {
     id: this.id,
     title: this.title

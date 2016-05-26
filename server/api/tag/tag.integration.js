@@ -5,10 +5,10 @@ import request from 'supertest-as-promised'
 import * as factory from '../../config/factory'
 import Tag from './tag.model'
 
-describe('Tag API', function() {
+describe('Tag API', function () {
   var tag, user, admin
 
-  before(function() {
+  before(function () {
     return factory.clean()
       .then(() => factory.sessions('user', 'admin'))
       .spread((u, a) => {
@@ -17,20 +17,20 @@ describe('Tag API', function() {
       })
   })
 
-  describe('GET /tags', function() {
+  describe('GET /tags', function () {
 
-    before(function() {
+    before(function () {
       return factory.tags('MBP', 'Pop', 'Rock')
     })
 
-    it('should respond with array', function() {
+    it('should respond with array', function () {
       return request(app)
         .get('/tags')
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array))
     })
 
-    it('should respond with array to query page', function() {
+    it('should respond with array to query page', function () {
       return request(app)
         .get('/tags')
         .query({page: 2, limit: 1})
@@ -41,7 +41,7 @@ describe('Tag API', function() {
       })
     })
 
-    it('should respond with array to query q', function() {
+    it('should respond with array to query q', function () {
       return request(app)
         .get('/tags')
         .query({q: 'po'})
@@ -52,7 +52,7 @@ describe('Tag API', function() {
         })
     })
 
-    it('should respond with array to query sort', function() {
+    it('should respond with array to query sort', function () {
       return request(app)
         .get('/tags')
         .query({sort: '-title'})
@@ -63,7 +63,7 @@ describe('Tag API', function() {
         })
     })
 
-    it('should respond with array to fields', function() {
+    it('should respond with array to fields', function () {
       return request(app)
         .get('/tags')
         .query({fields: '-title'})
@@ -75,9 +75,9 @@ describe('Tag API', function() {
     })
   })
 
-  describe('POST /tags', function() {
+  describe('POST /tags', function () {
 
-    it('should respond with the created tag when authenticated as admin', function() {
+    it('should respond with the created tag when authenticated as admin', function () {
       return request(app)
         .post('/tags')
         .send({access_token: admin.token, title: 'Pop'})
@@ -88,14 +88,14 @@ describe('Tag API', function() {
         })
     })
 
-    it('should fail 401 when authenticated as user', function() {
+    it('should fail 401 when authenticated as user', function () {
       return request(app)
         .post('/tags')
         .send({access_token: user.token, title: 'Pop'})
         .expect(401)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .post('/tags')
         .send({title: 'Pop'})
@@ -104,16 +104,16 @@ describe('Tag API', function() {
 
   })
 
-  describe('GET /tags/:id', function() {
+  describe('GET /tags/:id', function () {
 
-    it('should respond with a tag', function() {
+    it('should respond with a tag', function () {
       return request(app)
         .get('/tags/' + tag.id)
         .expect(200)
         .then(res => res.body.should.have.property('id', tag.id))
     })
 
-    it('should fail 404 when tag does not exist', function() {
+    it('should fail 404 when tag does not exist', function () {
       return request(app)
         .get('/tags/123456789098765432123456')
         .expect(404)
@@ -121,9 +121,9 @@ describe('Tag API', function() {
 
   })
 
-  describe('PUT /tags/:id', function() {
+  describe('PUT /tags/:id', function () {
 
-    it('should respond with the updated tag when authenticated as admin', function() {
+    it('should respond with the updated tag when authenticated as admin', function () {
       return request(app)
         .put('/tags/' + tag.id)
         .send({access_token: admin.token, title: 'Rock'})
@@ -131,21 +131,21 @@ describe('Tag API', function() {
         .then(res => res.body.should.have.property('title', 'rock'))
     })
 
-    it('should fail 404 when tag does not exist', function() {
+    it('should fail 404 when tag does not exist', function () {
       return request(app)
         .put('/tags/123456789098765432123456')
         .send({access_token: admin.token, title: 'Rock'})
         .expect(404)
     })
 
-    it('should fail 401 when authenticated as user', function() {
+    it('should fail 401 when authenticated as user', function () {
       return request(app)
         .put('/tags/' + tag.id)
         .send({access_token: user.token, title: 'Rock'})
         .expect(401)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .put('/tags/' + tag.id)
         .send({title: 'Rock'})
@@ -154,30 +154,30 @@ describe('Tag API', function() {
 
   })
 
-  describe('DELETE /tags/:id', function() {
+  describe('DELETE /tags/:id', function () {
 
-    it('should delete when authenticated as admin', function() {
+    it('should delete when authenticated as admin', function () {
       return request(app)
         .delete('/tags/' + tag.id)
         .send({access_token: admin.token})
         .expect(204)
     })
 
-    it('should fail 404 when tag does not exist', function() {
+    it('should fail 404 when tag does not exist', function () {
       return request(app)
         .delete('/tags/' + tag.id)
         .send({access_token: admin.token})
         .expect(404)
     })
 
-    it('should fail 401 when authenticated as user', function() {
+    it('should fail 401 when authenticated as user', function () {
       return request(app)
         .delete('/tags/' + tag.id)
         .send({access_token: user.token})
         .expect(401)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .delete('/tags/' + tag.id)
         .expect(401)

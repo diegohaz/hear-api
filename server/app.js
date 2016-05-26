@@ -47,8 +47,8 @@ mongoose.connection.on('error', (err) => {
 
 const server = http.createServer(app)
 
-function startServer() {
-  app.server = server.listen(config.port, config.ip, function() {
+function startServer () {
+  app.server = server.listen(config.port, config.ip, function () {
     console.log('Express server listening on %d, in %s mode', config.port, app.get('env'))
   })
 }

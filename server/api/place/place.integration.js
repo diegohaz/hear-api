@@ -7,10 +7,10 @@ import request from 'supertest-as-promised'
 import Place from './place.model'
 import PlaceService from './place.service'
 
-describe('Place API', function() {
+describe('Place API', function () {
   var place, user, admin
 
-  before(function() {
+  before(function () {
     return factory.clean()
       .then(() => factory.sessions('user', 'admin'))
       .spread((u, a) => {
@@ -19,24 +19,24 @@ describe('Place API', function() {
       })
   })
 
-  after(function() {
+  after(function () {
     return factory.clean()
   })
 
-  describe('GET /places', function() {
+  describe('GET /places', function () {
 
-    before(function() {
+    before(function () {
       return factory.places([37.757815,-122.5076406], [-22.9790625,-43.2345556])
     })
 
-    it('should respond with array', function() {
+    it('should respond with array', function () {
       return request(app)
         .get('/places')
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array))
     })
 
-    it('should respond with array to query type', function() {
+    it('should respond with array to query type', function () {
       return request(app)
         .get('/places')
         .query({type: 'sublocality'})
@@ -44,7 +44,7 @@ describe('Place API', function() {
         .then(res => res.body.should.be.instanceOf(Array).with.lengthOf(1))
     })
 
-    it('should respond with array to query page', function() {
+    it('should respond with array to query page', function () {
       return request(app)
         .get('/places')
         .query({page: 2, limit: 1})
@@ -55,7 +55,7 @@ describe('Place API', function() {
         })
     })
 
-    it('should respond with array to query q name', function() {
+    it('should respond with array to query q name', function () {
       return request(app)
         .get('/places')
         .query({q: 'cali'})
@@ -66,7 +66,7 @@ describe('Place API', function() {
         })
     })
 
-    it('should respond with array to query q short name', function() {
+    it('should respond with array to query q short name', function () {
       return request(app)
         .get('/places')
         .query({q: 'us'})
@@ -77,7 +77,7 @@ describe('Place API', function() {
         })
     })
 
-    it('should respond with array to query location', function() {
+    it('should respond with array to query location', function () {
       return request(app)
         .get('/places')
         .query({near: '36.578261,-119.6179324'})
@@ -88,7 +88,7 @@ describe('Place API', function() {
         })
     })
 
-    it('should respond with array to query location type', function() {
+    it('should respond with array to query location type', function () {
       return request(app)
         .get('/places')
         .query({near: '36.578261,-119.6179324', type: 'sublocality'})
@@ -99,7 +99,7 @@ describe('Place API', function() {
         })
     })
 
-    it('should respond with array to query sort', function() {
+    it('should respond with array to query sort', function () {
       return request(app)
         .get('/places')
         .query({sort: '-name'})
@@ -110,7 +110,7 @@ describe('Place API', function() {
         })
     })
 
-    it('should respond with array to fields', function() {
+    it('should respond with array to fields', function () {
       return request(app)
         .get('/places')
         .query({fields: 'name'})
@@ -123,10 +123,10 @@ describe('Place API', function() {
 
   })
 
-  describe('POST /places', function() {
+  describe('POST /places', function () {
 
-    it('should respond with the created place when authenticated as admin', function() {
-      return vcr.useCassette(`Place API/${this.test.title}`, function() {
+    it('should respond with the created place when authenticated as admin', function () {
+      return vcr.useCassette(`Place API/${this.test.title}`, function () {
         return request(app)
           .post('/places')
           .send({
@@ -143,15 +143,15 @@ describe('Place API', function() {
       })
     })
 
-    it('should fail 400 when location was not sent', function() {
+    it('should fail 400 when location was not sent', function () {
       return request(app)
         .post('/places')
         .send({access_token: admin.token, name: 'Home'})
         .expect(400)
     })
 
-    it('should fail 400 when name was not sent', function() {
-      return vcr.useCassette(`Place API/${this.test.title}`, function() {
+    it('should fail 400 when name was not sent', function () {
+      return vcr.useCassette(`Place API/${this.test.title}`, function () {
         return request(app)
           .post('/places')
           .send({access_token: admin.token, latitude: -22.7483081, longitude: -43.4531537})
@@ -159,14 +159,14 @@ describe('Place API', function() {
       })
     })
 
-    it('should fail 401 when authenticated as user', function() {
+    it('should fail 401 when authenticated as user', function () {
       return request(app)
         .post('/places')
         .send({access_token: user.token, latitude: 37.757815, longitude: -122.5076406})
         .expect(401)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .post('/places')
         .send({latitude: 37.757815, longitude: -122.5076406})
@@ -175,9 +175,9 @@ describe('Place API', function() {
 
   })
 
-  describe('GET /places/:id', function() {
+  describe('GET /places/:id', function () {
 
-    it('should respond with a place', function() {
+    it('should respond with a place', function () {
       return request(app)
         .get('/places/' + place.id)
         .expect(200)
@@ -187,7 +187,7 @@ describe('Place API', function() {
         })
     })
 
-    it('should fail 404 when place does not exist', function() {
+    it('should fail 404 when place does not exist', function () {
       return request(app)
         .get('/places/123456789098765432123456')
         .query({access_token: user.token})
@@ -196,10 +196,10 @@ describe('Place API', function() {
 
   })
 
-  describe('GET /places/lookup', function() {
+  describe('GET /places/lookup', function () {
 
-    it('should respond with the place', function() {
-      return vcr.useCassette(`Place API/${this.test.title}`, function() {
+    it('should respond with the place', function () {
+      return vcr.useCassette(`Place API/${this.test.title}`, function () {
         return request(app)
           .get('/places/lookup')
           .query({latitude: -22.997673, longitude: -43.3603154})
@@ -210,7 +210,7 @@ describe('Place API', function() {
       })
     })
 
-    it('should fail 400 when location was not sent', function() {
+    it('should fail 400 when location was not sent', function () {
       return request(app)
         .get('/places/lookup')
         .query({access_token: user.token})
@@ -219,9 +219,9 @@ describe('Place API', function() {
 
   })
 
-  describe('PUT /places/:id', function() {
+  describe('PUT /places/:id', function () {
 
-    it('should respond with the updated place when authenticated as admin', function() {
+    it('should respond with the updated place when authenticated as admin', function () {
       return request(app)
         .put('/places/' + place.id)
         .send({access_token: admin.token, name: 'São Francisco'})
@@ -231,21 +231,21 @@ describe('Place API', function() {
         })
     })
 
-    it('should fail 404 when place does not exist', function() {
+    it('should fail 404 when place does not exist', function () {
       return request(app)
         .put('/places/123456789098765432123456')
         .send({access_token: admin.token, name: 'São Francisco'})
         .expect(404)
     })
 
-    it('should fail 401 when authenticated as user', function() {
+    it('should fail 401 when authenticated as user', function () {
       return request(app)
         .put('/places/' + place.id)
         .send({access_token: user.token, name: 'São Francisco'})
         .expect(401)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .put('/places/' + place.id)
         .send({name: 'São Francisco'})
@@ -254,30 +254,30 @@ describe('Place API', function() {
 
   })
 
-  describe('DELETE /places/:id', function() {
+  describe('DELETE /places/:id', function () {
 
-    it('should delete when authenticated as admin', function() {
+    it('should delete when authenticated as admin', function () {
       return request(app)
         .delete('/places/' + place.id)
         .send({access_token: admin.token})
         .expect(204)
     })
 
-    it('should fail 404 when user does not exist', function() {
+    it('should fail 404 when user does not exist', function () {
       return request(app)
         .delete('/places/' + place.id)
         .send({access_token: admin.token})
         .expect(404)
     })
 
-    it('should fail 401 when authenticated as user', function() {
+    it('should fail 401 when authenticated as user', function () {
       return request(app)
         .delete('/places/' + place.id)
         .send({access_token: user.token})
         .expect(401)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .delete('/places/' + place.id)
         .expect(401)

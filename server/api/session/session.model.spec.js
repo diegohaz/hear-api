@@ -6,18 +6,18 @@ import tk from 'timekeeper'
 import * as factory from '../../config/factory'
 import Session from './session.model'
 
-describe('Session Model', function() {
+describe('Session Model', function () {
 
-  before(function() {
+  before(function () {
     return factory.clean()
   })
 
-  afterEach(function() {
+  afterEach(function () {
     tk.reset()
     return factory.clean()
   })
 
-  it('should return a view', function() {
+  it('should return a view', function () {
     return factory.session().then(session => {
       var view = session.view(true)
       view.should.have.property('user')
@@ -25,14 +25,14 @@ describe('Session Model', function() {
     })
   })
 
-  it('should set expiration date automatically', function() {
+  it('should set expiration date automatically', function () {
     return factory.session().then(session => {
       var nextYear = moment().add(1, 'years')
       nextYear.diff(moment(session.expiresAt)).should.be.within(0, 30)
     })
   })
 
-  it('should update expiration time', function() {
+  it('should update expiration time', function () {
     return factory.session().delay(50).then(session => {
       return session.save()
     }).then(session => {
@@ -41,7 +41,7 @@ describe('Session Model', function() {
     })
   })
 
-  it('should expire after 1 year', function() {
+  it('should expire after 1 year', function () {
     return factory.session().then(session => {
       var nextYear = moment().add(1, 'years')
       tk.freeze(nextYear.toDate())
@@ -49,7 +49,7 @@ describe('Session Model', function() {
     })
   })
 
-  it('should not expire until 1 year later', function() {
+  it('should not expire until 1 year later', function () {
     return factory.session().then(session => {
       var almostNextYear = moment().add(1, 'years').subtract(1, 'seconds')
       tk.freeze(almostNextYear.toDate())
@@ -57,13 +57,13 @@ describe('Session Model', function() {
     })
   })
 
-  it('should not login with invalid token', function() {
+  it('should not login with invalid token', function () {
     return factory.session().then(session => {
       return Session.login('wrong token').should.be.rejected
     })
   })
 
-  it('should not login with expired token', function() {
+  it('should not login with expired token', function () {
     return factory.session().then(session => {
       var nextYear = moment().add(1, 'years')
       tk.freeze(nextYear.toDate())

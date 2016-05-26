@@ -8,10 +8,10 @@ import Song from './song.model'
 import SongService from './song.service'
 import Artist from '../artist/artist.model'
 
-describe('Song API', function() {
+describe('Song API', function () {
   var song, user, admin, ids = {}
 
-  before(function() {
+  before(function () {
     return factory.clean()
       .then(() => factory.sessions('user', 'admin'))
       .spread((u, a) => {
@@ -20,14 +20,14 @@ describe('Song API', function() {
       })
   })
 
-  after(function() {
+  after(function () {
     return factory.clean()
   })
 
-  describe('GET /songs', function() {
+  describe('GET /songs', function () {
     let tag1, tag2
 
-    before(function() {
+    before(function () {
       return factory.songs(
         ['Imagine', 'John Lennon'],
         ['Mother', 'John Lennon', 'folk'],
@@ -38,14 +38,14 @@ describe('Song API', function() {
       })
     })
 
-    it('should respond with array', function() {
+    it('should respond with array', function () {
       return request(app)
         .get('/songs')
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array))
     })
 
-    it('should respond with array to query page', function() {
+    it('should respond with array to query page', function () {
       return request(app)
         .get('/songs')
         .query({page: 2, limit: 1})
@@ -56,7 +56,7 @@ describe('Song API', function() {
         })
     })
 
-    it('should respond with array to query tags', function() {
+    it('should respond with array to query tags', function () {
       return request(app)
         .get('/songs')
         .query({tags: tag1.id})
@@ -67,7 +67,7 @@ describe('Song API', function() {
         })
     })
 
-    it('should respond with array to query multiple tags', function() {
+    it('should respond with array to query multiple tags', function () {
       return request(app)
         .get('/songs')
         .query({tags: `${tag1.id}, ${tag2.id}`})
@@ -77,7 +77,7 @@ describe('Song API', function() {
         })
     })
 
-    it('should respond with array to query q tag', function() {
+    it('should respond with array to query q tag', function () {
       return request(app)
         .get('/songs')
         .query({q: '70'})
@@ -88,7 +88,7 @@ describe('Song API', function() {
         })
     })
 
-    it('should respond with array to query q title', function() {
+    it('should respond with array to query q title', function () {
       return request(app)
         .get('/songs')
         .query({q: 'wo'})
@@ -99,7 +99,7 @@ describe('Song API', function() {
         })
     })
 
-    it('should respond with array to query q artist', function() {
+    it('should respond with array to query q artist', function () {
       return request(app)
         .get('/songs')
         .query({q: 'lennon'})
@@ -109,7 +109,7 @@ describe('Song API', function() {
         })
     })
 
-    it('should respond with array to query sort', function() {
+    it('should respond with array to query sort', function () {
       return request(app)
         .get('/songs')
         .query({sort: '-title'})
@@ -120,7 +120,7 @@ describe('Song API', function() {
         })
     })
 
-    it('should respond with array to fields', function() {
+    it('should respond with array to fields', function () {
       return request(app)
         .get('/songs')
         .query({fields: '-title'})
@@ -131,14 +131,14 @@ describe('Song API', function() {
         })
     })
 
-    it('should fail 400 to query page out of range', function() {
+    it('should fail 400 to query page out of range', function () {
       return request(app)
         .get('/songs')
         .query({page: 31})
         .expect(400)
     })
 
-    it('should fail 400 to query limit out of range', function() {
+    it('should fail 400 to query limit out of range', function () {
       return request(app)
         .get('/songs')
         .query({limit: 101})
@@ -147,11 +147,11 @@ describe('Song API', function() {
 
   })
 
-  describe('GET /songs/search', function() {
-    SongService.allServices().forEach(function(service) {
+  describe('GET /songs/search', function () {
+    SongService.allServices().forEach(function (service) {
 
-      it('should respond with array when authenticated to ' + service, function() {
-        return vcr.useCassette(`Song API/${this.test.title}`, function() {
+      it('should respond with array when authenticated to ' + service, function () {
+        return vcr.useCassette(`Song API/${this.test.title}`, function () {
           user.user.service = service
           return user.user.save().then(() => {
             return request(app)
@@ -170,11 +170,11 @@ describe('Song API', function() {
     })
   })
 
-  SongService.allServices().forEach(function(service) {
-    describe('GET /songs/search?service=' + service, function() {
+  SongService.allServices().forEach(function (service) {
+    describe('GET /songs/search?service=' + service, function () {
 
-      it('should respond with array to query q', function() {
-        return vcr.useCassette(`Song API/${this.test.parent.title}/${this.test.title}`, function() {
+      it('should respond with array to query q', function () {
+        return vcr.useCassette(`Song API/${this.test.parent.title}/${this.test.title}`, function () {
           return request(app)
             .get('/songs/search')
             .query({q: 'Imagine', limit: 5, service: service})
@@ -189,14 +189,14 @@ describe('Song API', function() {
     })
   })
 
-  describe('POST /songs', function() {
+  describe('POST /songs', function () {
     var artist
 
-    before(function() {
+    before(function () {
       return factory.artist('Anitta').then(a => artist = a)
     })
 
-    it('should respond with the created song when authenticated as admin', function() {
+    it('should respond with the created song when authenticated as admin', function () {
       return request(app)
         .post('/songs')
         .send({access_token: admin.token, title: 'Bang', artist: artist})
@@ -207,10 +207,10 @@ describe('Song API', function() {
         })
     })
 
-    SongService.allServices().forEach(function(service) {
+    SongService.allServices().forEach(function (service) {
 
-      it('should respond with the created song by sending serviceId when authenticated to ' + service + ' as admin', function() {
-        return vcr.useCassette(`Song API/${this.test.title}`, function() {
+      it('should respond with the created song by sending serviceId when authenticated to ' + service + ' as admin', function () {
+        return vcr.useCassette(`Song API/${this.test.title}`, function () {
           admin.user.service = service
           return admin.user.save().then(() => {
             return request(app)
@@ -227,14 +227,14 @@ describe('Song API', function() {
 
     })
 
-    it('should fail 401 when authenticated as user', function() {
+    it('should fail 401 when authenticated as user', function () {
       return request(app)
         .post('/songs')
         .send({access_token: user.token, title: 'Bang', artist: artist})
         .expect(401)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .post('/songs')
         .send({title: 'Bang', artist: artist})
@@ -243,16 +243,16 @@ describe('Song API', function() {
 
   })
 
-  describe('GET /songs/:id', function() {
+  describe('GET /songs/:id', function () {
 
-    it('should respond with a song', function() {
+    it('should respond with a song', function () {
       return request(app)
         .get('/songs/' + song.id)
         .expect(200)
         .then(res => res.body.should.have.property('id', song.id))
     })
 
-    it('should fail 404 when song does not exist', function() {
+    it('should fail 404 when song does not exist', function () {
       return request(app)
         .get('/songs/123456789098765432123456')
         .expect(404)
@@ -260,9 +260,9 @@ describe('Song API', function() {
 
   })
 
-  describe('PUT /songs/:id', function() {
+  describe('PUT /songs/:id', function () {
 
-    it('should respond with the updated song when update title authenticated as admin', function() {
+    it('should respond with the updated song when update title authenticated as admin', function () {
       return request(app)
         .put('/songs/' + song.id)
         .send({access_token: admin.token, title: 'Woman'})
@@ -270,7 +270,7 @@ describe('Song API', function() {
         .then(res => res.body.should.have.property('title', 'Woman'))
     })
 
-    it('should respond with the updated song when update artist authenticated as admin', function() {
+    it('should respond with the updated song when update artist authenticated as admin', function () {
       return factory.artist('John Lennon').then(artist => {
         return request(app)
           .put('/songs/' + song.id)
@@ -279,21 +279,21 @@ describe('Song API', function() {
       }).then(res => res.body.should.have.deep.property('artist.name', 'John Lennon'))
     })
 
-    it('should fail 404 when song does not exist', function() {
+    it('should fail 404 when song does not exist', function () {
       return request(app)
         .put('/songs/123456789098765432123456')
         .send({access_token: admin.token, title: 'Woman'})
         .expect(404)
     })
 
-    it('should fail 401 when authenticated as user', function() {
+    it('should fail 401 when authenticated as user', function () {
       return request(app)
         .put('/songs/' + song.id)
         .send({access_token: user.token, title: 'Woman'})
         .expect(401)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .put('/songs/' + song.id)
         .send({title: 'Woman'})
@@ -302,30 +302,30 @@ describe('Song API', function() {
 
   })
 
-  describe('DELETE /songs/:id', function() {
+  describe('DELETE /songs/:id', function () {
 
-    it('should delete when authenticated as admin', function() {
+    it('should delete when authenticated as admin', function () {
       return request(app)
         .delete('/songs/' + song.id)
         .send({access_token: admin.token})
         .expect(204)
     })
 
-    it('should fail 404 when user does not exist', function() {
+    it('should fail 404 when user does not exist', function () {
       return request(app)
         .delete('/songs/' + song.id)
         .send({access_token: admin.token})
         .expect(404)
     })
 
-    it('should fail 401 when authenticated as user', function() {
+    it('should fail 401 when authenticated as user', function () {
       return request(app)
         .delete('/songs/' + song.id)
         .send({access_token: user.token})
         .expect(401)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .delete('/songs/' + song.id)
         .expect(401)

@@ -5,7 +5,7 @@ import * as response from '../../modules/response/'
 import Tag from './tag.model'
 
 // Gets a list of Tags
-export function index(req, res) {
+export function index (req, res) {
   let query = req.querymen
 
   return Tag
@@ -16,7 +16,7 @@ export function index(req, res) {
 }
 
 // Gets a single Tag from the DB
-export function show(req, res) {
+export function show (req, res) {
   return Tag
     .findById(req.params.id)
     .then(response.notFound(res))
@@ -26,7 +26,7 @@ export function show(req, res) {
 }
 
 // Creates a new Tag in the DB
-export function create(req, res) {
+export function create (req, res) {
   return Tag
     .createUnique(req.body)
     .then(tag => tag.view())
@@ -35,7 +35,7 @@ export function create(req, res) {
 }
 
 // Updates an existing Tag in the DB
-export function update(req, res) {
+export function update (req, res) {
   if (req.body._id) delete req.body._id
 
   return Tag
@@ -48,7 +48,7 @@ export function update(req, res) {
 }
 
 // Deletes a Tag from the DB
-export function destroy(req, res) {
+export function destroy (req, res) {
   return Tag
     .findById(req.params.id)
     .then(response.notFound(res))

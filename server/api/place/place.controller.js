@@ -7,7 +7,7 @@ import PlaceService from './place.service'
 import User from '../user/user.model'
 
 // Gets a list of Places
-export function index(req, res) {
+export function index (req, res) {
   let query = req.querymen
 
   return Place
@@ -18,7 +18,7 @@ export function index(req, res) {
 }
 
 // Gets a single Place from the DB
-export function show(req, res) {
+export function show (req, res) {
   return Place
     .findById(req.params.id)
     .deepPopulate('parent')
@@ -29,7 +29,7 @@ export function show(req, res) {
 }
 
 // Lookup for a single Place in Service
-export function lookup(req, res) {
+export function lookup (req, res) {
   if (!req.query.latitude || !req.query.longitude) {
     return res.status(400).send('Missing latitude/longitude')
   }
@@ -46,7 +46,7 @@ export function lookup(req, res) {
 }
 
 // Creates a new Place in the DB
-export function create(req, res) {
+export function create (req, res) {
   if (!req.body.latitude || !req.body.longitude) {
     return res.status(400).send('Missing latitude/longitude')
   }
@@ -64,7 +64,7 @@ export function create(req, res) {
 }
 
 // Updates an existing Place in the DB
-export function update(req, res) {
+export function update (req, res) {
   if (req.body._id) delete req.body._id
 
   return Place
@@ -78,7 +78,7 @@ export function update(req, res) {
 }
 
 // Deletes a Place from the DB
-export function destroy(req, res) {
+export function destroy (req, res) {
   return Place
     .findById(req.params.id)
     .then(response.notFound(res))

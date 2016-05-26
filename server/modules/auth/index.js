@@ -7,7 +7,7 @@ export function bearer({
   required = false,
   roles = User.roles
 } = {}) {
-  return function(req, res, next) {
+  return function (req, res, next) {
     passport.authenticate('bearer', {session: false}, (err, user, info) => {
       if (err || (required && !user) || (required && roles.indexOf(user.role) === -1)) {
         return res.status(401).end()
@@ -21,6 +21,6 @@ export function bearer({
   }
 }
 
-export function basic() {
+export function basic () {
   return passport.authenticate('basic', {session: false})
 }

@@ -5,7 +5,7 @@ import * as response from '../../modules/response/'
 import Artist from './artist.model'
 
 // Gets a list of Artists
-export function index(req, res) {
+export function index (req, res) {
   let query = req.querymen
 
   return Artist
@@ -16,7 +16,7 @@ export function index(req, res) {
 }
 
 // Gets a single Artist from the DB
-export function show(req, res) {
+export function show (req, res) {
   return Artist
     .findById(req.params.id)
     .then(response.notFound(res))
@@ -26,7 +26,7 @@ export function show(req, res) {
 }
 
 // Creates a new Artist in the DB
-export function create(req, res) {
+export function create (req, res) {
   return Artist
     .createUnique(req.body)
     .then(artist => artist.view())
@@ -35,7 +35,7 @@ export function create(req, res) {
 }
 
 // Updates an existing Artist in the DB
-export function update(req, res) {
+export function update (req, res) {
   if (req.body._id) delete req.body._id
 
   return Artist
@@ -48,7 +48,7 @@ export function update(req, res) {
 }
 
 // Deletes a Artist from the DB
-export function destroy(req, res) {
+export function destroy (req, res) {
   return Artist
     .findById(req.params.id)
     .then(response.notFound(res))

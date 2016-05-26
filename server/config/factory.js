@@ -14,12 +14,12 @@ import PlaceService from '../api/place/place.service'
 import Broadcast from '../api/broadcast/broadcast.model'
 import Story from '../api/story/story.model'
 
-export function clean() {
+export function clean () {
   let collections = mongoose.connection.collections
   return Promise.each(_.values(collections), collection => collection.remove())
 }
 
-export function user(role = 'user') {
+export function user (role = 'user') {
   return User.create({
     email: 'anonymous',
     password: 'password',
@@ -28,23 +28,23 @@ export function user(role = 'user') {
   })
 }
 
-export function users(...roles) {
+export function users (...roles) {
   return Promise.all(_.times(roles.length || 1, i => user(roles[i])))
 }
 
-export function session(role) {
+export function session (role) {
   return user(role).then(user => Session.create({user: user}))
 }
 
-export function sessions(...roles) {
+export function sessions (...roles) {
   return Promise.all(_.times(roles.length || 1, i => session(roles[i])))
 }
 
-export function artist(name = 'John Lennon') {
+export function artist (name = 'John Lennon') {
   return Artist.createUnique({name: name})
 }
 
-export function artists(...names) {
+export function artists (...names) {
   let artists = []
 
   return Promise.each(names, (name, i) => {
@@ -53,11 +53,11 @@ export function artists(...names) {
   }).return(artists).all()
 }
 
-export function tag(title = 'Rock') {
+export function tag (title = 'Rock') {
   return Tag.createUnique({title: title})
 }
 
-export function tags(...titles) {
+export function tags (...titles) {
   let tags = []
 
   return Promise.each(titles, (title, i) => {
@@ -66,7 +66,7 @@ export function tags(...titles) {
   }).return(tags).all()
 }
 
-export function song(title = 'Imagine', artistName = undefined, tagTitle = undefined) {
+export function song (title = 'Imagine', artistName = undefined, tagTitle = undefined) {
   let join = [artist(artistName)]
 
   if (tagTitle) {
@@ -82,7 +82,7 @@ export function song(title = 'Imagine', artistName = undefined, tagTitle = undef
   })
 }
 
-export function songs(...titles) {
+export function songs (...titles) {
   let songs = []
 
   return Promise.each(titles, (title, i) => {
@@ -91,13 +91,13 @@ export function songs(...titles) {
   }).return(songs).all()
 }
 
-export function place(point = [37.757815,-122.5076406]) {
-  return vcr.useCassette(`Place Factory/${point[0]}.${point[1]}`, function() {
+export function place (point = [37.757815,-122.5076406]) {
+  return vcr.useCassette(`Place Factory/${point[0]}.${point[1]}`, function () {
     return PlaceService.sublocality(point[0], point[1])
   })
 }
 
-export function places(...points) {
+export function places (...points) {
   let places = []
 
   return Promise.each(points, (point, i) => {
@@ -106,11 +106,11 @@ export function places(...points) {
   }).return(places).all()
 }
 
-export function broadcast(...songArguments) {
+export function broadcast (...songArguments) {
   let point = _.remove(songArguments, _.isArray)[0] || [37.757815,-122.5076406]
   let cassette = `Broadcast Factory/${songArguments.slice(0,2).join(' - ')} ${point[0]},${point[1]}`
 
-  return vcr.useCassette(cassette, function() {
+  return vcr.useCassette(cassette, function () {
     return Promise.join(user(), song(...songArguments), (user, song) => {
       let location = {coordinates: [point[1], point[0]]}
       return Broadcast.create({user: user, song: song, location: location})
@@ -118,7 +118,7 @@ export function broadcast(...songArguments) {
   })
 }
 
-export function broadcasts(...points) {
+export function broadcasts (...points) {
   let broadcasts = []
 
   return Promise.each(points, (point, i) => {
@@ -127,11 +127,11 @@ export function broadcasts(...points) {
   }).return(broadcasts).all()
 }
 
-export function story(text, ...songArguments) {
+export function story (text, ...songArguments) {
   let point = _.remove(songArguments, _.isArray)[0] || [37.757815,-122.5076406]
   let cassette = `Story Factory/${songArguments.slice(0,2).join(' - ')} ${point[0]},${point[1]}`
 
-  return vcr.useCassette(cassette, function() {
+  return vcr.useCassette(cassette, function () {
     return Promise.join(user(), song(...songArguments), (user, song) => {
       let location = {coordinates: [point[1], point[0]]}
       return Story.create({user: user, song: song, text: text, location: location})
@@ -139,7 +139,7 @@ export function story(text, ...songArguments) {
   })
 }
 
-export function stories(...points) {
+export function stories (...points) {
   let stories = []
 
   return Promise.each(points, (point, i) => {

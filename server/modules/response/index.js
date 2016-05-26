@@ -3,17 +3,17 @@
 import mongoose from 'mongoose'
 import _ from 'lodash'
 
-export function success(res, statusCode) {
+export function success (res, statusCode) {
   statusCode = statusCode || 200
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity)
     }
   }
 }
 
-export function error(res, statusCode) {
-  return function(err) {
+export function error (res, statusCode) {
+  return function (err) {
     if (err instanceof mongoose.Error) {
       statusCode = statusCode || 400
       var errors = err.errors
@@ -27,8 +27,8 @@ export function error(res, statusCode) {
   }
 }
 
-export function notFound(res) {
-  return function(entity) {
+export function notFound (res) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end()
       return null

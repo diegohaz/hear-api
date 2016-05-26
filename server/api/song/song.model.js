@@ -51,21 +51,21 @@ var SongSchema = new mongoose.Schema({
   }]
 })
 
-// ArtistSchema.post('remove', function(artist) {
+// ArtistSchema.post('remove', function (artist) {
 //   if (config.env === 'test') return
 //   artist.postRemove()
 // })
 
-// ArtistSchema.methods.postRemove = function() {
+// ArtistSchema.methods.postRemove = function () {
 //   return Song.find({artist: this}).exec().map(song => song.remove())
 // }
 
-SongSchema.post('save', function(song) {
+SongSchema.post('save', function (song) {
   if (config.env === 'test') return
   song.postSave()
 })
 
-SongSchema.methods.postSave = function() {
+SongSchema.methods.postSave = function () {
   let Song = mongoose.model('Song')
 
   return this.populate('artist').execPopulate()
@@ -109,14 +109,14 @@ SongSchema.methods.view = function({
   return view
 }
 
-SongSchema.methods.match = function(svc) {
+SongSchema.methods.match = function (svc) {
   let info = _.find(this.info, {service: svc})
   if (info) return Promise.resolve(this)
 
   return service.match(this, svc).then(match => this.translate(match))
 }
 
-SongSchema.methods.tag = function() {
+SongSchema.methods.tag = function () {
   if (this.tags.length) return Promise.resolve(this)
 
   return service.tag(this).each(tag => {
@@ -126,7 +126,7 @@ SongSchema.methods.tag = function() {
   }).return(this)
 }
 
-SongSchema.methods.translate = function(serviceSong) {
+SongSchema.methods.translate = function (serviceSong) {
   let promise = Promise.resolve(this)
 
   this.title = this.title || serviceSong.title
@@ -157,7 +157,7 @@ SongSchema.methods.translate = function(serviceSong) {
   return promise
 }
 
-SongSchema.statics.createByServiceId = function(id, svc) {
+SongSchema.statics.createByServiceId = function (id, svc) {
   let Song = mongoose.model('Song')
 
   return Song.findOne({info: {$elemMatch: {service: svc, id: id}}}).then(song => {

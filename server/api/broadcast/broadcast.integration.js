@@ -8,10 +8,10 @@ import request from 'supertest-as-promised'
 import Broadcast from './broadcast.model'
 import SongService from '../song/song.service'
 
-describe('Broadcast API', function() {
+describe('Broadcast API', function () {
   var broadcast, user, admin
 
-  before(function() {
+  before(function () {
     return factory.clean()
       .then(() => factory.sessions('user', 'admin'))
       .spread((u, a) => {
@@ -20,14 +20,14 @@ describe('Broadcast API', function() {
       })
   })
 
-  after(function() {
+  after(function () {
     return factory.clean()
   })
 
-  describe('GET /broadcasts', function() {
+  describe('GET /broadcasts', function () {
     let bang, woman, anitta, john, pop, folk, author, list
 
-    let verifyDistances = function(res) {
+    let verifyDistances = function (res) {
       for (var i = 0; i < res.body.length; i++) {
         let current = res.body[i]
         let next = res.body[i + 1]
@@ -36,7 +36,7 @@ describe('Broadcast API', function() {
       }
     }
 
-    before(function() {
+    before(function () {
       let geoSample = () => [_.random(-89.9, 89.9), _.random(-89.9, 89.9)]
 
       return factory.songs(
@@ -69,7 +69,7 @@ describe('Broadcast API', function() {
       })
     })
 
-    it('should respond with array', function() {
+    it('should respond with array', function () {
       return request(app)
         .get('/broadcasts')
         .expect(200)
@@ -79,7 +79,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query service', function() {
+    it('should respond with array to query service', function () {
       return request(app)
         .get('/broadcasts')
         .query({service: 'deezer'})
@@ -90,7 +90,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query page', function() {
+    it('should respond with array to query page', function () {
       return request(app)
         .get('/broadcasts')
         .query({page: 2, limit: 1})
@@ -101,7 +101,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query song', function() {
+    it('should respond with array to query song', function () {
       return request(app)
         .get('/broadcasts')
         .query({song: bang.id})
@@ -112,7 +112,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query multiple songs', function() {
+    it('should respond with array to query multiple songs', function () {
       return request(app)
         .get('/broadcasts')
         .query({song: `${bang.id}, ${woman.id}`})
@@ -124,7 +124,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query user', function() {
+    it('should respond with array to query user', function () {
       return request(app)
         .get('/broadcasts')
         .query({user: author.id})
@@ -135,7 +135,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query multiple users', function() {
+    it('should respond with array to query multiple users', function () {
       return request(app)
         .get('/broadcasts')
         .query({user: `${author.id}, ${admin.user.id}`})
@@ -145,7 +145,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query tags', function() {
+    it('should respond with array to query tags', function () {
       return request(app)
         .get('/broadcasts')
         .query({tags: pop.id})
@@ -155,7 +155,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query multiple tags', function() {
+    it('should respond with array to query multiple tags', function () {
       return request(app)
         .get('/broadcasts')
         .query({tags: `${pop.id}, ${folk.id}`})
@@ -165,7 +165,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query artists', function() {
+    it('should respond with array to query artists', function () {
       return request(app)
         .get('/broadcasts')
         .query({artists: anitta.id})
@@ -175,7 +175,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query multiple artists', function() {
+    it('should respond with array to query multiple artists', function () {
       return request(app)
         .get('/broadcasts')
         .query({artists: `${anitta.id}, ${john.id}`})
@@ -185,7 +185,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query q tag', function() {
+    it('should respond with array to query q tag', function () {
       return request(app)
         .get('/broadcasts')
         .query({q: '70'})
@@ -196,7 +196,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query q title', function() {
+    it('should respond with array to query q title', function () {
       return request(app)
         .get('/broadcasts')
         .query({q: 'wo'})
@@ -207,7 +207,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query q artist', function() {
+    it('should respond with array to query q artist', function () {
       return request(app)
         .get('/broadcasts')
         .query({q: 'lennon'})
@@ -217,7 +217,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query location', function() {
+    it('should respond with array to query location', function () {
       return request(app)
         .get('/broadcasts')
         .query({latitude: -22.03, longitude: -43.01})
@@ -230,7 +230,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query location q', function() {
+    it('should respond with array to query location q', function () {
       return request(app)
         .get('/broadcasts')
         .query({latitude: -22.03, longitude: -43.01, q: 'john'})
@@ -241,7 +241,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query location song', function() {
+    it('should respond with array to query location song', function () {
       return request(app)
         .get('/broadcasts')
         .query({latitude: -22.03, longitude: -43.01, song: bang.id})
@@ -251,7 +251,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query location min_distance exclude', function() {
+    it('should respond with array to query location min_distance exclude', function () {
 
       return request(app)
         .get('/broadcasts')
@@ -270,7 +270,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array to query sort', function() {
+    it('should respond with array to query sort', function () {
       return request(app)
         .get('/broadcasts')
         .query({sort: '+createdAt'})
@@ -281,7 +281,7 @@ describe('Broadcast API', function() {
         })
     })
 
-    it('should respond with array without removedSongs', function() {
+    it('should respond with array without removedSongs', function () {
       user.user.removedSongs.addToSet(bang.id)
 
       return user.user.save().then(() => {
@@ -295,14 +295,14 @@ describe('Broadcast API', function() {
       })
     })
 
-    it('should fail 400 to query page out of range', function() {
+    it('should fail 400 to query page out of range', function () {
       return request(app)
         .get('/broadcasts')
         .query({page: 31})
         .expect(400)
     })
 
-    it('should fail 400 to query limit out of range', function() {
+    it('should fail 400 to query limit out of range', function () {
       return request(app)
         .get('/broadcasts')
         .query({limit: 101})
@@ -311,7 +311,7 @@ describe('Broadcast API', function() {
 
   })
 
-  describe('POST /broadcasts', function() {
+  describe('POST /broadcasts', function () {
     let artist
     let ids = {
       itunes: '664709257',
@@ -319,11 +319,11 @@ describe('Broadcast API', function() {
       deezer: '108075540'
     }
 
-    before(function() {
+    before(function () {
       return factory.artist('Anitta').then(a => artist = a)
     })
 
-    it('should respond with the created broadcast when authenticated as user', function() {
+    it('should respond with the created broadcast when authenticated as user', function () {
       return request(app)
         .post('/broadcasts')
         .query({access_token: user.token})
@@ -335,10 +335,10 @@ describe('Broadcast API', function() {
         })
     })
 
-    SongService.allServices().forEach(function(service) {
+    SongService.allServices().forEach(function (service) {
 
-      it(`should respond with the created broadcast by sending serviceId when authenticated to ${service} as user`, function() {
-        return vcr.useCassette(`Broadcast API/${this.test.title}`, function() {
+      it(`should respond with the created broadcast by sending serviceId when authenticated to ${service} as user`, function () {
+        return vcr.useCassette(`Broadcast API/${this.test.title}`, function () {
           user.user.service = service
           return user.user.save().then(() => {
             return request(app)
@@ -357,8 +357,8 @@ describe('Broadcast API', function() {
         })
       })
 
-      it(`should respond with the created broadcast by sending serviceId and service ${service} when authenticated as user`, function() {
-        return vcr.useCassette(`Broadcast API/${this.test.title}`, function() {
+      it(`should respond with the created broadcast by sending serviceId and service ${service} when authenticated as user`, function () {
+        return vcr.useCassette(`Broadcast API/${this.test.title}`, function () {
           return request(app)
             .post('/broadcasts')
             .query({access_token: user.token})
@@ -377,7 +377,7 @@ describe('Broadcast API', function() {
 
     })
 
-    it('should fail 400 when missing latitude/longitude', function() {
+    it('should fail 400 when missing latitude/longitude', function () {
       return request(app)
         .post('/broadcasts')
         .query({access_token: user.token})
@@ -385,7 +385,7 @@ describe('Broadcast API', function() {
         .expect(400)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .post('/broadcasts')
         .send({latitude: -22.1, longitude: -43.1, title: 'Bang', artist: artist})
@@ -394,16 +394,16 @@ describe('Broadcast API', function() {
 
   })
 
-  describe('GET /broadcasts/:id', function() {
+  describe('GET /broadcasts/:id', function () {
 
-    it('should respond with a broadcast', function() {
+    it('should respond with a broadcast', function () {
       return request(app)
         .get('/broadcasts/' + broadcast.id)
         .expect(200)
         .then(res => res.body.should.have.property('id', broadcast.id))
     })
 
-    it('should fail 404 when broadcast does not exist', function() {
+    it('should fail 404 when broadcast does not exist', function () {
       return request(app)
         .get('/broadcasts/123456789098765432123456')
         .expect(404)
@@ -411,9 +411,9 @@ describe('Broadcast API', function() {
 
   })
 
-  describe('DELETE /broadcasts/:id', function() {
+  describe('DELETE /broadcasts/:id', function () {
 
-    it('should add song to removedSongs when delete broadcast of another user authenticated as user', function() {
+    it('should add song to removedSongs when delete broadcast of another user authenticated as user', function () {
       return factory.session('user').then(session => {
         return request(app)
           .delete('/broadcasts/' + broadcast.id)
@@ -423,21 +423,21 @@ describe('Broadcast API', function() {
 
     })
 
-    it('should delete when authenticated as admin', function() {
+    it('should delete when authenticated as admin', function () {
       return request(app)
         .delete('/broadcasts/' + broadcast.id)
         .send({access_token: admin.token})
         .expect(204)
     })
 
-    it('should fail 404 when broadcast does not exist', function() {
+    it('should fail 404 when broadcast does not exist', function () {
       return request(app)
         .delete('/broadcasts/' + broadcast.id)
         .send({access_token: admin.token})
         .expect(404)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .delete('/broadcasts/' + broadcast.id)
         .expect(401)

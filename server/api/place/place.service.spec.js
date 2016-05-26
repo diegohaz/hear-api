@@ -4,10 +4,10 @@ import vcr from 'nock-vcr-recorder-mocha'
 import PlaceService from './place.service'
 import Place from './place.model'
 
-vcr.describe('Place Service', function() {
+vcr.describe('Place Service', function () {
   let place
 
-  it('should lookup for a sublocality', function() {
+  it('should lookup for a sublocality', function () {
     return PlaceService
       .sublocality(-22.9790625,-43.2345556)
       .then(sublocality => {
@@ -16,7 +16,7 @@ vcr.describe('Place Service', function() {
       })
   })
 
-  it('should lookup for a venue', function() {
+  it('should lookup for a venue', function () {
     return PlaceService
       .venue(-22.9790625,-43.2345556, place)
       .then(venue => {

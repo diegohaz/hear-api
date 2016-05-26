@@ -45,7 +45,7 @@ var PlaceSchema = new mongoose.Schema({
   }
 })
 
-PlaceSchema.pre('save', function(next) {
+PlaceSchema.pre('save', function (next) {
   this.shortName = this.shortName || this.name
   this.fullName = this.fullName || this.name
 
@@ -64,18 +64,18 @@ PlaceSchema.pre('save', function(next) {
   }).catch(next)
 })
 
-PlaceSchema.post('remove', function(place) {
+PlaceSchema.post('remove', function (place) {
   if (config.env === 'test') return
   place.postRemove()
 })
 
-PlaceSchema.methods.postRemove = function() {
+PlaceSchema.methods.postRemove = function () {
   let Place = mongoose.model('Place')
 
   return Place.update({parent: this}, {$unset: {parent: ''}}, {multi: true}).exec()
 }
 
-PlaceSchema.methods.view = function(full) {
+PlaceSchema.methods.view = function (full) {
   return {
     id: this.id,
     name: this.name,

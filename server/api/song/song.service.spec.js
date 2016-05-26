@@ -5,24 +5,24 @@ import * as factory from '../../config/factory'
 import Song from './song.model'
 import SongService from './song.service'
 
-vcr.describe('Song Service', function() {
+vcr.describe('Song Service', function () {
   var song, ids = {}
 
-  before(function() {
+  before(function () {
     return factory.clean()
       .then(() => factory.artist('John Lennon'))
       .then(artist => Song.create({title: 'Imagine', artist: artist}))
       .then(so => song = so)
   })
 
-  it('should retrieve tags for a song', function() {
+  it('should retrieve tags for a song', function () {
     return SongService.tag(song).should.eventually.be.instanceOf(Array)
   })
 
-  SongService.allServices().forEach(function(service) {
-    describe(service, function() {
+  SongService.allServices().forEach(function (service) {
+    describe(service, function () {
 
-      it('should search for a song', function() {
+      it('should search for a song', function () {
         return SongService.search({q: 'John Lennon', limit: 5}, service).then(songs => {
           songs.should.have.length.above(0)
           songs.should.all.have.property('title')
@@ -30,7 +30,7 @@ vcr.describe('Song Service', function() {
         })
       })
 
-      it('should match a song', function() {
+      it('should match a song', function () {
         return SongService.match(song, service).then(match => {
           match.should.have.property('serviceId')
           match.should.have.property('title').contain('Imagine')
@@ -39,7 +39,7 @@ vcr.describe('Song Service', function() {
         })
       })
 
-      it('should lookup for a song', function() {
+      it('should lookup for a song', function () {
         return SongService.lookup(ids[service], service).then(song => {
           song.should.have.property('title').contain('Imagine')
           song.should.have.property('artist').contain('John Lennon')

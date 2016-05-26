@@ -46,12 +46,12 @@ var StorySchema = new mongoose.Schema({
 StorySchema.index({text: 'text'})
 StorySchema.index({location: '2dsphere'})
 
-StorySchema.post('save', function(story) {
+StorySchema.post('save', function (story) {
   if (config.env === 'test') return
   story.postSave()
 })
 
-StorySchema.methods.postSave = function() {
+StorySchema.methods.postSave = function () {
   if (this.place) return
 
   let Story = mongoose.model('Story')

@@ -17,16 +17,16 @@ var ArtistSchema = new mongoose.Schema({
   }
 })
 
-ArtistSchema.post('remove', function(artist) {
+ArtistSchema.post('remove', function (artist) {
   if (config.env === 'test') return
   artist.postRemove()
 })
 
-ArtistSchema.methods.postRemove = function() {
+ArtistSchema.methods.postRemove = function () {
   return Song.find({artist: this}).exec().map(song => song.remove())
 }
 
-ArtistSchema.methods.view = function() {
+ArtistSchema.methods.view = function () {
   return {
     id: this.id,
     name: this.name

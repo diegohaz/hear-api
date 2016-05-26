@@ -7,7 +7,7 @@ import Broadcast from './broadcast.model'
 import Song from '../song/song.model'
 
 // Gets a list of Broadcasts
-export function index(req, res) {
+export function index (req, res) {
   let promise = Promise.resolve()
   let query = req.querymen
   let search = query.search
@@ -46,7 +46,7 @@ export function index(req, res) {
 }
 
 // Gets a single Broadcast from the DB
-export function show(req, res) {
+export function show (req, res) {
   return Broadcast
     .findById(req.params.id)
     .deepPopulate('user song artist tags place')
@@ -57,7 +57,7 @@ export function show(req, res) {
 }
 
 // Creates a new Broadcast in the DB
-export function create(req, res) {
+export function create (req, res) {
   if (req.body._id) delete req.body._id
   if (!req.body.latitude || !req.body.longitude) {
     return res.status(400).send('Missing latitude/longitude')
@@ -84,7 +84,7 @@ export function create(req, res) {
 }
 
 // Deletes a Broadcast from the DB
-export function destroy(req, res) {
+export function destroy (req, res) {
   return Broadcast
     .findById(req.params.id)
     .then(response.notFound(res))

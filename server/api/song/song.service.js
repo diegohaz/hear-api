@@ -4,26 +4,26 @@ import request from 'request-promise'
 import config from '../../config/environment'
 
 export default class SongService {
-  constructor(service) { this.service = service }
-  search(options) { return SongService.search(options, this.service) }
+  constructor (service) { this.service = service }
+  search (options) { return SongService.search(options, this.service) }
   lookup(id)      { return SongService.lookup(id, this.service) }
   match(song)     { return SongService.match(song, this.service) }
 
-  static allServices() {
+  static allServices () {
     return ['itunes', 'spotify', 'deezer']
   }
 
-  static search(options, service) {
+  static search (options, service) {
     return request(this._formatSearchRequest(options, service))
       .then(res => this._parseSearchResponse(res, service))
   }
 
-  static lookup(id, service) {
+  static lookup (id, service) {
     return request(this._formatLookupRequest(id, service))
       .then(res => this._parseLookupResponse(res, service))
   }
 
-  static match(song, service) {
+  static match (song, service) {
     if (service === 'deezer' && song.isrc) {
       return this.lookup('isrc:' + song.isrc, service)
     }
@@ -48,7 +48,7 @@ export default class SongService {
     return this.search(options, service).then(result => result[0])
   }
 
-  static tag(song) {
+  static tag (song) {
     return request({
       uri: 'http://ws.audioscrobbler.com/2.0/',
       qs: {
@@ -63,11 +63,11 @@ export default class SongService {
     })
   }
 
-  static _sanitize(string) {
+  static _sanitize (string) {
     return string.replace(/ ?\-.+$|\.|,| ?\(.+\)/g, '')
   }
 
-  static _formatSearchRequest(options, service) {
+  static _formatSearchRequest (options, service) {
     var request = {}
 
     switch (service) {
@@ -101,7 +101,7 @@ export default class SongService {
     return request
   }
 
-  static _formatLookupRequest(id, service) {
+  static _formatLookupRequest (id, service) {
     var request = {}
 
     switch (service) {
@@ -120,7 +120,7 @@ export default class SongService {
     return request
   }
 
-  static _parseSearchResponse(response, service) {
+  static _parseSearchResponse (response, service) {
     var result = []
 
     if (typeof response === 'string') {
@@ -146,7 +146,7 @@ export default class SongService {
     return result
   }
 
-  static _parseLookupResponse(response, service) {
+  static _parseLookupResponse (response, service) {
     var result = {}
 
     if (typeof response === 'string') {

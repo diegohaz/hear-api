@@ -5,7 +5,7 @@ import * as response from '../../modules/response/'
 import Session from './session.model'
 
 // Gets a list of Sessions
-export function index(req, res) {
+export function index (req, res) {
   let query = req.querymen
 
   return Session
@@ -17,7 +17,7 @@ export function index(req, res) {
 }
 
 // Creates a new Session in the DB
-export function create(req, res) {
+export function create (req, res) {
   return Session
     .create({user: req.user})
     .then(session => session.view(true))
@@ -26,7 +26,7 @@ export function create(req, res) {
 }
 
 // Deletes a Session from the DB
-export function destroy(req, res) {
+export function destroy (req, res) {
   if (req.params.token) {
     return Session
       .findOne({token: req.params.token})

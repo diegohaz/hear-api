@@ -3,7 +3,7 @@
 var path = require('path')
 var _ = require('lodash')
 
-function requiredProcessEnv(name) {
+function requiredProcessEnv (name) {
   if (!process.env[name]) {
     throw new Error('You must set the ' + name + ' environment variable')
   }

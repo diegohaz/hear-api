@@ -5,17 +5,17 @@ import * as factory from '../../config/factory'
 import Artist from './artist.model'
 import Song from '../song/song.model'
 
-describe('Artist Model', function() {
+describe('Artist Model', function () {
 
-  before(function() {
+  before(function () {
     return factory.clean()
   })
 
-  afterEach(function() {
+  afterEach(function () {
     return factory.clean()
   })
 
-  it('should return a view', function() {
+  it('should return a view', function () {
     return factory.artist('Anitta')
       .then(artist => artist.view())
       .then(view => {
@@ -24,14 +24,14 @@ describe('Artist Model', function() {
       })
   })
 
-  it('should combine artists with same name', function() {
+  it('should combine artists with same name', function () {
     return factory.artists('Shakira', 'Shakira').then(artists => {
       artists.should.have.lengthOf(2)
       artists[0].should.have.property('id', artists[1].id)
     })
   })
 
-  it('should remove artist songs after removing artist', function() {
+  it('should remove artist songs after removing artist', function () {
     var artist
 
     return factory.songs(

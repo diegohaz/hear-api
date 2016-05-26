@@ -9,10 +9,10 @@ import request from 'supertest-as-promised'
 import Story from './story.model'
 import SongService from '../song/song.service'
 
-describe('Story API', function() {
+describe('Story API', function () {
   var story, user, admin
 
-  before(function() {
+  before(function () {
     return factory.clean()
       .then(() => factory.sessions('user', 'admin'))
       .spread((u, a) => {
@@ -21,14 +21,14 @@ describe('Story API', function() {
       })
   })
 
-  after(function() {
+  after(function () {
     return factory.clean()
   })
 
-  describe('GET /stories', function() {
+  describe('GET /stories', function () {
     let bang, imagine, author, list
 
-    let verifyDistances = function(location, res) {
+    let verifyDistances = function (location, res) {
       res.body = res.body.map(item => {
         item.distance = geolib.getDistance(location, item.location)
         return item
@@ -42,7 +42,7 @@ describe('Story API', function() {
       }
     }
 
-    before(function() {
+    before(function () {
       let geoSample = () => [_.random(-89.9, 89.9), _.random(-89.9, 89.9)]
 
       return factory.songs(
@@ -65,14 +65,14 @@ describe('Story API', function() {
       })
     })
 
-    it('should respond with array', function() {
+    it('should respond with array', function () {
       return request(app)
         .get('/stories')
         .expect(200)
         .then(res => res.body.should.be.instanceOf(Array))
     })
 
-    it.skip('should respond with array to query page', function() {
+    it.skip('should respond with array to query page', function () {
       return request(app)
         .get('/stories')
         .query({page: 2, limit: 1})
@@ -83,7 +83,7 @@ describe('Story API', function() {
         })
     })
 
-    it('should respond with array to query song', function() {
+    it('should respond with array to query song', function () {
       return request(app)
         .get('/stories')
         .query({song: bang.id})
@@ -94,7 +94,7 @@ describe('Story API', function() {
         })
     })
 
-    it('should respond with array to query multiple songs', function() {
+    it('should respond with array to query multiple songs', function () {
       return request(app)
         .get('/stories')
         .query({song: `${bang.id}, ${imagine.id}`})
@@ -106,7 +106,7 @@ describe('Story API', function() {
         })
     })
 
-    it('should respond with array to query user', function() {
+    it('should respond with array to query user', function () {
       return request(app)
         .get('/stories')
         .query({user: author.id})
@@ -117,7 +117,7 @@ describe('Story API', function() {
         })
     })
 
-    it('should respond with array to query multiple users', function() {
+    it('should respond with array to query multiple users', function () {
       return request(app)
         .get('/stories')
         .query({user: `${author.id}, ${admin.user.id}`})
@@ -127,7 +127,7 @@ describe('Story API', function() {
         })
     })
 
-    it('should respond with array to query q text', function() {
+    it('should respond with array to query q text', function () {
       return request(app)
         .get('/stories')
         .query({q: 'love'})
@@ -137,7 +137,7 @@ describe('Story API', function() {
         })
     })
 
-    it('should respond with array to query location', function() {
+    it('should respond with array to query location', function () {
       return request(app)
         .get('/stories')
         .query({near: '-22.03, -43.01'})
@@ -149,7 +149,7 @@ describe('Story API', function() {
         })
     })
 
-    it('should respond with array to query location q', function() {
+    it('should respond with array to query location q', function () {
       return request(app)
         .get('/stories')
         .query({near: '-22.03, -43.01', q: 'in love'})
@@ -160,7 +160,7 @@ describe('Story API', function() {
         })
     })
 
-    it('should respond with array to query sort', function() {
+    it('should respond with array to query sort', function () {
       return request(app)
         .get('/stories')
         .query({sort: '+createdAt'})
@@ -171,7 +171,7 @@ describe('Story API', function() {
         })
     })
 
-    it('should respond with array to fields', function() {
+    it('should respond with array to fields', function () {
       return request(app)
         .get('/stories')
         .query({fields: '-song'})
@@ -182,14 +182,14 @@ describe('Story API', function() {
         })
     })
 
-    it('should fail 400 to query page out of range', function() {
+    it('should fail 400 to query page out of range', function () {
       return request(app)
         .get('/stories')
         .query({page: 31})
         .expect(400)
     })
 
-    it('should fail 400 to query limit out of range', function() {
+    it('should fail 400 to query limit out of range', function () {
       return request(app)
         .get('/stories')
         .query({limit: 101})
@@ -198,7 +198,7 @@ describe('Story API', function() {
 
   })
 
-  describe('POST /stories', function() {
+  describe('POST /stories', function () {
     let artist
     let ids = {
       itunes: '664709257',
@@ -206,11 +206,11 @@ describe('Story API', function() {
       deezer: '108075540'
     }
 
-    before(function() {
+    before(function () {
       return factory.artist('Anitta').then(a => artist = a)
     })
 
-    it('should respond with the created story when authenticated as user', function() {
+    it('should respond with the created story when authenticated as user', function () {
       return request(app)
         .post('/stories')
         .query({access_token: user.token})
@@ -222,10 +222,10 @@ describe('Story API', function() {
         })
     })
 
-    SongService.allServices().forEach(function(service) {
+    SongService.allServices().forEach(function (service) {
 
-      it(`should respond with the created story by sending serviceId when authenticated to ${service} as user`, function() {
-        return vcr.useCassette(`Story API/${this.test.title}`, function() {
+      it(`should respond with the created story by sending serviceId when authenticated to ${service} as user`, function () {
+        return vcr.useCassette(`Story API/${this.test.title}`, function () {
           user.user.service = service
           return user.user.save().then(() => {
             return request(app)
@@ -245,8 +245,8 @@ describe('Story API', function() {
         })
       })
 
-      it(`should respond with the created story by sending serviceId and service ${service} when authenticated as user`, function() {
-        return vcr.useCassette(`Story API/${this.test.title}`, function() {
+      it(`should respond with the created story by sending serviceId and service ${service} when authenticated as user`, function () {
+        return vcr.useCassette(`Story API/${this.test.title}`, function () {
           return request(app)
             .post('/stories')
             .query({access_token: user.token})
@@ -266,7 +266,7 @@ describe('Story API', function() {
 
     })
 
-    it('should fail 400 when missing latitude/longitude', function() {
+    it('should fail 400 when missing latitude/longitude', function () {
       return request(app)
         .post('/stories')
         .query({access_token: user.token})
@@ -274,7 +274,7 @@ describe('Story API', function() {
         .expect(400)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .post('/stories')
         .send({latitude: -22.1, longitude: -43.1, title: 'Bang', artist: artist})
@@ -283,16 +283,16 @@ describe('Story API', function() {
 
   })
 
-  describe('GET /stories/:id', function() {
+  describe('GET /stories/:id', function () {
 
-    it('should respond with a story', function() {
+    it('should respond with a story', function () {
       return request(app)
         .get('/stories/' + story.id)
         .expect(200)
         .then(res => res.body.should.have.property('id', story.id))
     })
 
-    it('should fail 404 when story does not exist', function() {
+    it('should fail 404 when story does not exist', function () {
       return request(app)
         .get('/stories/123456789098765432123456')
         .expect(404)
@@ -300,23 +300,23 @@ describe('Story API', function() {
 
   })
 
-  describe('DELETE /stories/:id', function() {
+  describe('DELETE /stories/:id', function () {
 
-    it('should delete when authenticated as admin', function() {
+    it('should delete when authenticated as admin', function () {
       return request(app)
         .delete('/stories/' + story.id)
         .send({access_token: admin.token})
         .expect(204)
     })
 
-    it('should fail 404 when story does not exist', function() {
+    it('should fail 404 when story does not exist', function () {
       return request(app)
         .delete('/stories/' + story.id)
         .send({access_token: admin.token})
         .expect(404)
     })
 
-    it('should fail 401 when not authenticated', function() {
+    it('should fail 401 when not authenticated', function () {
       return request(app)
         .delete('/stories/' + story.id)
         .expect(401)

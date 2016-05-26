@@ -25,12 +25,12 @@ var SessionSchema = new Schema({
   expiresAt: Date
 })
 
-SessionSchema.pre('save', function(next) {
+SessionSchema.pre('save', function (next) {
   this.expiresAt = moment().add(1, 'years').toDate()
   next()
 })
 
-SessionSchema.methods.view = function(full) {
+SessionSchema.methods.view = function (full) {
   if (full) return {
     user: this.user.view(),
     access_token: this.token
@@ -41,15 +41,15 @@ SessionSchema.methods.view = function(full) {
   }
 }
 
-SessionSchema.methods.expired = function() {
+SessionSchema.methods.expired = function () {
   return moment().isSameOrAfter(this.expiresAt)
 }
 
-SessionSchema.methods.updateExpirationTime = function(done) {
+SessionSchema.methods.updateExpirationTime = function (done) {
   return this.save(done)
 }
 
-SessionSchema.statics.login = function(token) {
+SessionSchema.statics.login = function (token) {
   var Session = mongoose.model('Session')
 
   return Session.findOne({token: token}).populate('user').then(session => {

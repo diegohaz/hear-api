@@ -73,7 +73,7 @@ var UserSchema = new Schema({
   }
 })
 
-UserSchema.path('email').set(function(email) {
+UserSchema.path('email').set(function (email) {
   if (email === 'anonymous') {
     return randtoken.generate(16) + '@anonymous.com'
   } else {
@@ -81,7 +81,7 @@ UserSchema.path('email').set(function(email) {
   }
 })
 
-UserSchema.pre('save', function(next) {
+UserSchema.pre('save', function (next) {
   if (!this.isModified('password')) return next()
 
   var rounds = config.env === 'test' ? 1 : 9
@@ -93,16 +93,16 @@ UserSchema.pre('save', function(next) {
   })
 })
 
-UserSchema.post('remove', function(user) {
+UserSchema.post('remove', function (user) {
   if (config.env === 'test') return
   user.postRemove()
 })
 
-UserSchema.methods.postRemove = function() {
+UserSchema.methods.postRemove = function () {
   return Session.find({user: this}).exec().map(session => session.remove())
 }
 
-UserSchema.methods.view = function(full) {
+UserSchema.methods.view = function (full) {
   var view = {}
   var fields = ['id', 'name', 'pictureUrl']
 
@@ -115,14 +115,14 @@ UserSchema.methods.view = function(full) {
   return view
 }
 
-UserSchema.methods.authenticate = function(password) {
+UserSchema.methods.authenticate = function (password) {
   return compare(password, this.password).then(valid => {
     return valid ? this : false
   })
 }
 
 
-UserSchema.statics.default = function(path) {
+UserSchema.statics.default = function (path) {
   return this.schema.path(path).default()
 }
 
