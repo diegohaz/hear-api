@@ -4,6 +4,7 @@
   "main": "server/app.js",
   "dependencies": {
     "babel-runtime": "^6.9.0",
+    "apicache": "0.0.14",
     "bcrypt": "^0.8.5",
     "bluebird": "^3.3.4",
     "body-parser": "^1.13.3",

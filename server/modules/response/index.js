@@ -18,13 +18,12 @@ export function error(res, statusCode) {
       statusCode = statusCode || 400;
       var errors = err.errors;
       var message = errors ? errors[_.keys(errors)[0]].message : err.message;
-      res.status(statusCode).send(message);
+      return res.status(statusCode).send(message);
     } else {
-      console.log(err);
       statusCode = statusCode || 500;
       res.status(statusCode).send(err.message);
+      throw err;
     }
-    return null;
   };
 }
 
