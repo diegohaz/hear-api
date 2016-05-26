@@ -24,7 +24,7 @@ export function error(res, statusCode) {
       statusCode = statusCode || 500;
       res.status(statusCode).send(err.message);
     }
-    return null;
+    throw err;
   };
 }
 
