@@ -1,12 +1,12 @@
-'use strict';
+'use strict'
 
-import {Router} from 'express';
-import {Types} from 'mongoose';
-import querymen from 'querymen';
-import * as controller from './broadcast.controller';
-import * as auth from '../../modules/auth';
+import {Router} from 'express'
+import {Types} from 'mongoose'
+import querymen from 'querymen'
+import * as controller from './broadcast.controller'
+import * as auth from '../../modules/auth'
 
-var router = new Router();
+var router = new Router()
 
 router.get('/',
   auth.bearer(),
@@ -20,16 +20,16 @@ router.get('/',
     tags: {type: [Types.ObjectId], bindTo: 'search'},
     sort: '-createdAt'
   }),
-  controller.index);
+  controller.index)
 
-router.get('/:id', controller.show);
+router.get('/:id', controller.show)
 
 router.post('/',
   auth.bearer({required: true}),
-  controller.create);
+  controller.create)
 
 router.delete('/:id',
   auth.bearer({required: true}),
-  controller.destroy);
+  controller.destroy)
 
-export default router;
+export default router

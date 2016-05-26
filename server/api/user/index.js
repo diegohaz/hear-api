@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
-import {Router} from 'express';
-import querymen from 'querymen';
-import * as controller from './user.controller';
-import * as auth from '../../modules/auth';
+import {Router} from 'express'
+import querymen from 'querymen'
+import * as controller from './user.controller'
+import * as auth from '../../modules/auth'
 
-var router = new Router();
+var router = new Router()
 
 router.get('/',
   auth.bearer({required: true, roles: ['admin']}),
@@ -14,20 +14,20 @@ router.get('/',
     language: String,
     sort: '-createdAt'
   }),
-  controller.index);
+  controller.index)
 
-router.get('/me', auth.bearer({required: true}), controller.me);
-router.get('/:id', controller.show);
+router.get('/me', auth.bearer({required: true}), controller.me)
+router.get('/:id', controller.show)
 
 router.post('/',
   auth.bearer({required: true, roles: ['admin']}),
-  controller.create);
+  controller.create)
 
-router.put('/:id', auth.bearer({required: true}), controller.update);
-router.patch('/:id', auth.bearer({required: true}), controller.update);
+router.put('/:id', auth.bearer({required: true}), controller.update)
+router.patch('/:id', auth.bearer({required: true}), controller.update)
 
 router.delete('/:id',
   auth.bearer({required: true, roles: ['admin']}),
-  controller.destroy);
+  controller.destroy)
 
-export default router;
+export default router

@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
-import mongoose from 'mongoose';
-import config from '../../config/environment';
-import User from '../user/user.model';
-import PlaceService from '../place/place.service';
+import mongoose from 'mongoose'
+import config from '../../config/environment'
+import User from '../user/user.model'
+import PlaceService from '../place/place.service'
 
-var deepPopulate = require('mongoose-deep-populate')(mongoose);
+var deepPopulate = require('mongoose-deep-populate')(mongoose)
 
 var StorySchema = new mongoose.Schema({
   song: {
@@ -41,26 +41,26 @@ var StorySchema = new mongoose.Schema({
     type: {type: String, enum: 'Point', default: 'Point'},
     coordinates: [Number]
   },
-});
+})
 
-StorySchema.index({text: 'text'});
-StorySchema.index({location: '2dsphere'});
+StorySchema.index({text: 'text'})
+StorySchema.index({location: '2dsphere'})
 
 StorySchema.post('save', function(story) {
-  if (config.env === 'test') return;
-  story.postSave();
-});
+  if (config.env === 'test') return
+  story.postSave()
+})
 
 StorySchema.methods.postSave = function() {
-  if (this.place) return;
+  if (this.place) return
 
-  let Story = mongoose.model('Story');
-  let ll = [this.location.coordinates[1], this.location.coordinates[0]];
+  let Story = mongoose.model('Story')
+  let ll = [this.location.coordinates[1], this.location.coordinates[0]]
 
   return PlaceService.sublocality(...ll)
     .then(place => PlaceService.venue(...ll, place))
-    .then(place => Story.findByIdAndUpdate(this._id, {$set: {place: place}}, {new: true}).exec());
-};
+    .then(place => Story.findByIdAndUpdate(this._id, {$set: {place: place}}, {new: true}).exec())
+}
 
 StorySchema.methods.view = function({
   service = User.default('service'),
@@ -78,7 +78,7 @@ StorySchema.methods.view = function({
       longitude: this.location.coordinates[0]
     }
   }
-};
+}
 
 StorySchema.plugin(deepPopulate, {
   rewrite: {
@@ -86,6 +86,6 @@ StorySchema.plugin(deepPopulate, {
     tags: 'song.tags',
     place: 'place.parent.parent.parent.parent'
   }
-});
+})
 
-export default mongoose.model('Story', StorySchema);
+export default mongoose.model('Story', StorySchema)

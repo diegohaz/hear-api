@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 // Development specific configuration
 // ==================================
@@ -9,4 +9,4 @@ module.exports = {
     uri: 'mongodb://localhost/hear-api-dev'
   }
 
-};
+}

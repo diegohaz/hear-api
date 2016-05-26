@@ -1,15 +1,15 @@
-'use strict';
+'use strict'
 
-import bcrypt from 'bcrypt';
-import randtoken from 'rand-token';
-import mongoose from 'mongoose';
-import mongooseKeywords from 'mongoose-keywords';
-import {Schema} from 'mongoose';
-import config from '../../config/environment';
-import Session from '../session/session.model';
+import bcrypt from 'bcrypt'
+import randtoken from 'rand-token'
+import mongoose from 'mongoose'
+import mongooseKeywords from 'mongoose-keywords'
+import {Schema} from 'mongoose'
+import config from '../../config/environment'
+import Session from '../session/session.model'
 
-var compare = require('bluebird').promisify(bcrypt.compare);
-var roles = ['user', 'admin'];
+var compare = require('bluebird').promisify(bcrypt.compare)
+var roles = ['user', 'admin']
 
 var UserSchema = new Schema({
   email: {
@@ -71,63 +71,63 @@ var UserSchema = new Schema({
     type: Date,
     default: Date.now
   }
-});
+})
 
 UserSchema.path('email').set(function(email) {
   if (email === 'anonymous') {
-    return randtoken.generate(16) + '@anonymous.com';
+    return randtoken.generate(16) + '@anonymous.com'
   } else {
-    return email;
+    return email
   }
-});
+})
 
 UserSchema.pre('save', function(next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password')) return next()
 
-  var rounds = config.env === 'test' ? 1 : 9;
+  var rounds = config.env === 'test' ? 1 : 9
 
   bcrypt.hash(this.password, rounds, (err, hash) => {
-    if (err) return next(err);
-    this.password = hash;
-    next();
-  });
-});
+    if (err) return next(err)
+    this.password = hash
+    next()
+  })
+})
 
 UserSchema.post('remove', function(user) {
-  if (config.env === 'test') return;
-  user.postRemove();
-});
+  if (config.env === 'test') return
+  user.postRemove()
+})
 
 UserSchema.methods.postRemove = function() {
-  return Session.find({user: this}).exec().map(session => session.remove());
-};
+  return Session.find({user: this}).exec().map(session => session.remove())
+}
 
 UserSchema.methods.view = function(full) {
-  var view = {};
-  var fields = ['id', 'name', 'pictureUrl'];
+  var view = {}
+  var fields = ['id', 'name', 'pictureUrl']
 
   if (full) {
-    fields = fields.concat(['email', 'service', 'country', 'language', 'createdAt', 'removedSongs']);
+    fields = fields.concat(['email', 'service', 'country', 'language', 'createdAt', 'removedSongs'])
   }
 
-  fields.forEach(field => { view[field] = this[field] });
+  fields.forEach(field => { view[field] = this[field] })
 
-  return view;
-};
+  return view
+}
 
 UserSchema.methods.authenticate = function(password) {
   return compare(password, this.password).then(valid => {
-    return valid ? this : false;
-  });
-};
+    return valid ? this : false
+  })
+}
 
 
 UserSchema.statics.default = function(path) {
-  return this.schema.path(path).default();
-};
+  return this.schema.path(path).default()
+}
 
-UserSchema.statics.roles = roles;
+UserSchema.statics.roles = roles
 
-UserSchema.plugin(mongooseKeywords, {paths: ['email', 'name']});
+UserSchema.plugin(mongooseKeywords, {paths: ['email', 'name']})
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema)

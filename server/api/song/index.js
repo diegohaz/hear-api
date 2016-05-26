@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
-import {Router} from 'express';
-import querymen from 'querymen';
-import apicache from 'apicache';
-import * as controller from './song.controller';
-import * as auth from '../../modules/auth';
-import Artist from '../artist/artist.model';
+import {Router} from 'express'
+import querymen from 'querymen'
+import apicache from 'apicache'
+import * as controller from './song.controller'
+import * as auth from '../../modules/auth'
+import Artist from '../artist/artist.model'
 
-var router = new Router();
+var router = new Router()
 
 router.get('/',
   auth.bearer(),
@@ -15,30 +15,30 @@ router.get('/',
     tags: [String],
     sort: 'title'
   }),
-  controller.index);
+  controller.index)
 
 router.get('/search',
   auth.bearer(),
   querymen.middleware({}, {sort: false}),
   apicache.options({appendKey: ['user', 'service']}).middleware('1 day'),
-  controller.search);
+  controller.search)
 
-router.get('/:id', auth.bearer(), controller.show);
+router.get('/:id', auth.bearer(), controller.show)
 
 router.post('/',
   auth.bearer({required: true, roles: ['admin']}),
-  controller.create);
+  controller.create)
 
 router.put('/:id',
   auth.bearer({required: true, roles: ['admin']}),
-  controller.update);
+  controller.update)
 
 router.patch('/:id',
   auth.bearer({required: true, roles: ['admin']}),
-  controller.update);
+  controller.update)
 
 router.delete('/:id',
   auth.bearer({required: true, roles: ['admin']}),
-  controller.destroy);
+  controller.destroy)
 
-export default router;
+export default router

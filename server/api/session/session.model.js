@@ -1,10 +1,10 @@
-'use strict';
+'use strict'
 
-import mongoose from 'mongoose';
-import mongooseKeywords from 'mongoose-keywords';
-import {uid} from 'rand-token';
-import moment from 'moment';
-import {Schema} from 'mongoose';
+import mongoose from 'mongoose'
+import mongooseKeywords from 'mongoose-keywords'
+import {uid} from 'rand-token'
+import moment from 'moment'
+import {Schema} from 'mongoose'
 
 var SessionSchema = new Schema({
   user: {
@@ -23,49 +23,49 @@ var SessionSchema = new Schema({
     default: Date.now
   },
   expiresAt: Date
-});
+})
 
 SessionSchema.pre('save', function(next) {
-  this.expiresAt = moment().add(1, 'years').toDate();
-  next();
-});
+  this.expiresAt = moment().add(1, 'years').toDate()
+  next()
+})
 
 SessionSchema.methods.view = function(full) {
   if (full) return {
     user: this.user.view(),
     access_token: this.token
-  };
+  }
 
   else return {
     user: this.user.view()
-  };
-};
+  }
+}
 
 SessionSchema.methods.expired = function() {
-  return moment().isSameOrAfter(this.expiresAt);
-};
+  return moment().isSameOrAfter(this.expiresAt)
+}
 
 SessionSchema.methods.updateExpirationTime = function(done) {
-  return this.save(done);
-};
+  return this.save(done)
+}
 
 SessionSchema.statics.login = function(token) {
-  var Session = mongoose.model('Session');
+  var Session = mongoose.model('Session')
 
   return Session.findOne({token: token}).populate('user').then(session => {
-    if (!session) throw new Error('Invalid session');
+    if (!session) throw new Error('Invalid session')
 
     if (session.expired()) {
-      session.remove();
-      throw new Error('Session has expired');
+      session.remove()
+      throw new Error('Session has expired')
     }
 
-    session.updateExpirationTime();
+    session.updateExpirationTime()
 
-    return session;
-  });
-};
+    return session
+  })
+}
 
-SessionSchema.plugin(mongooseKeywords, {paths: ['user']});
+SessionSchema.plugin(mongooseKeywords, {paths: ['user']})
 
-export default mongoose.model('Session', SessionSchema);
+export default mongoose.model('Session', SessionSchema)

@@ -1,12 +1,12 @@
-'use strict';
+'use strict'
 
-import _ from 'lodash';
-import {uid} from 'rand-token';
-import mongoose from 'mongoose';
-import mongooseKeywords from 'mongoose-keywords';
-import mongooseCreateUnique from 'mongoose-create-unique';
-import Promise from 'bluebird';
-import config from '../../config/environment';
+import _ from 'lodash'
+import {uid} from 'rand-token'
+import mongoose from 'mongoose'
+import mongooseKeywords from 'mongoose-keywords'
+import mongooseCreateUnique from 'mongoose-create-unique'
+import Promise from 'bluebird'
+import config from '../../config/environment'
 
 var PlaceSchema = new mongoose.Schema({
   _id: {
@@ -43,37 +43,37 @@ var PlaceSchema = new mongoose.Schema({
     type: String,
     ref: 'Place'
   }
-});
+})
 
 PlaceSchema.pre('save', function(next) {
-  this.shortName = this.shortName || this.name;
-  this.fullName = this.fullName || this.name;
+  this.shortName = this.shortName || this.name
+  this.fullName = this.fullName || this.name
 
-  if (this.fullName !== this.name) return next();
+  if (this.fullName !== this.name) return next()
 
   this.deepPopulate('parent').then(place => {
-    let parent = this.parent;
+    let parent = this.parent
 
     while (parent) {
-      this.fullName += ', ';
-      this.fullName += parent.type === 'country' ? parent.name : parent.shortName;
-      parent = parent.parent;
+      this.fullName += ', '
+      this.fullName += parent.type === 'country' ? parent.name : parent.shortName
+      parent = parent.parent
     }
 
-    next();
-  }).catch(next);
-});
+    next()
+  }).catch(next)
+})
 
 PlaceSchema.post('remove', function(place) {
-  if (config.env === 'test') return;
-  place.postRemove();
-});
+  if (config.env === 'test') return
+  place.postRemove()
+})
 
 PlaceSchema.methods.postRemove = function() {
-  let Place = mongoose.model('Place');
+  let Place = mongoose.model('Place')
 
-  return Place.update({parent: this}, {$unset: {parent: ''}}, {multi: true}).exec();
-};
+  return Place.update({parent: this}, {$unset: {parent: ''}}, {multi: true}).exec()
+}
 
 PlaceSchema.methods.view = function(full) {
   return {
@@ -90,15 +90,15 @@ PlaceSchema.methods.view = function(full) {
     parent: full && this.parent && this.parent.view ?
             this.parent.view(full) :
             this.parent
-  };
-};
+  }
+}
 
-PlaceSchema.plugin(mongooseKeywords, {paths: ['name', 'shortName']});
-PlaceSchema.plugin(mongooseCreateUnique);
+PlaceSchema.plugin(mongooseKeywords, {paths: ['name', 'shortName']})
+PlaceSchema.plugin(mongooseCreateUnique)
 PlaceSchema.plugin(require('mongoose-deep-populate')(mongoose), {
   rewrite: {
     parent: 'parent.parent.parent.parent'
   }
-});
+})
 
-export default mongoose.model('Place', PlaceSchema);
+export default mongoose.model('Place', PlaceSchema)

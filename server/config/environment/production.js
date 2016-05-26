@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 // Production specific configuration
 // =================================
@@ -21,4 +21,4 @@ module.exports = {
           process.env.OPENSHIFT_APP_NAME ||
           'mongodb://localhost/hear-api'
   }
-};
+}
