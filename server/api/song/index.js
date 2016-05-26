@@ -2,6 +2,7 @@
 
 import {Router} from 'express';
 import querymen from 'querymen';
+import apicache from 'apicache';
 import * as controller from './song.controller';
 import * as auth from '../../modules/auth';
 import Artist from '../artist/artist.model';
@@ -19,6 +20,7 @@ router.get('/',
 router.get('/search',
   auth.bearer(),
   querymen.middleware({}, {sort: false}),
+  apicache.options({appendKey: ['user', 'service']}).middleware('1 day'),
   controller.search);
 
 router.get('/:id', auth.bearer(), controller.show);
