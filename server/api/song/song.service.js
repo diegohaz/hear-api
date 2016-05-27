@@ -1,7 +1,7 @@
 'use strict'
 
 import request from 'request-promise'
-import config from '../../config/environment'
+import {env, lastfmKey} from '../../config'
 
 export default class SongService {
   constructor (service) { this.service = service }
@@ -53,7 +53,7 @@ export default class SongService {
       uri: 'http://ws.audioscrobbler.com/2.0/',
       qs: {
         method: 'track.getInfo',
-        api_key: config.lastfmKey,
+        api_key: lastfmKey,
         format: 'json',
         track: this._sanitize(song.title),
         artist: song.artist.name

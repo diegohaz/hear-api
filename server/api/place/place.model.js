@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import mongooseCreateUnique from 'mongoose-create-unique'
 import Promise from 'bluebird'
-import config from '../../config/environment'
+import {env} from '../../config'
 
 var PlaceSchema = new mongoose.Schema({
   _id: {
@@ -65,7 +65,7 @@ PlaceSchema.pre('save', function (next) {
 })
 
 PlaceSchema.post('remove', function (place) {
-  if (config.env === 'test') return
+  if (env === 'test') return
   place.postRemove()
 })
 

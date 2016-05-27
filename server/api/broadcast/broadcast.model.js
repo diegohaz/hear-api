@@ -2,7 +2,7 @@
 
 import mongoose from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
-import config from '../../config/environment'
+import {env} from '../../config'
 import User from '../user/user.model'
 import PlaceService from '../place/place.service'
 
@@ -39,7 +39,7 @@ var BroadcastSchema = new mongoose.Schema({
 BroadcastSchema.index({location: '2dsphere'})
 
 BroadcastSchema.post('save', function (broadcast) {
-  if (config.env === 'test') return
+  if (env === 'test') return
   broadcast.postSave()
 })
 

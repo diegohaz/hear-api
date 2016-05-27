@@ -3,7 +3,7 @@
 import mongoose from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import mongooseCreateUnique from 'mongoose-create-unique'
-import config from '../../config/environment'
+import {env} from '../../config'
 import Song from '../song/song.model'
 
 var TagSchema = new mongoose.Schema({
@@ -18,7 +18,7 @@ var TagSchema = new mongoose.Schema({
 })
 
 TagSchema.post('remove', function (tag) {
-  if (config.env === 'test') return
+  if (env === 'test') return
   tag.postRemove()
 })
 

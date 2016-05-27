@@ -5,7 +5,7 @@ import randtoken from 'rand-token'
 import mongoose from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import {Schema} from 'mongoose'
-import config from '../../config/environment'
+import {env} from '../../config'
 import Session from '../session/session.model'
 
 var compare = require('bluebird').promisify(bcrypt.compare)
@@ -84,7 +84,7 @@ UserSchema.path('email').set(function (email) {
 UserSchema.pre('save', function (next) {
   if (!this.isModified('password')) return next()
 
-  var rounds = config.env === 'test' ? 1 : 9
+  var rounds = env === 'test' ? 1 : 9
 
   bcrypt.hash(this.password, rounds, (err, hash) => {
     if (err) return next(err)
@@ -94,7 +94,7 @@ UserSchema.pre('save', function (next) {
 })
 
 UserSchema.post('remove', function (user) {
-  if (config.env === 'test') return
+  if (env === 'test') return
   user.postRemove()
 })
 

@@ -4,7 +4,7 @@ import request from 'request-promise'
 import geolib from 'geolib'
 import _ from 'lodash'
 import Promise from 'bluebird'
-import config from '../../config/environment'
+import {googlemapsKey, foursquareId, foursquareSecret} from '../../config'
 import Place from './place.model.js'
 
 export default class PlaceService {
@@ -16,7 +16,7 @@ export default class PlaceService {
       uri: 'https://maps.googleapis.com/maps/api/geocode/json',
       qs: {
         latlng: `${latitude},${longitude}`,
-        key: config.googlemapsKey
+        key: googlemapsKey
       }
     }).then(res => {
       let data = JSON.parse(res)
@@ -56,8 +56,8 @@ export default class PlaceService {
     return request({
       uri: 'https://api.foursquare.com/v2/venues/trending',
       qs: {
-        client_id: config.foursquareId,
-        client_secret: config.foursquareSecret,
+        client_id: foursquareId,
+        client_secret: foursquareSecret,
         v: 20160315,
         m: 'swarm',
         ll: `${latitude},${longitude}`,

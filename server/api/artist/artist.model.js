@@ -4,7 +4,7 @@ import mongoose from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import mongooseCreateUnique from 'mongoose-create-unique'
 import Promise from 'bluebird'
-import config from '../../config/environment'
+import {env} from '../../config'
 import Song from '../song/song.model'
 
 var ArtistSchema = new mongoose.Schema({
@@ -18,7 +18,7 @@ var ArtistSchema = new mongoose.Schema({
 })
 
 ArtistSchema.post('remove', function (artist) {
-  if (config.env === 'test') return
+  if (env === 'test') return
   artist.postRemove()
 })
 

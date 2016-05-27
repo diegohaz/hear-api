@@ -1,7 +1,7 @@
 'use strict'
 
 import mongoose from 'mongoose'
-import config from '../../config/environment'
+import {env} from '../../config'
 import User from '../user/user.model'
 import PlaceService from '../place/place.service'
 
@@ -47,7 +47,7 @@ StorySchema.index({text: 'text'})
 StorySchema.index({location: '2dsphere'})
 
 StorySchema.post('save', function (story) {
-  if (config.env === 'test') return
+  if (env === 'test') return
   story.postSave()
 })
 

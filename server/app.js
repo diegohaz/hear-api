@@ -12,11 +12,10 @@ import errorHandler from 'errorhandler'
 import cors from 'cors'
 import httpsRedirect from 'express-https-redirect'
 
-import config from './config/environment'
+import {env, mongo, port, ip} from './config'
 import routes from './routes'
 
 const app = express()
-const env = app.get('env')
 
 if (env === 'production') {
   app.use(httpsRedirect())
@@ -39,7 +38,7 @@ if (env === 'development' || env === 'test') {
 }
 
 mongoose.Promise = bluebird
-mongoose.connect(config.mongo.uri, config.mongo.options)
+mongoose.connect(mongo.uri, mongo.options)
 mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error: ' + err)
   process.exit(-1)
@@ -48,8 +47,8 @@ mongoose.connection.on('error', (err) => {
 const server = http.createServer(app)
 
 function startServer () {
-  app.server = server.listen(config.port, config.ip, function () {
-    console.log('Express server listening on %d, in %s mode', config.port, app.get('env'))
+  app.server = server.listen(port, ip, function () {
+    console.log('Express server listening on %d, in %s mode', port, env)
   })
 }
 

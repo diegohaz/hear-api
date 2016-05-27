@@ -8,7 +8,7 @@ import service from './song.service'
 import User from '../user/user.model'
 import Artist from '../artist/artist.model'
 import Tag from '../tag/tag.model'
-import config from '../../config/environment'
+import {env} from '../../config'
 
 var SongSchema = new mongoose.Schema({
   title: {
@@ -61,7 +61,7 @@ var SongSchema = new mongoose.Schema({
 // }
 
 SongSchema.post('save', function (song) {
-  if (config.env === 'test') return
+  if (env === 'test') return
   song.postSave()
 })
 
