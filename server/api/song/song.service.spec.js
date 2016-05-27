@@ -1,7 +1,7 @@
 'use strict'
 
 import vcr from 'nock-vcr-recorder-mocha'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 import Song from './song.model'
 import SongService from './song.service'
 

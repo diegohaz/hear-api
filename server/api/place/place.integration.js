@@ -2,7 +2,7 @@
 
 import app from '../..'
 import vcr from 'nock-vcr-recorder'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 import request from 'supertest-as-promised'
 import Place from './place.model'
 import PlaceService from './place.service'

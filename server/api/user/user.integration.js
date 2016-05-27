@@ -2,7 +2,7 @@
 
 import app from '../..'
 import request from 'supertest-as-promised'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 import User from './user.model'
 
 describe('User API', function () {

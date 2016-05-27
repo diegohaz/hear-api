@@ -3,7 +3,7 @@
 import app from '../..'
 import _ from 'lodash'
 import vcr from 'nock-vcr-recorder'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 import request from 'supertest-as-promised'
 import Broadcast from './broadcast.model'
 import SongService from '../song/song.service'

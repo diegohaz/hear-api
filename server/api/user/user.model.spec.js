@@ -1,7 +1,7 @@
 'use strict'
 
 import app from '../../'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 import User from './user.model'
 import Session from '../session/session.model'
 

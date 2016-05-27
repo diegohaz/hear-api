@@ -3,7 +3,7 @@
 import app from '../../'
 import moment from 'moment'
 import tk from 'timekeeper'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 import Session from './session.model'
 
 describe('Session Model', function () {

@@ -4,7 +4,7 @@ import app from '../../'
 import nock from 'nock'
 import vcr from 'nock-vcr-recorder-mocha'
 import Story from './story.model'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 
 describe('Story Model', function () {
   var story

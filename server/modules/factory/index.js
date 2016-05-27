@@ -5,14 +5,14 @@ import mongoose from 'mongoose'
 import _ from 'lodash'
 import vcr from 'nock-vcr-recorder'
 
-import User from '../api/user/user.model'
-import Session from '../api/session/session.model'
-import Artist from '../api/artist/artist.model'
-import Tag from '../api/tag/tag.model'
-import Song from '../api/song/song.model'
-import PlaceService from '../api/place/place.service'
-import Broadcast from '../api/broadcast/broadcast.model'
-import Story from '../api/story/story.model'
+import User from '../../api/user/user.model'
+import Session from '../../api/session/session.model'
+import Artist from '../../api/artist/artist.model'
+import Tag from '../../api/tag/tag.model'
+import Song from '../../api/song/song.model'
+import PlaceService from '../../api/place/place.service'
+import Broadcast from '../../api/broadcast/broadcast.model'
+import Story from '../../api/story/story.model'
 
 export function clean () {
   let collections = mongoose.connection.collections

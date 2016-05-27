@@ -2,7 +2,7 @@
 
 import app from '../..'
 import request from 'supertest-as-promised'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 import Tag from './tag.model'
 
 describe('Tag API', function () {

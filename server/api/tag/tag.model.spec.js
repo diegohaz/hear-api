@@ -1,7 +1,7 @@
 'use strict'
 
 import app from '../../'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 import Tag from './tag.model'
 import Artist from '../artist/artist.model'
 import Song from '../song/song.model'

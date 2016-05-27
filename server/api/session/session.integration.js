@@ -1,7 +1,7 @@
 'use strict'
 
 import app from '../..'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 import request from 'supertest-as-promised'
 import Session from './session.model'
 

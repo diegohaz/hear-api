@@ -4,7 +4,7 @@ import app from '../../'
 import nock from 'nock'
 import vcr from 'nock-vcr-recorder-mocha'
 import Broadcast from './broadcast.model'
-import * as factory from '../../config/factory'
+import * as factory from '../../modules/factory'
 
 describe('Broadcast Model', function () {
   var broadcast
