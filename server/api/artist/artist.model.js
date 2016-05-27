@@ -26,10 +26,8 @@ ArtistSchema.methods.postRemove = function () {
 }
 
 ArtistSchema.methods.view = function () {
-  return {
-    id: this.id,
-    name: this.name
-  }
+  const {id, name} = this
+  return {id, name}
 }
 
 ArtistSchema.plugin(mongooseKeywords, {paths: ['name']})

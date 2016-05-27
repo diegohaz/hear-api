@@ -1,22 +1,21 @@
 'use strict'
 
 import {Router} from 'express'
-import querymen from 'querymen'
-import * as controller from './session.controller'
-import * as auth from '../../modules/auth'
+import {middleware as querymen} from 'querymen'
+import {index, create, destroy} from './session.controller'
+import {basic, bearer} from '../../modules/auth'
 
 var router = new Router()
 
 router.get('/',
-  auth.bearer({required: true, roles: ['admin']}),
-  querymen.middleware({
+  bearer({required: true, roles: ['admin']}),
+  querymen({
     user: String,
     sort: '-createdAt'
   }),
-  controller.index)
+  index)
 
-router.post('/', auth.basic(), controller.create)
-
-router.delete('/:token?', auth.bearer({required: true}), controller.destroy)
+router.post('/', basic(), create)
+router.delete('/:token?', bearer({required: true}), destroy)
 
 export default router

@@ -106,7 +106,7 @@ UserSchema.methods.view = function (full) {
   var fields = ['id', 'name', 'pictureUrl']
 
   if (full) {
-    fields = fields.concat(['email', 'service', 'country', 'language', 'createdAt', 'removedSongs'])
+    fields = [...fields, 'email', 'service', 'country', 'language', 'createdAt', 'removedSongs']
   }
 
   fields.forEach(field => { view[field] = this[field] })
@@ -115,9 +115,7 @@ UserSchema.methods.view = function (full) {
 }
 
 UserSchema.methods.authenticate = function (password) {
-  return compare(password, this.password).then(valid => {
-    return valid ? this : false
-  })
+  return compare(password, this.password).then(valid => valid ? this : false)
 }
 
 UserSchema.statics.default = function (path) {

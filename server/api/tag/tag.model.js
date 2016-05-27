@@ -1,12 +1,12 @@
 'use strict'
 
-import mongoose from 'mongoose'
+import mongoose, {Schema} from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import mongooseCreateUnique from 'mongoose-create-unique'
 import {env} from '../../config'
 import Song from '../song/song.model'
 
-var TagSchema = new mongoose.Schema({
+var TagSchema = new Schema({
   title: {
     type: String,
     index: true,
@@ -27,10 +27,8 @@ TagSchema.methods.postRemove = function () {
 }
 
 TagSchema.methods.view = function () {
-  return {
-    id: this.id,
-    title: this.title
-  }
+  const {id, title} = this
+  return {id, title}
 }
 
 TagSchema.plugin(mongooseKeywords, {paths: ['title']})

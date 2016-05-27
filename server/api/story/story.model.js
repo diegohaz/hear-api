@@ -1,13 +1,13 @@
 'use strict'
 
-import mongoose from 'mongoose'
+import mongoose, {Schema} from 'mongoose'
 import {env} from '../../config'
 import User from '../user/user.model'
 import PlaceService from '../place/place.service'
 
 var deepPopulate = require('mongoose-deep-populate')(mongoose)
 
-var StorySchema = new mongoose.Schema({
+var StorySchema = new Schema({
   song: {
     type: mongoose.Schema.ObjectId,
     ref: 'Song',
@@ -66,16 +66,17 @@ StorySchema.methods.view = function ({
   service = User.default('service'),
   country = User.default('country')
 } = {}) {
+  const {id, song, user, place, text, createdAt, location} = this
   return {
-    id: this.id,
-    song: this.song ? this.song.view({service: service, country: country}) : undefined,
-    user: this.user ? this.user.view() : undefined,
-    place: this.place ? this.place.view(true) : this.place,
-    text: this.text,
-    createdAt: this.createdAt,
+    id,
+    text,
+    createdAt,
+    song: song ? song.view({service, country}) : undefined,
+    user: user ? user.view() : undefined,
+    place: place ? place.view(true) : place,
     location: {
-      latitude: this.location.coordinates[1],
-      longitude: this.location.coordinates[0]
+      latitude: location.coordinates[1],
+      longitude: location.coordinates[0]
     }
   }
 }

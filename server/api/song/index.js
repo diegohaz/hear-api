@@ -1,43 +1,31 @@
 'use strict'
 
 import {Router} from 'express'
-import querymen from 'querymen'
+import {middleware as querymen} from 'querymen'
 import apicache from 'apicache'
-import * as controller from './song.controller'
-import * as auth from '../../modules/auth'
+import {index, search, show, create, update, destroy} from './song.controller'
+import {bearer} from '../../modules/auth'
 
 var router = new Router()
 
 router.get('/',
-  auth.bearer(),
-  querymen.middleware({
+  bearer(),
+  querymen({
     tags: [String],
     sort: 'title'
   }),
-  controller.index)
+  index)
 
 router.get('/search',
-  auth.bearer(),
-  querymen.middleware({}, {sort: false}),
+  bearer(),
+  querymen({}, {sort: false}),
   apicache.options({appendKey: ['user', 'service']}).middleware('1 day'),
-  controller.search)
+  search)
 
-router.get('/:id', auth.bearer(), controller.show)
-
-router.post('/',
-  auth.bearer({required: true, roles: ['admin']}),
-  controller.create)
-
-router.put('/:id',
-  auth.bearer({required: true, roles: ['admin']}),
-  controller.update)
-
-router.patch('/:id',
-  auth.bearer({required: true, roles: ['admin']}),
-  controller.update)
-
-router.delete('/:id',
-  auth.bearer({required: true, roles: ['admin']}),
-  controller.destroy)
+router.get('/:id', bearer(), show)
+router.post('/', bearer({required: true, roles: ['admin']}), create)
+router.put('/:id', bearer({required: true, roles: ['admin']}), update)
+router.patch('/:id', bearer({required: true, roles: ['admin']}), update)
+router.delete('/:id', bearer({required: true, roles: ['admin']}), destroy)
 
 export default router

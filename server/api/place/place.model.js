@@ -1,12 +1,12 @@
 'use strict'
 
 import {uid} from 'rand-token'
-import mongoose from 'mongoose'
+import mongoose, {Schema} from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import mongooseCreateUnique from 'mongoose-create-unique'
 import {env} from '../../config'
 
-var PlaceSchema = new mongoose.Schema({
+var PlaceSchema = new Schema({
   _id: {
     type: String,
     unique: true,
@@ -74,20 +74,19 @@ PlaceSchema.methods.postRemove = function () {
 }
 
 PlaceSchema.methods.view = function (full) {
+  const {id, name, shortName, fullName, radius, type, location, parent} = this
   return {
-    id: this.id,
-    name: this.name,
-    shortName: this.shortName,
-    fullName: this.fullName,
-    radius: this.radius,
-    type: this.type,
-    location: this.location ? {
-      latitude: this.location[1],
-      longitude: this.location[0]
+    id,
+    name,
+    shortName,
+    fullName,
+    radius,
+    type,
+    location: location ? {
+      latitude: location[1],
+      longitude: location[0]
     } : undefined,
-    parent: full && this.parent && this.parent.view
-            ? this.parent.view(full)
-            : this.parent
+    parent: full && parent && parent.view ? parent.view(full) : parent
   }
 }
 

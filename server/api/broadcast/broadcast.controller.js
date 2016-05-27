@@ -1,7 +1,7 @@
 'use strict'
 
 import Promise from 'bluebird'
-import * as response from '../../modules/response/'
+import {success, error, notFound} from '../../modules/response/'
 import Broadcast from './broadcast.model'
 import Song from '../song/song.model'
 
@@ -40,65 +40,66 @@ export function index (req, res) {
   return promise
     .then(() => Broadcast.findAndGroup(req.query, filter, query.cursor))
     .then(groups => groups.map(g => Broadcast.groupView(g, req.user)))
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Gets a single Broadcast from the DB
-export function show (req, res) {
+export function show ({params, user}, res) {
   return Broadcast
-    .findById(req.params.id)
+    .findById(params.id)
     .deepPopulate('user song artist tags place')
-    .then(response.notFound(res))
-    .then(broadcast => broadcast ? broadcast.view(req.user) : null)
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(notFound(res))
+    .then(broadcast => broadcast ? broadcast.view(user) : null)
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Creates a new Broadcast in the DB
-export function create (req, res) {
-  if (req.body._id) delete req.body._id
-  if (!req.body.latitude || !req.body.longitude) {
+export function create ({body, user}, res) {
+  if (body._id) delete body._id
+
+  const {longitude, latitude, serviceId, service = user.service} = body
+
+  if (!latitude || !longitude) {
     return res.status(400).send('Missing latitude/longitude')
   }
 
-  let location = {coordinates: [req.body.longitude, req.body.latitude]}
-  let service = req.body.service || req.user.service
-  let serviceId = req.body.serviceId
+  const location = {coordinates: [longitude, latitude]}
   let promise
 
   if (serviceId) {
     promise = Song.createByServiceId(serviceId, service)
   } else {
-    promise = Song.create(req.body)
+    promise = Song.create(body)
   }
 
   return promise
     .then(song => song.populate('artist').execPopulate())
-    .then(song => Broadcast.create({location: location, song: song, user: req.user}))
+    .then(song => Broadcast.create({location, song, user}))
     .then(broadcast => broadcast.deepPopulate('user song artist tags'))
-    .then(broadcast => broadcast.view(req.user))
-    .then(response.success(res, 201))
-    .catch(response.error(res))
+    .then(broadcast => broadcast.view(user))
+    .then(success(res, 201))
+    .catch(error(res))
 }
 
 // Deletes a Broadcast from the DB
-export function destroy (req, res) {
+export function destroy ({params, user}, res) {
   return Broadcast
-    .findById(req.params.id)
-    .then(response.notFound(res))
+    .findById(params.id)
+    .then(notFound(res))
     .then(broadcast => {
       if (broadcast) {
-        if (req.user.role === 'admin' || req.user.id === broadcast.user) {
+        if (user.role === 'admin' || user.id === broadcast.user) {
           return broadcast.remove()
-            .then(response.success(res, 204))
+            .then(success(res, 204))
         } else {
-          req.user.removedSongs.addToSet(broadcast.song)
-          return req.user.save()
+          user.removedSongs.addToSet(broadcast.song)
+          return user.save()
             .then(user => user.view(true))
-            .then(response.success(res, 200))
+            .then(success(res, 200))
         }
       }
     })
-    .catch(response.error(res))
+    .catch(error(res))
 }

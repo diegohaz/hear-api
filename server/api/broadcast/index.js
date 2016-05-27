@@ -2,15 +2,15 @@
 
 import {Router} from 'express'
 import {Types} from 'mongoose'
-import querymen from 'querymen'
-import * as controller from './broadcast.controller'
-import * as auth from '../../modules/auth'
+import {middleware as querymen} from 'querymen'
+import {index, show, create, destroy} from './broadcast.controller'
+import {bearer} from '../../modules/auth'
 
 var router = new Router()
 
 router.get('/',
-  auth.bearer(),
-  querymen.middleware({
+  bearer(),
+  querymen({
     exclude: {type: [Types.ObjectId], paths: ['song'], operator: '$ne'},
     service: {bindTo: 'search'},
     min_distance: {type: Number, bindTo: 'cursor'},
@@ -20,16 +20,12 @@ router.get('/',
     tags: {type: [Types.ObjectId], bindTo: 'search'},
     sort: '-createdAt'
   }),
-  controller.index)
+  index)
 
-router.get('/:id', controller.show)
+router.get('/:id', show)
 
-router.post('/',
-  auth.bearer({required: true}),
-  controller.create)
+router.post('/', bearer({required: true}), create)
 
-router.delete('/:id',
-  auth.bearer({required: true}),
-  controller.destroy)
+router.delete('/:id', bearer({required: true}), destroy)
 
 export default router

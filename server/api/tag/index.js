@@ -1,30 +1,17 @@
 'use strict'
 
 import {Router} from 'express'
-import querymen from 'querymen'
-import * as controller from './tag.controller'
-import * as auth from '../../modules/auth'
+import {middleware as querymen} from 'querymen'
+import {index, show, create, update, destroy} from './tag.controller'
+import {bearer} from '../../modules/auth'
 
 var router = new Router()
 
-router.get('/', querymen.middleware({sort: 'title'}), controller.index)
-
-router.get('/:id', controller.show)
-
-router.post('/',
-  auth.bearer({required: true, roles: ['admin']}),
-  controller.create)
-
-router.put('/:id',
-  auth.bearer({required: true, roles: ['admin']}),
-  controller.update)
-
-router.patch('/:id',
-  auth.bearer({required: true, roles: ['admin']}),
-  controller.update)
-
-router.delete('/:id',
-  auth.bearer({required: true, roles: ['admin']}),
-  controller.destroy)
+router.get('/', querymen({sort: 'title'}), index)
+router.get('/:id', show)
+router.post('/', bearer({required: true, roles: ['admin']}), create)
+router.put('/:id', bearer({required: true, roles: ['admin']}), update)
+router.patch('/:id', bearer({required: true, roles: ['admin']}), update)
+router.delete('/:id', bearer({required: true, roles: ['admin']}), destroy)
 
 export default router

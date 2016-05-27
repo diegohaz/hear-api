@@ -2,38 +2,28 @@
 
 import {Router} from 'express'
 import {Types} from 'mongoose'
-import querymen from 'querymen'
-import * as controller from './story.controller'
-import * as auth from '../../modules/auth'
+import {middleware as querymen} from 'querymen'
+import {index, show, create, update, destroy} from './story.controller'
+import {bearer} from '../../modules/auth'
 
 var router = new Router()
 
 router.get('/',
-  auth.bearer(),
-  querymen.middleware({
+  bearer(),
+  querymen({
     q: {paths: ['text']},
     user: [Types.ObjectId],
     song: [Types.ObjectId],
     sort: '-createdAt'
-  }, {near: true}),
-  controller.index)
+  }, {
+    near: true
+  }),
+  index)
 
-router.get('/:id', controller.show)
-
-router.post('/',
-  auth.bearer({required: true}),
-  controller.create)
-
-router.put('/:id',
-  auth.bearer({required: true, roles: ['admin']}),
-  controller.update)
-
-router.patch('/:id',
-  auth.bearer({required: true, roles: ['admin']}),
-  controller.update)
-
-router.delete('/:id',
-  auth.bearer({required: true}),
-  controller.destroy)
+router.get('/:id', show)
+router.post('/', bearer({required: true}), create)
+router.put('/:id', bearer({required: true, roles: ['admin']}), update)
+router.patch('/:id', bearer({required: true, roles: ['admin']}), update)
+router.delete('/:id', bearer({required: true}), destroy)
 
 export default router

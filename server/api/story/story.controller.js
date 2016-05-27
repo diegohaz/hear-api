@@ -1,93 +1,89 @@
 'use strict'
 
 import _ from 'lodash'
-import * as response from '../../modules/response/'
+import {success, error, notFound} from '../../modules/response/'
 import Story from './story.model'
 import Song from '../song/song.model'
 
 // Gets a list of Storys
-export function index (req, res) {
-  let query = req.querymen
+export function index ({querymen}, res) {
+  const {query, select, cursor} = querymen
 
   return Story
-    .find(query.query, query.select, query.cursor)
+    .find(query, select, cursor)
     .deepPopulate('user song artist tags place')
     .then(places => places.map(s => s.view()))
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Gets a single Story from the DB
-export function show (req, res) {
+export function show ({params, user}, res) {
   return Story
-    .findById(req.params.id)
+    .findById(params.id)
     .deepPopulate('user song artist tags place')
-    .then(response.notFound(res))
-    .then(story => story ? story.view(req.user) : null)
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(notFound(res))
+    .then(story => story ? story.view(user) : null)
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Creates a new Story in the DB
-export function create (req, res) {
-  if (req.body._id) delete req.body._id
-  if (!req.body.latitude || !req.body.longitude) {
+export function create ({body, user}, res) {
+  if (body._id) delete body._id
+
+  const {text, longitude, latitude, serviceId, service = user.service} = body
+
+  if (!latitude || !longitude) {
     return res.status(400).send('Missing latitude/longitude')
   }
 
-  let location = {coordinates: [req.body.longitude, req.body.latitude]}
-  let service = req.body.service || req.user.service
-  let serviceId = req.body.serviceId
+  const location = {coordinates: [longitude, latitude]}
   let promise
 
   if (serviceId) {
     promise = Song.createByServiceId(serviceId, service)
   } else {
-    promise = Song.create(req.body)
+    promise = Song.create(body)
   }
 
   return promise
     .then(song => song.populate('artist').execPopulate())
-    .then(song => Story.create({
-      location: location,
-      song: song,
-      user: req.user,
-      text: req.body.text
-    }))
+    .then(song => Story.create({location, song, user, text}))
     .then(story => story.deepPopulate('user song artist tags'))
-    .then(story => story.view(req.user))
-    .then(response.success(res, 201))
-    .catch(response.error(res))
+    .then(story => story.view(user))
+    .then(success(res, 201))
+    .catch(error(res))
 }
 
 // Updates an existing Story in the DB
-export function update (req, res) {
-  if (req.body._id) delete req.body._id
+export function update ({body, params}, res) {
+  if (body._id) delete body._id
 
   return Story
-    .findById(req.params.id)
+    .findById(params.id)
     .deepPopulate('user song artist tags place')
-    .then(response.notFound(res))
-    .then(story => story ? _.assign(story, req.body).save() : null)
+    .then(notFound(res))
+    .then(story => story ? _.assign(story, body).save() : null)
     .then(story => story ? story.view(true) : null)
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Deletes a Story from the DB
-export function destroy (req, res) {
+export function destroy ({params, user}, res) {
   return Story
-    .findById(req.params.id)
-    .then(response.notFound(res))
+    .findById(params.id)
+    .then(notFound(res))
     .then(story => {
       if (story) {
-        if (req.user.role === 'admin' || req.user.id === story.user) {
+        if (user.role === 'admin' || user.id === story.user) {
           return story.remove()
-            .then(response.success(res, 204))
+            .then(success(res, 204))
         } else {
-          return response.error(res, 403)
+          return error(res, 403)
         }
       }
     })
-    .catch(response.error(res))
+    .catch(error(res))
 }

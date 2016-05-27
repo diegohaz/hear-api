@@ -1,58 +1,58 @@
 'use strict'
 
 import _ from 'lodash'
-import * as response from '../../modules/response/'
+import {success, error, notFound} from '../../modules/response/'
 import Tag from './tag.model'
 
 // Gets a list of Tags
-export function index (req, res) {
-  let query = req.querymen
+export function index ({querymen}, res) {
+  const {query, select, cursor} = querymen
 
   return Tag
-    .find(query.query, query.select, query.cursor)
+    .find(query, select, cursor)
     .then(tags => tags.map(t => t.view()))
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Gets a single Tag from the DB
-export function show (req, res) {
+export function show ({params}, res) {
   return Tag
-    .findById(req.params.id)
-    .then(response.notFound(res))
+    .findById(params.id)
+    .then(notFound(res))
     .then(tag => tag ? tag.view() : null)
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Creates a new Tag in the DB
-export function create (req, res) {
+export function create ({body}, res) {
   return Tag
-    .createUnique(req.body)
+    .createUnique(body)
     .then(tag => tag.view())
-    .then(response.success(res, 201))
-    .catch(response.error(res))
+    .then(success(res, 201))
+    .catch(error(res))
 }
 
 // Updates an existing Tag in the DB
-export function update (req, res) {
-  if (req.body._id) delete req.body._id
+export function update ({body, params}, res) {
+  if (body._id) delete body._id
 
   return Tag
-    .findById(req.params.id)
-    .then(response.notFound(res))
-    .then(tag => tag ? _.merge(tag, req.body).save() : null)
+    .findById(params.id)
+    .then(notFound(res))
+    .then(tag => tag ? _.merge(tag, body).save() : null)
     .then(tag => tag ? tag.view() : null)
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Deletes a Tag from the DB
-export function destroy (req, res) {
+export function destroy ({params}, res) {
   return Tag
-    .findById(req.params.id)
-    .then(response.notFound(res))
+    .findById(params.id)
+    .then(notFound(res))
     .then(tag => tag ? tag.remove() : null)
-    .then(response.success(res, 204))
-    .catch(response.error(res))
+    .then(success(res, 204))
+    .catch(error(res))
 }

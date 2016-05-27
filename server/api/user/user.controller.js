@@ -1,42 +1,42 @@
 'use strict'
 
 import _ from 'lodash'
-import * as response from '../../modules/response/'
+import {success, error, notFound} from '../../modules/response/'
 import User from './user.model'
 
 // Gets a list of Users
-export function index (req, res) {
-  let query = req.querymen
+export function index ({querymen}, res) {
+  const {query, select, cursor} = querymen
 
   return User
-    .find(query.query, query.select, query.cursor)
+    .find(query, select, cursor)
     .then(users => users.map(t => t.view()))
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Get single User
-export function show (req, res, next) {
+export function show ({params}, res, next) {
   return User
-    .findById(req.params.id)
-    .then(response.notFound(res))
+    .findById(params.id)
+    .then(notFound(res))
     .then(user => user ? user.view() : null)
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Get my info
-export function me (req, res, next) {
-  res.json(req.user.view(true))
+export function me ({user}, res, next) {
+  res.json(user.view(true))
 }
 
 // Creates a new User in the DB
-export function create (req, res) {
+export function create ({body}, res) {
   return User
-    .create(req.body)
+    .create(body)
     .then(user => user.view(true))
-    .then(response.success(res, 201))
-    .catch(response.error(res))
+    .then(success(res, 201))
+    .catch(error(res))
 }
 
 // Updates an existing User in the DB
@@ -48,7 +48,7 @@ export function update (req, res) {
 
   return User
     .findById(req.params.id)
-    .then(response.notFound(res))
+    .then(notFound(res))
     .then(user => {
       if (req.user.role !== 'admin' && req.user.id !== user.id) {
         res.status(401).end()
@@ -58,16 +58,16 @@ export function update (req, res) {
     })
     .then(user => user ? _.merge(user, req.body).save() : null)
     .then(user => user ? user.view(true) : null)
-    .then(response.success(res))
-    .catch(response.error(res))
+    .then(success(res))
+    .catch(error(res))
 }
 
 // Deletes a User from the DB
-export function destroy (req, res) {
+export function destroy ({params}, res) {
   return User
-    .findById(req.params.id)
-    .then(response.notFound(res))
+    .findById(params.id)
+    .then(notFound(res))
     .then(user => user ? user.remove() : null)
-    .then(response.success(res, 204))
-    .catch(response.error(res))
+    .then(success(res, 204))
+    .catch(error(res))
 }

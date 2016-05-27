@@ -5,20 +5,20 @@ import * as response from '../../modules/response/'
 import Artist from './artist.model'
 
 // Gets a list of Artists
-export function index (req, res) {
-  let query = req.querymen
+export function index ({querymen}, res) {
+  const {query, select, cursor} = querymen
 
   return Artist
-    .find(query.query, query.select, query.cursor)
+    .find(query, select, cursor)
     .then(artists => artists.map(t => t.view()))
     .then(response.success(res))
     .catch(response.error(res))
 }
 
 // Gets a single Artist from the DB
-export function show (req, res) {
+export function show ({params}, res) {
   return Artist
-    .findById(req.params.id)
+    .findById(params.id)
     .then(response.notFound(res))
     .then(artist => artist ? artist.view() : null)
     .then(response.success(res))
@@ -26,31 +26,31 @@ export function show (req, res) {
 }
 
 // Creates a new Artist in the DB
-export function create (req, res) {
+export function create ({body}, res) {
   return Artist
-    .createUnique(req.body)
+    .createUnique(body)
     .then(artist => artist.view())
     .then(response.success(res, 201))
     .catch(response.error(res))
 }
 
 // Updates an existing Artist in the DB
-export function update (req, res) {
-  if (req.body._id) delete req.body._id
+export function update ({body, params}, res) {
+  if (body._id) delete body._id
 
   return Artist
-    .findById(req.params.id)
+    .findById(params.id)
     .then(response.notFound(res))
-    .then(artist => artist ? _.assign(artist, req.body).save() : null)
+    .then(artist => artist ? _.assign(artist, body).save() : null)
     .then(artist => artist ? artist.view() : null)
     .then(response.success(res))
     .catch(response.error(res))
 }
 
 // Deletes a Artist from the DB
-export function destroy (req, res) {
+export function destroy ({params}, res) {
   return Artist
-    .findById(req.params.id)
+    .findById(params.id)
     .then(response.notFound(res))
     .then(artist => artist ? artist.remove() : null)
     .then(response.success(res, 204))

@@ -1,7 +1,7 @@
 'use strict'
 
 import _ from 'lodash'
-import mongoose from 'mongoose'
+import mongoose, {Schema} from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import Promise from 'bluebird'
 import service from './song.service'
@@ -10,7 +10,7 @@ import Artist from '../artist/artist.model'
 import Tag from '../tag/tag.model'
 import {env} from '../../config'
 
-var SongSchema = new mongoose.Schema({
+var SongSchema = new Schema({
   title: {
     type: String,
     required: true,
@@ -66,7 +66,7 @@ SongSchema.post('save', function (song) {
 })
 
 SongSchema.methods.postSave = function () {
-  let Song = mongoose.model('Song')
+  const Song = mongoose.model('Song')
 
   return this.populate('artist').execPopulate()
     .then(song => service.allServices())
@@ -85,14 +85,16 @@ SongSchema.methods.view = function ({
   service = User.default('service'),
   country = User.default('country')
 } = {}) {
-  var view = {}
-  var info = _.find(this.info, {service: service})
+  const {id, title, artist, isrc, tags} = this
+  let view = {
+    id,
+    title,
+    isrc,
+    artist: artist ? artist.view() : undefined,
+    tags: tags ? tags.map(t => t.view()) : undefined
+  }
 
-  view.id = this.id
-  view.title = this.title
-  view.artist = this.artist ? this.artist.view() : undefined
-  view.isrc = this.isrc
-  view.tags = this.tags ? this.tags.map(t => t.view()) : undefined
+  const info = _.find(this.info, {service})
 
   if (info) {
     view.previewUrl = info.previewUrl

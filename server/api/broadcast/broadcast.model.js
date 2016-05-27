@@ -64,15 +64,16 @@ BroadcastSchema.methods.view = function ({
   service = User.default('service'),
   country = User.default('country')
 } = {}) {
+  const {id, song, user, place, createdAt, location} = this
   return {
-    id: this.id,
-    song: this.song.view({service: service, country: country}),
-    user: this.user.view(),
-    place: this.place ? this.place.view(true) : this.place,
-    createdAt: this.createdAt,
+    id,
+    song: song ? song.view({service, country}) : undefined,
+    user: user ? user.view() : undefined,
+    place: place ? place.view(true) : place,
+    createdAt,
     location: {
-      latitude: this.location.coordinates[1],
-      longitude: this.location.coordinates[0]
+      latitude: location.coordinates[1],
+      longitude: location.coordinates[0]
     }
   }
 }
@@ -81,16 +82,18 @@ BroadcastSchema.statics.groupView = function (group, {
   service = User.default('service'),
   country = User.default('country')
 } = {}) {
-  let Broadcast = mongoose.model('Broadcast')
-  let broadcast = new Broadcast(group)
-  let view = broadcast.view({service: service, country: country})
+  const {id, users, distance, total} = group
+  const Broadcast = mongoose.model('Broadcast')
+  const broadcast = new Broadcast(group)
+  const view = broadcast.view({service, country})
 
-  view.id = group.id
-  view.users = group.users.map(u => new User(u).view())
-  view.distance = group.distance
-  view.total = group.total
-
-  return view
+  return {
+    ...view,
+    id,
+    users: users ? users.map(u => new User(u).view()) : undefined,
+    distance,
+    total
+  }
 }
 
 BroadcastSchema.statics.findAndGroup = function (location, query = {}, options = {}, items = []) {

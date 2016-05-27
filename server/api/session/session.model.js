@@ -49,7 +49,7 @@ SessionSchema.methods.updateExpirationTime = function (done) {
 SessionSchema.statics.login = function (token) {
   var Session = mongoose.model('Session')
 
-  return Session.findOne({token: token}).populate('user').then(session => {
+  return Session.findOne({token}).populate('user').then(session => {
     if (!session) throw new Error('Invalid session')
 
     if (session.expired()) {
