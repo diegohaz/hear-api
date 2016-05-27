@@ -46,6 +46,11 @@ const babel = lazypipe()
   .pipe(plugins.babel)
   .pipe(plugins.sourcemaps.write, '.')
 
+const express = (env) => {
+  plugins.express.run(env === 'prod' ? [`${paths.dist}/${paths.server}`] : [paths.server])
+  gulp.watch([`${paths.server}/**/*`], plugins.express.run)
+}
+
 gulp.task('env:all', () => {
   const vars = require(`./${paths.server}/config/local.env`)
   plugins.env({vars})
@@ -121,6 +126,36 @@ gulp.task('build', (cb) => {
   runSequence(
     'clean',
     ['copy', 'transpile'],
+    cb
+  )
+})
+
+gulp.task('express:dev', () => {
+  return express('dev')
+})
+
+gulp.task('express:prod', () => {
+  return express('prod')
+})
+
+gulp.task('serve', (cb) => {
+  runSequence('serve:dev', cb)
+})
+
+gulp.task('serve:dev', (cb) => {
+  runSequence(
+    'env:all',
+    'express:dev',
+    cb
+  )
+})
+
+gulp.task('serve:prod', (cb) => {
+  runSequence(
+    'build',
+    'env:all',
+    'env:prod',
+    'express:prod',
     cb
   )
 })
