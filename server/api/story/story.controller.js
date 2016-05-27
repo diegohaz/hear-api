@@ -1,7 +1,6 @@
 'use strict'
 
 import _ from 'lodash'
-import Promise from 'bluebird'
 import * as response from '../../modules/response/'
 import Story from './story.model'
 import Song from '../song/song.model'

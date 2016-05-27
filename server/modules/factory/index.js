@@ -91,7 +91,7 @@ export function songs (...titles) {
   }).return(songs).all()
 }
 
-export function place (point = [37.757815,-122.5076406]) {
+export function place (point = [37.757815, -122.5076406]) {
   return vcr.useCassette(`Place Factory/${point[0]}.${point[1]}`, function () {
     return PlaceService.sublocality(point[0], point[1])
   })
@@ -107,8 +107,8 @@ export function places (...points) {
 }
 
 export function broadcast (...songArguments) {
-  let point = _.remove(songArguments, _.isArray)[0] || [37.757815,-122.5076406]
-  let cassette = `Broadcast Factory/${songArguments.slice(0,2).join(' - ')} ${point[0]},${point[1]}`
+  let point = _.remove(songArguments, _.isArray)[0] || [37.757815, -122.5076406]
+  let cassette = `Broadcast Factory/${songArguments.slice(0, 2).join(' - ')} ${point[0]},${point[1]}`
 
   return vcr.useCassette(cassette, function () {
     return Promise.join(user(), song(...songArguments), (user, song) => {
@@ -128,8 +128,8 @@ export function broadcasts (...points) {
 }
 
 export function story (text, ...songArguments) {
-  let point = _.remove(songArguments, _.isArray)[0] || [37.757815,-122.5076406]
-  let cassette = `Story Factory/${songArguments.slice(0,2).join(' - ')} ${point[0]},${point[1]}`
+  let point = _.remove(songArguments, _.isArray)[0] || [37.757815, -122.5076406]
+  let cassette = `Story Factory/${songArguments.slice(0, 2).join(' - ')} ${point[0]},${point[1]}`
 
   return vcr.useCassette(cassette, function () {
     return Promise.join(user(), song(...songArguments), (user, song) => {

@@ -1,6 +1,5 @@
 'use strict'
 
-import _ from 'lodash'
 import * as response from '../../modules/response/'
 import Session from './session.model'
 

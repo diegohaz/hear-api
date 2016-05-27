@@ -5,7 +5,6 @@ import querymen from 'querymen'
 import apicache from 'apicache'
 import * as controller from './song.controller'
 import * as auth from '../../modules/auth'
-import Artist from '../artist/artist.model'
 
 var router = new Router()
 

@@ -1,11 +1,9 @@
 'use strict'
 
-import _ from 'lodash'
 import {uid} from 'rand-token'
 import mongoose from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import mongooseCreateUnique from 'mongoose-create-unique'
-import Promise from 'bluebird'
 import {env} from '../../config'
 
 var PlaceSchema = new mongoose.Schema({
@@ -87,9 +85,9 @@ PlaceSchema.methods.view = function (full) {
       latitude: this.location[1],
       longitude: this.location[0]
     } : undefined,
-    parent: full && this.parent && this.parent.view ?
-            this.parent.view(full) :
-            this.parent
+    parent: full && this.parent && this.parent.view
+            ? this.parent.view(full)
+            : this.parent
   }
 }
 

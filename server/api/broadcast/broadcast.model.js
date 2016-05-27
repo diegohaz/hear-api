@@ -33,7 +33,7 @@ var BroadcastSchema = new mongoose.Schema({
   location: {
     type: {type: String, enum: 'Point', default: 'Point'},
     coordinates: [Number]
-  },
+  }
 })
 
 BroadcastSchema.index({location: '2dsphere'})
@@ -60,7 +60,7 @@ BroadcastSchema.methods.postSave = function () {
     })
 }
 
-BroadcastSchema.methods.view = function({
+BroadcastSchema.methods.view = function ({
   service = User.default('service'),
   country = User.default('country')
 } = {}) {
@@ -77,7 +77,7 @@ BroadcastSchema.methods.view = function({
   }
 }
 
-BroadcastSchema.statics.groupView = function(group, {
+BroadcastSchema.statics.groupView = function (group, {
   service = User.default('service'),
   country = User.default('country')
 } = {}) {
@@ -93,7 +93,7 @@ BroadcastSchema.statics.groupView = function(group, {
   return view
 }
 
-BroadcastSchema.statics.findAndGroup = function(location, query = {}, options = {}, items = []) {
+BroadcastSchema.statics.findAndGroup = function (location, query = {}, options = {}, items = []) {
   let Broadcast = mongoose.model('Broadcast')
   let aggregate = Broadcast.aggregate()
   let nearLimit = (options.limit || 30) * 10

@@ -4,7 +4,6 @@ import _ from 'lodash'
 import * as response from '../../modules/response/'
 import Place from './place.model'
 import PlaceService from './place.service'
-import User from '../user/user.model'
 
 // Gets a list of Places
 export function index (req, res) {
@@ -55,7 +54,7 @@ export function create (req, res) {
 
   return PlaceService
     .sublocality(location[1], location[0])
-    .tap(parent => req.body.parent = parent.id)
+    .tap(parent => { req.body.parent = parent.id })
     .then(() => Place.createUnique(req.body))
     .then(place => place.deepPopulate('parent'))
     .then(place => place.view(true))

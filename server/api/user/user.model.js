@@ -2,9 +2,8 @@
 
 import bcrypt from 'bcrypt'
 import randtoken from 'rand-token'
-import mongoose from 'mongoose'
+import mongoose, {Schema} from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
-import {Schema} from 'mongoose'
 import {env} from '../../config'
 import Session from '../session/session.model'
 
@@ -120,7 +119,6 @@ UserSchema.methods.authenticate = function (password) {
     return valid ? this : false
   })
 }
-
 
 UserSchema.statics.default = function (path) {
   return this.schema.path(path).default()

@@ -1,10 +1,9 @@
 'use strict'
 
-import mongoose from 'mongoose'
+import mongoose, {Schema} from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import {uid} from 'rand-token'
 import moment from 'moment'
-import {Schema} from 'mongoose'
 
 var SessionSchema = new Schema({
   user: {
@@ -31,12 +30,10 @@ SessionSchema.pre('save', function (next) {
 })
 
 SessionSchema.methods.view = function (full) {
-  if (full) return {
+  return full ? {
     user: this.user.view(),
     access_token: this.token
-  }
-
-  else return {
+  } : {
     user: this.user.view()
   }
 }

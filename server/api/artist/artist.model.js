@@ -3,7 +3,6 @@
 import mongoose from 'mongoose'
 import mongooseKeywords from 'mongoose-keywords'
 import mongooseCreateUnique from 'mongoose-create-unique'
-import Promise from 'bluebird'
 import {env} from '../../config'
 import Song from '../song/song.model'
 

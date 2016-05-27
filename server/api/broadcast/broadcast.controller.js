@@ -1,6 +1,5 @@
 'use strict'
 
-import _ from 'lodash'
 import Promise from 'bluebird'
 import * as response from '../../modules/response/'
 import Broadcast from './broadcast.model'
@@ -15,7 +14,7 @@ export function index (req, res) {
 
   if (search.tags || search.artist) {
     let s = {}
-    if (search.tags)   s.tags   = search.tags
+    if (search.tags) s.tags = search.tags
     if (search.artist) s.artist = search.artist
 
     promise = Song.find(s, {_id: 1}, query.cursor).lean().then(songs => {

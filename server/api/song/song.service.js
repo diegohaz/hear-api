@@ -1,13 +1,24 @@
 'use strict'
 
 import request from 'request-promise'
-import {env, lastfmKey} from '../../config'
+import {lastfmKey} from '../../config'
 
 export default class SongService {
-  constructor (service) { this.service = service }
-  search (options) { return SongService.search(options, this.service) }
-  lookup(id)      { return SongService.lookup(id, this.service) }
-  match(song)     { return SongService.match(song, this.service) }
+  constructor (service) {
+    this.service = service
+  }
+
+  search (options) {
+    return SongService.search(options, this.service)
+  }
+
+  lookup (id) {
+    return SongService.lookup(id, this.service)
+  }
+
+  match (song) {
+    return SongService.match(song, this.service)
+  }
 
   static allServices () {
     return ['itunes', 'spotify', 'deezer']
@@ -157,13 +168,13 @@ export default class SongService {
       case 'itunes':
         response = response.results ? response.results[0] : response
         if (response) {
-          result.title      = response.trackName
-          result.artist     = response.artistName
+          result.title = response.trackName
+          result.artist = response.artistName
           result.previewUrl = response.previewUrl
-          result.service    = service
-          result.serviceId  = '' + response.trackId
+          result.service = service
+          result.serviceId = '' + response.trackId
           result.serviceUrl = response.trackViewUrl
-          result.images     = {
+          result.images = {
             small: response.artworkUrl100.replace('100x100', '96x96'),
             medium: response.artworkUrl100.replace('100x100', '288x288'),
             big: response.artworkUrl100.replace('100x100', '640x640')
@@ -172,13 +183,13 @@ export default class SongService {
         break
       case 'spotify':
         if (response) {
-          result.title      = response.name
-          result.artist     = response.artists[0].name
+          result.title = response.name
+          result.artist = response.artists[0].name
           result.previewUrl = response.preview_url
-          result.service    = service
-          result.serviceId  = response.id
+          result.service = service
+          result.serviceId = response.id
           result.serviceUrl = response.external_urls.spotify
-          result.images     = {
+          result.images = {
             small: response.album.images[2].url,
             medium: response.album.images[1].url,
             big: response.album.images[0].url
@@ -191,13 +202,13 @@ export default class SongService {
         break
       case 'deezer':
         if (response) {
-          result.title      = response.title_short || response.title
-          result.artist     = response.artist.name
+          result.title = response.title_short || response.title
+          result.artist = response.artist.name
           result.previewUrl = response.preview
-          result.service    = service
-          result.serviceId  = response.id
+          result.service = service
+          result.serviceId = response.id
           result.serviceUrl = response.link
-          result.images     = {
+          result.images = {
             small: response.album.cover_medium.replace('250x250', '96x96'),
             medium: response.album.cover_medium.replace('250x250', '288x288'),
             big: response.album.cover_medium.replace('250x250', '640x640')

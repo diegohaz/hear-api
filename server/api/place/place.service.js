@@ -42,7 +42,9 @@ export default class PlaceService {
         })
 
         return Promise.each(places, (place, i) => {
-          return Place.createUnique(place).tap(place => places[i] = place)
+          return Place.createUnique(place).tap(place => {
+            places[i] = place
+          })
         }).return(places)
       } else {
         throw new Error(data.status)

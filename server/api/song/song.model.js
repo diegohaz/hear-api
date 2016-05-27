@@ -81,24 +81,24 @@ SongSchema.methods.postSave = function () {
     })
 }
 
-SongSchema.methods.view = function({
+SongSchema.methods.view = function ({
   service = User.default('service'),
   country = User.default('country')
 } = {}) {
   var view = {}
   var info = _.find(this.info, {service: service})
 
-  view.id     = this.id
-  view.title  = this.title
+  view.id = this.id
+  view.title = this.title
   view.artist = this.artist ? this.artist.view() : undefined
-  view.isrc   = this.isrc
-  view.tags   = this.tags ? this.tags.map(t => t.view()) : undefined
+  view.isrc = this.isrc
+  view.tags = this.tags ? this.tags.map(t => t.view()) : undefined
 
   if (info) {
     view.previewUrl = info.previewUrl
-    view.images     = info.images
-    view.service    = info.service
-    view.serviceId  = info.id
+    view.images = info.images
+    view.service = info.service
+    view.serviceId = info.id
     view.serviceUrl = info.url
 
     if (service === 'itunes') {
@@ -141,11 +141,11 @@ SongSchema.methods.translate = function (serviceSong) {
   if (!_.find(this.info, {service: serviceSong.service})) {
     let info = {}
 
-    info.service    = serviceSong.service
-    info.id         = serviceSong.serviceId
+    info.service = serviceSong.service
+    info.id = serviceSong.serviceId
     info.previewUrl = serviceSong.previewUrl
-    info.url        = serviceSong.serviceUrl
-    info.images     = serviceSong.images
+    info.url = serviceSong.serviceUrl
+    info.images = serviceSong.images
 
     this.info.push(info)
   }

@@ -40,7 +40,7 @@ var StorySchema = new mongoose.Schema({
   location: {
     type: {type: String, enum: 'Point', default: 'Point'},
     coordinates: [Number]
-  },
+  }
 })
 
 StorySchema.index({text: 'text'})
@@ -62,7 +62,7 @@ StorySchema.methods.postSave = function () {
     .then(place => Story.findByIdAndUpdate(this._id, {$set: {place: place}}, {new: true}).exec())
 }
 
-StorySchema.methods.view = function({
+StorySchema.methods.view = function ({
   service = User.default('service'),
   country = User.default('country')
 } = {}) {
