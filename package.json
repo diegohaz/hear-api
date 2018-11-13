@@ -27,7 +27,7 @@
     "passport-http": "^0.3.0",
     "passport-http-bearer": "^1.0.1",
     "querymen": "^1.0.1",
-    "rand-token": "^0.2.1",
+    "rand-token": "^0.4.0",
     "request-promise": "^2.0.1"
   },
   "devDependencies": {
