@@ -7,7 +7,6 @@ import mongooseKeywords from 'mongoose-keywords'
 import {env} from '../../config'
 import Session from '../session/session.model'
 
-var compare = require('bluebird').promisify(bcrypt.compare)
 var roles = ['user', 'admin']
 
 var UserSchema = new Schema({
@@ -115,7 +114,7 @@ UserSchema.methods.view = function (full) {
 }
 
 UserSchema.methods.authenticate = function (password) {
-  return compare(password, this.password).then(valid => valid ? this : false)
+  return bcrypt.compare(password, this.password).then(valid => valid ? this : false)
 }
 
 UserSchema.statics.default = function (path) {
